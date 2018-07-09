@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Functions>
+  <Function Name="Skype User">
+    <Setting Key="Insert_SkypeUserWhenAddContact" SpName="Insert_SkypeUserWhenAddContact" DbName="NexBot"></Setting>
+  </Function>
+</Functions>

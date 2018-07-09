@@ -1,0 +1,90 @@
+﻿namespace NexBot
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Fanex.Data;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Bot.Connector;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using NexBot.Core.Services;
+    using NexBot.Core.Services.Interfaces;
+    using NexBot.Dialogs;
+    using NexBot.Dialogs.Impl;
+    using NexBot.Models;
+    using NexBot.Utilitites;
+
+    public class Startup
+    {
+        public Startup(IHostingEnvironment env)
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
+            Configuration = builder.Build();
+        }
+
+        public IConfiguration Configuration { get; }
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            Dictionary<string, string> connections = Configuration
+                .GetSection("ConnectionStrings")
+                .GetChildren()
+                .ToDictionary(connection => connection.Key, connection => connection.Value, StringComparer.OrdinalIgnoreCase);
+
+            DbSettingProviderManager
+               .StartNewSession()
+               .UseConnectionStrings(connections)
+               .UseDefaultDbSettingProvider("~/App_Data")
+               .Run();
+
+            services.AddSingleton(_ => Configuration);
+            services.AddDbContext<BotDbContext>(options =>
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("NexBot")));
+
+            services.AddScoped<IBaseService, BaseService>();
+            services.AddScoped<IConversation, Conversation>();
+            services.AddScoped<IDialog, Dialog>();
+            services.AddScoped<IRootDialog, RootDialog>();
+
+            var credentialProvider = new StaticCredentialProvider(Configuration.GetSection(MicrosoftAppCredentials.MicrosoftAppIdKey)?.Value,
+                Configuration.GetSection(MicrosoftAppCredentials.MicrosoftAppPasswordKey)?.Value);
+
+            services.AddAuthentication(
+                    // This can be removed after https://github.com/aspnet/IISIntegration/issues/371
+                    options =>
+                    {
+                        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    }
+                )
+                .AddBotAuthentication(credentialProvider);
+
+            services.AddSingleton(typeof(ICredentialProvider), credentialProvider);
+
+            services.AddMvc(options =>
+            {
+                options.Filters.Add(typeof(TrustServiceUrlAttribute));
+            });
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        {
+            app.UseStaticFiles();
+
+            app.UseAuthentication();
+
+            app.UseMvc();
+        }
+    }
+}

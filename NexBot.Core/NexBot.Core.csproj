@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fanex.Data" Version="3.0.0-rc1" />
+    <PackageReference Include="Fanex.Data.Repository" Version="3.0.0-rc1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NexBot.Criteria\NexBot.Criteria.csproj" />
+    <ProjectReference Include="..\NexBot.Resources\NexBot.Resources.csproj" />
+  </ItemGroup>
+
+</Project>
