@@ -4,10 +4,10 @@
 
     public class DeactiveUserCriteria : CriteriaBase
     {
-        public string UserId { get; set; }
+        public string UserConversationId { get; set; }
 
-        public override string GetSettingKey() => "Update_DeactiveUser";
+        public override string GetSettingKey() => "SkypeUser_DeactiveUser";
 
-        public override bool IsValid() => !string.IsNullOrWhiteSpace(UserId);
+        public override bool IsValid() => !string.IsNullOrWhiteSpace(UserConversationId);
     }
 }

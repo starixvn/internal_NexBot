@@ -13,8 +13,4 @@
     <Folder Include="SkypeGroup\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\NexBot.Core\NexBot.Core.csproj" />
-  </ItemGroup>
-
 </Project>

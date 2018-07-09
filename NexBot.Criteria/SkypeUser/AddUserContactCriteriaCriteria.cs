@@ -2,13 +2,13 @@
 {
     using Fanex.Data.Repository;
 
-    public class InsertUserCriteria : CriteriaBase
+    public class AddUserContactCriteriaCriteria : CriteriaBase
     {
         public string SkypeDisplayName { get; set; }
 
         public string ConversationId { get; set; }
 
-        public override string GetSettingKey() => "Insert_SkypeUserWhenAddContact";
+        public override string GetSettingKey() => "SkypeUser_InsertWhenAddContact";
 
         public override bool IsValid() => !string.IsNullOrWhiteSpace(SkypeDisplayName);
     }

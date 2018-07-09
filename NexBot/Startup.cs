@@ -55,6 +55,7 @@
             services.AddScoped<IConversation, Conversation>();
             services.AddScoped<IDialog, Dialog>();
             services.AddScoped<IRootDialog, RootDialog>();
+            services.AddScoped<ISkypeUserService, SkypeUserService>();
 
             var credentialProvider = new StaticCredentialProvider(Configuration.GetSection(MicrosoftAppCredentials.MicrosoftAppIdKey)?.Value,
                 Configuration.GetSection(MicrosoftAppCredentials.MicrosoftAppPasswordKey)?.Value);

@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Connector;
 using Microsoft.Extensions.Configuration;
 using NexBot.Core.Services.Interfaces;
-using NexBot.Criteria.SkypeUser;
 using NexBot.Dialogs;
 using NexBot.Utilitites;
 
@@ -18,36 +18,25 @@ namespace NexBot.Controllers
         private readonly IConversation conversation;
         private readonly IConfiguration configuration;
         private readonly IBaseService baseService;
+        private readonly ISkypeUserService skypeUserService;
 
         public MessagesController(IRootDialog rootDialog,
              IConversation conversation,
              IConfiguration configuration,
-             IBaseService baseService)
+             IBaseService baseService,
+             ISkypeUserService skypeUserService)
         {
             this.rootDialog = rootDialog;
             this.conversation = conversation;
             this.configuration = configuration;
             this.baseService = baseService;
+            this.skypeUserService = skypeUserService;
         }
 
         [Authorize(Roles = "Bot")]
         [HttpPost]
         public async Task<OkResult> Post([FromBody] Activity activity)
         {
-            //var appCredentials = new MicrosoftAppCredentials(this.configuration);
-            //var client = new ConnectorClient(new Uri(activity.ServiceUrl), appCredentials);
-            //var reply = activity.CreateReply();
-            //if (activity.Type == ActivityTypes.Message)
-            //{
-            //    reply.Text = $"echo: {activity.Text}";
-            //}
-            //else
-            //{
-            //    reply.Text = $"activity type: {activity.Type}";
-            //}
-            //await client.Conversations.ReplyToActivityAsync(reply);
-            //return Ok();
-
             if (activity.Type == ActivityTypes.Message)
             {
                 await HandleMessageCommands(activity);
@@ -85,20 +74,6 @@ namespace NexBot.Controllers
             //}
 
             await ReplyMessage(activity, "You said: " + activity.Text);
-
-            var criteria = new InsertUserCriteria
-            {
-                SkypeDisplayName = "Test Display Name",
-                ConversationId = "ConversationId"
-            };
-            try
-            {
-                var result = await baseService.ExecuteNonQueryAsync(criteria);
-            }
-            catch (Exception ex)
-            {
-            }
-            
         }
 
         private async Task<Activity> HandleSystemMessage(Activity activity)
@@ -142,13 +117,18 @@ namespace NexBot.Controllers
         {
             if (activity.MembersAdded != null && activity.MembersAdded.Count > 0)
             {
-                var message = $"Added to group. " + activity.MembersAdded[0].Name + " " + activity.MembersAdded[0].Id;
+                var message = $"Added " + string.Join(", ", activity.MembersAdded.Select(x => x.Name)) + "  to group";
                 await ReplyMessage(activity, message);
+                var result = await skypeUserService.AddMembersToGroup(activity.From.Id, activity.MembersAdded);
+
+                await ReplyMessage(activity, result.IsSuccessful ? "Save db success" : result.Message);
             }
             else if (activity.MembersRemoved != null && activity.MembersRemoved.Count > 0)
             {
                 var message = $"Removed out group." + activity.MembersRemoved[0].Name;
                 await ReplyMessage(activity, message);
+                var result = await skypeUserService.RemoveMembersFromGroup(activity.From.Id, activity.MembersRemoved);
+                await ReplyMessage(activity, result.IsSuccessful ? "Save db success" : result.Message);
             }
 
             return null;
@@ -156,8 +136,10 @@ namespace NexBot.Controllers
 
         private async Task<Activity> HandleContactRelationUpdate(Activity activity)
         {
-            var message = $"Hello {activity.From.Name}, I'm Nexus Chat Bot. If you have any question please contact admin (bb8)." + " " + activity.Conversation.Id;
+            var message = $"Hello {activity.From.Name}, I'm Nexus Chat Bot. If you have any question please contact admin (bb8).";
             await ReplyMessage(activity, message);
+            var result = await skypeUserService.AddContactWithBot(activity);
+            await ReplyMessage(activity, result.IsSuccessful ? "Save db success" : "Save db Failed");
 
             return null;
         }
