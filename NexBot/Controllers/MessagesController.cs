@@ -87,11 +87,17 @@ namespace NexBot.Controllers
 
             //var criteria = new InsertUserCriteria
             //{
-            //    UserId = "Test",
             //    SkypeDisplayName = "Test Display Name",
             //    ConversationId = "ConversationId"
             //};
-            //var result = await baseService.ExecuteNonQueryAsync(criteria);
+            try
+            {
+                var result = await baseService.ExecuteNonQueryAsync(criteria);
+            }
+            catch (Exception ex)
+            {
+            }
+            
         }
 
         private async Task<Activity> HandleSystemMessage(Activity activity)

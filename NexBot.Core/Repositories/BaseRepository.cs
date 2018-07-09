@@ -4,11 +4,10 @@
     using System.Collections;
     using System.Threading.Tasks;
     using Fanex.Data;
-    using Fanex.Data.Repository;
     using NexBot.Core.Models;
+    using Fanex.Data.Repository;
 
     public class BaseRepository : IBaseRepository
-
     {
         public async Task<CommandResult> ExecuteNonQueryAsync(ICriteria criteria)
         {
