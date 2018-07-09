@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Connector;
 using Microsoft.Extensions.Configuration;
 using NexBot.Core.Services.Interfaces;
-using NexBot.Criteria.SkypeUser;
 using NexBot.Dialogs;
 using NexBot.Utilitites;
 
@@ -86,13 +85,13 @@ namespace NexBot.Controllers
 
             await ReplyMessage(activity, "You said: " + activity.Text);
 
-            var criteria = new InsertUserCriteria
-            {
-                UserId = "Test",
-                SkypeDisplayName = "Test Display Name",
-                ConversationId = "ConversationId"
-            };
-            var result = await baseService.ExecuteNonQueryAsync(criteria);
+            //var criteria = new InsertUserCriteria
+            //{
+            //    UserId = "Test",
+            //    SkypeDisplayName = "Test Display Name",
+            //    ConversationId = "ConversationId"
+            //};
+            //var result = await baseService.ExecuteNonQueryAsync(criteria);
         }
 
         private async Task<Activity> HandleSystemMessage(Activity activity)
