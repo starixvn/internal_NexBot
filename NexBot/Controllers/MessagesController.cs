@@ -94,11 +94,21 @@
         {
             if (activity.MembersAdded != null && activity.MembersAdded.Count > 0)
             {
+                if (activity.Conversation.IsGroup == true)
+                {
+                    await InsertConversationGroup(activity);
+                }
+
                 foreach (var member in activity.MembersAdded)
                 {
                     await conversationService.AddNewMemberToGroup(activity.Conversation.Id, member.Id);
                 }
-                await messageService.SendAsync(activity, "Add new member to group");
+                var msg = $"IsGroup: {activity.Conversation.IsGroup.ToString() } " +
+                    $"ConversationId: {activity.Conversation.Id} " +
+                    $"Channel: {activity.ChannelId}" +
+                    $"Server URL: {activity.ServiceUrl}" +
+                    $"From Name: {activity.From.Name}. Ended";
+                await messageService.SendAsync(activity, msg);
             }
             else if (activity.MembersRemoved != null && activity.MembersRemoved.Count > 0)
             {
@@ -111,6 +121,16 @@
             }
 
             return null;
+        }
+
+        private async Task InsertConversationGroup(Activity activity)
+        {
+            var conversation = await conversationService.GetContactByConversationId(activity.Conversation.Id);
+
+            if (conversation == null)
+            {
+                await conversationService.AddContact(activity);
+            }
         }
 
         private async Task<Activity> HandleContactRelationUpdate(Activity activity)
