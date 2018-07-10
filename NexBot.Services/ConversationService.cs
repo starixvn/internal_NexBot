@@ -18,12 +18,18 @@
 
         public async Task AddContact(Activity activity)
         {
-            var conversation = await GetContactByConversationId(activity.Conversation.Id);
-
-            if (conversation == null || string.IsNullOrWhiteSpace(conversation.ConversationId))
+            var criteria = new InsertConversationCriteria
             {
-                await AddNew(activity);
-            }
+                ConversationId = activity.Conversation.Id,
+                ChannelId = activity.ChannelId,
+                ServiceUrl = activity.ServiceUrl,
+                UserName = activity.From.Name,
+                IsGroup = activity.Conversation.IsGroup,
+                IsActive = true,
+                IsAdmin = false
+            };
+
+            await ExecuteNonQueryAsync(criteria);
         }
 
         public async Task<Conversation> GetContactByConversationId(string conversationId)
@@ -67,22 +73,6 @@
             };
 
             await ExecuteNonQueryAsync(criteria);
-        }
-
-        private async Task<CommandResult> AddNew(Activity activity)
-        {
-            var criteria = new InsertConversationCriteria
-            {
-                ConversationId = activity.Conversation.Id,
-                ChannelId = activity.ChannelId,
-                ServiceUrl = activity.ServiceUrl,
-                UserName = activity.From.Name,
-                IsGroup = activity.Conversation.IsGroup,
-                IsActive = true,
-                IsAdmin = false
-            };
-
-            return await ExecuteNonQueryAsync(criteria);
         }
 
         public async Task<CommandResult> RemoveContact(Activity activity)
