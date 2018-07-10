@@ -18,14 +18,12 @@
 
         public async Task AddContact(Activity activity)
         {
-            var conversation = GetContactByConversationId(activity.Conversation.Id);
+            var conversation = await GetContactByConversationId(activity.Conversation.Id);
 
-            if (conversation == null)
+            if (conversation == null || string.IsNullOrWhiteSpace(conversation.ConversationId))
             {
                 await AddNew(activity);
             }
-
-            await AddNew(activity);
         }
 
         public async Task<Conversation> GetContactByConversationId(string conversationId)
