@@ -6,6 +6,7 @@
     using Microsoft.Extensions.Configuration;
     using NexBot.Core.Services;
     using NexBot.Core.Utilities;
+    using NexBot.Criteria;
     using NexBot.Criteria.Message;
     using NexBot.Services.Interfaces;
 
@@ -29,6 +30,12 @@
 
             await connector.Conversations.ReplyToActivityAsync(reply);
             await AddMessageLog(activity);
+
+            await AddSystemLog("FromId: " +  activity.From.Id + " & FromName: " + activity.From.Name 
+                + " & RecipientId: " + activity.Recipient.Id + " & RecipientName: " + activity.Recipient.Name);
+
+            await AddSystemLog("FromId: " + reply.From.Id + " & FromName: " + reply.From.Name
+                + " & RecipientId: " + reply.Recipient.Id + " & RecipientName: " + reply.Recipient.Name);
         }
 
         public async Task SendAdminAsync(string message)
@@ -111,6 +118,16 @@
                 FromConversationId = activity.From.Id,
                 FromName = activity.From.Name,
                 MessageContent = BotHelper.GenerateMessage(activity.Text)
+            };
+
+            await ExecuteNonQueryAsync(criteria);
+        }
+
+        private async Task AddSystemLog(string logContent)
+        {
+            var criteria = new InsertSystemLogCriteria
+            {
+                LogContent = logContent
             };
 
             await ExecuteNonQueryAsync(criteria);

@@ -6,6 +6,7 @@
     <Setting Key="Conversation_GetById" SpName="Conversation_GetById" DbName="NexBot"></Setting>
     <Setting Key="Conversation_GetAdmin" SpName="Conversation_GetAdmin" DbName="NexBot"></Setting>
     <Setting Key="MessageLog_Insert" SpName="MessageLog_Insert" DbName="NexBot"></Setting>
+    <Setting Key="SystemLog_Insert" SpName="SystemLog_Insert" DbName="NexBot"></Setting>
     
     <Setting Key="SkypeGroup_AddNewMemberToGroup" SpName="SkypeGroup_AddNewMemberToGroup" DbName="NexBot"></Setting>
     <Setting Key="SkypeUser_RemoveUserFromGroup" SpName="SkypeUser_RemoveUserFromGroup" DbName="NexBot"></Setting>
