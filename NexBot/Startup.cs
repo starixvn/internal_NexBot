@@ -13,9 +13,9 @@
     using Microsoft.Extensions.DependencyInjection;
     using NexBot.Core.Services;
     using NexBot.Core.Services.Interfaces;
-    using NexBot.Dialogs;
-    using NexBot.Dialogs.Impl;
     using NexBot.Models;
+    using NexBot.Services;
+    using NexBot.Services.Interfaces;
     using NexBot.Utilitites;
 
     public class Startup
@@ -52,9 +52,8 @@
                     Configuration.GetConnectionString("NexBot")));
 
             services.AddScoped<IBaseService, BaseService>();
-            services.AddScoped<IConversation, Conversation>();
-            services.AddScoped<IDialog, Dialog>();
-            services.AddScoped<IRootDialog, RootDialog>();
+            services.AddScoped<IConversationService, ConversationService>();
+            services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<ISkypeUserService, SkypeUserService>();
 
             var credentialProvider = new StaticCredentialProvider(Configuration.GetSection(MicrosoftAppCredentials.MicrosoftAppIdKey)?.Value,

@@ -2,6 +2,8 @@
 <Functions>
   <Function Name="Skype User">
     <Setting Key="SkypeUser_InsertWhenAddContact" SpName="SkypeUser_InsertWhenAddContact" DbName="NexBot"></Setting>
+    <Setting Key="Conversation_Insert" SpName="Conversation_Insert" DbName="NexBot"></Setting>
+    <Setting Key="Conversation_GetById" SpName="Conversation_GetById" DbName="NexBot"></Setting>
     <Setting Key="SkypeGroup_AddNewMemberToGroup" SpName="SkypeGroup_AddNewMemberToGroup" DbName="NexBot"></Setting>
     <Setting Key="SkypeUser_RemoveUserFromGroup" SpName="SkypeUser_RemoveUserFromGroup" DbName="NexBot"></Setting>
   </Function>

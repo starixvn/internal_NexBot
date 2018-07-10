@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Connector;
 using Microsoft.Extensions.Configuration;
 using NexBot.Core.Services.Interfaces;
-using NexBot.Dialogs;
+using NexBot.Services.Interfaces;
 using NexBot.Utilitites;
 
 namespace NexBot.Controllers
@@ -14,23 +14,20 @@ namespace NexBot.Controllers
     [Route("api/[controller]")]
     public class MessagesController : Controller
     {
-        private readonly IRootDialog rootDialog;
-        private readonly IConversation conversation;
+        private readonly IMessageService messageService;
         private readonly IConfiguration configuration;
         private readonly IBaseService baseService;
-        private readonly ISkypeUserService skypeUserService;
+        private readonly IConversationService conversationService;
 
-        public MessagesController(IRootDialog rootDialog,
-             IConversation conversation,
+        public MessagesController(IMessageService messageService,
              IConfiguration configuration,
              IBaseService baseService,
-             ISkypeUserService skypeUserService)
+             IConversationService conversationService)
         {
-            this.rootDialog = rootDialog;
-            this.conversation = conversation;
+            this.messageService = messageService;
             this.configuration = configuration;
             this.baseService = baseService;
-            this.skypeUserService = skypeUserService;
+            this.conversationService = conversationService;
         }
 
         [Authorize(Roles = "Bot")]
@@ -52,28 +49,16 @@ namespace NexBot.Controllers
         [Authorize(Roles = "Bot")]
         [HttpPost]
         [Route("Forward")]
-        public async Task<OkObjectResult> Forward(string message, string conversationId)
+        public async Task Forward(string conversationId, string message)
         {
-            var result = await conversation.SendAsync(conversationId, message);
-
-            return Ok(result);
+            await messageService.SendAsync(conversationId, message, "https://smba.trafficmanager.net/apis");
         }
 
         private async Task HandleMessageCommands(Activity activity)
         {
-            //var message = activity.Text.ToLowerInvariant().Trim();
-            //message = BotHelper.GenerateMessage(message);
-
-            //if (message.StartsWith("log"))
-            //{
-            //await rootDialog.HandleMessageAsync(activity, message);
-            //}
-            //else
-            //{
-            //    await rootDialog.HandleMessageAsync(activity, message);
-            //}
-
-            await ReplyMessage(activity, "You said: " + activity.Text);
+            await ReplyMessage(activity, "You said: " + activity.Text + ". Send to: " + activity.ServiceUrl + " - ChanelId: " + activity.ChannelId
+                + " ConversationId: " + activity.Conversation.Id
+                );
         }
 
         private async Task<Activity> HandleSystemMessage(Activity activity)
@@ -136,10 +121,12 @@ namespace NexBot.Controllers
 
         private async Task<Activity> HandleContactRelationUpdate(Activity activity)
         {
-            var message = $"Hello {activity.From.Name}, I'm Nexus Chat Bot. If you have any question please contact admin (bb8).";
+
             await ReplyMessage(activity, message);
             var result = await skypeUserService.AddContactWithBot(activity);
             await ReplyMessage(activity, result.IsSuccessful ? "Save db success" : "Save db Failed");
+
+            await conversationService.AddContact(activity);
 
             return null;
         }
@@ -153,5 +140,16 @@ namespace NexBot.Controllers
 
             await client.Conversations.ReplyToActivityAsync(reply);
         }
+
+        //private async Task SendMessage(string conversationId, string message)
+        //{
+        //    var appCredentials = new MicrosoftAppCredentials(this.configuration);
+        //    var client = new ConnectorClient(new Uri(Request.Headers["host"]), appCredentials);
+        //    var reply = activity.CreateReply(message);
+
+        //    conversation.SendAsync(conversationId, message, Request.Headers["host"]);
+
+        //    await client.Conversations.ReplyToActivityAsync(reply);
+        //}
     }
 }

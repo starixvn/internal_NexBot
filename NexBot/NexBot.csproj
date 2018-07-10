@@ -18,7 +18,7 @@
   <ItemGroup>
     <PackageReference Include="Fanex.Data" Version="3.0.0-rc1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Bot.Connector" Version="3.13.0.3" />
+    <PackageReference Include="Microsoft.Bot.Connector" Version="3.15.3" />
     <PackageReference Include="Microsoft.Bot.Connector.AspNetCore" Version="2.0.0.3" />
   </ItemGroup>
 
@@ -29,6 +29,11 @@
   <ItemGroup>
     <ProjectReference Include="..\NexBot.Core\NexBot.Core.csproj" />
     <ProjectReference Include="..\NexBot.Criteria\NexBot.Criteria.csproj" />
+    <ProjectReference Include="..\NexBot.Services\NexBot.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Dialogs\" />
   </ItemGroup>
 
 </Project>
