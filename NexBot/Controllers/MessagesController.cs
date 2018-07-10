@@ -1,6 +1,5 @@
 ﻿namespace NexBot.Controllers
 {
-    using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
@@ -99,8 +98,7 @@
                 {
                     await conversationService.AddNewMemberToGroup(activity.From.Id, member.Id);
                 }
-
-                await ReplyMessage(activity, "Added new member to group");
+                await messageService.SendAsync(activity, "Add new member to group");
             }
             else if (activity.MembersRemoved != null && activity.MembersRemoved.Count > 0)
             {
@@ -108,8 +106,7 @@
                 {
                     await conversationService.RemoveMemberFromGroup(activity.From.Id, member.Id);
                 }
-
-                await ReplyMessage(activity, "Removed member from group");
+                await messageService.SendAsync(activity, "Rremove member from group");
             }
 
             return null;
@@ -121,12 +118,12 @@
             {
                 await conversationService.AddContact(activity);
                 var message = $"Hello {activity.From.Name}. I am NexBot. If you have any question please contact admin.";
-                await ReplyMessage(activity, message);
+                await messageService.SendAsync(activity, message);
             }
 
             if (activity.Action.Equals("remove"))
             {
-                await conversationService.AddContact(activity);
+                await conversationService.RemoveContact(activity);
             }
 
             return null;

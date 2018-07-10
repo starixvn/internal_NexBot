@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexBot", "NexBot\NexBot.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexBot.Resources", "NexBot.Resources\NexBot.Resources.csproj", "{935324A8-3A3A-4804-8A7F-9DF660B93C3F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexBot.Core", "NexBot.Core\NexBot.Core.csproj", "{9EADA55E-FF05-4B12-8C57-E2399B0EC844}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexBot.Core", "NexBot.Core\NexBot.Core.csproj", "{B11E7537-C290-4725-B481-71AF2BD78FCD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexBot.Criteria", "NexBot.Criteria\NexBot.Criteria.csproj", "{A37303BF-2BFB-47D7-9096-A20AE1673C82}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexBot.Criteria", "NexBot.Criteria\NexBot.Criteria.csproj", "{C27BECC6-19AE-4D0C-9A8D-D95F192D0BEA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexBot.Client", "NexBot.Client\NexBot.Client.csproj", "{D3B2F4B9-1E6B-4482-B0B4-71B87BCFA3FA}"
 EndProject

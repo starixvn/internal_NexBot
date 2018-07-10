@@ -1,6 +1,7 @@
 ﻿namespace NexBot.Services
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Bot.Connector;
     using NexBot.Core.Models;
@@ -8,7 +9,6 @@
     using NexBot.Criteria.Conversation;
     using NexBot.Models;
     using NexBot.Services.Interfaces;
-    using System.Linq;
 
     public class ConversationService : BaseService, IConversationService
     {
@@ -49,7 +49,7 @@
             return conversations.ToList();
         }
 
-         public async Task AddNewMemberToGroup(string groupConversationId, string userConversationId)
+        public async Task AddNewMemberToGroup(string groupConversationId, string userConversationId)
         {
             var criteria = new InsertGroupUserConversationCriteria
             {
@@ -84,6 +84,15 @@
                 IsAdmin = false
             };
 
+            return await ExecuteNonQueryAsync(criteria);
+        }
+
+        public async Task<CommandResult> RemoveContact(Activity activity)
+        {
+            var criteria = new RemoveConversationByIdCriteria
+            {
+                ConversationId = activity.From.Id
+            };
             return await ExecuteNonQueryAsync(criteria);
         }
     }
