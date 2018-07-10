@@ -4,16 +4,21 @@
     using System.Threading.Tasks;
     using Microsoft.Bot.Connector;
     using Microsoft.Extensions.Configuration;
-    using NexBot.Models;
+    using NexBot.Core.Services;
+    using NexBot.Criteria.Message;
+    using NexBot.Services.Interfaces;
 
-    public class MessageService : IMessageService
+    public class MessageService : BaseService, IMessageService
     {
-        private readonly IConfiguration _configuration;
+        private readonly IConfiguration configuration;
+        private readonly IConversationService conversationService;
 
         public MessageService(
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IConversationService conversationService)
         {
-            _configuration = configuration;
+            this.configuration = configuration;
+            this.conversationService = conversationService;
         }
 
         public async Task SendAsync(IMessageActivity activity, string message)
@@ -24,25 +29,44 @@
             await connector.Conversations.ReplyToActivityAsync(reply);
         }
 
-        //public async Task SendAdminAsync(string message)
-        //{
-        //    //var adminMessageInfos = _dbContext.MessageInfo.Where(messageInfo => messageInfo.IsAdmin);
+        public async Task SendAdminAsync(string message)
+        {
+            var conversations = await conversationService.GetAdminConversation();
+            foreach (var conversation in conversations)
+            {
+                var connector = CreateConnectorClient(new Uri(conversation.ServiceUrl));
+                var adminMessage = CreateMessageActivity(conversation.ConversationId);
+                adminMessage.Text = message;
 
-        //    foreach (var adminMessageInfo in adminMessageInfos)
-        //    {
-        //        var connector = CreateConnectorClient(new Uri(adminMessageInfo.ServiceUrl));
-        //        var adminMessage = CreateMessageActivity(adminMessageInfo);
-        //        adminMessage.Text = message;
+                await connector.Conversations.SendToConversationAsync((Activity)adminMessage);
+            }
+        }
 
-        //        await connector.Conversations.SendToConversationAsync((Activity)adminMessage);
-        //    }
-        //}
+        public async Task SendAsync(string conversationId, string messageText)
+        {
+            var conversation = await conversationService.GetContactByConversationId(conversationId);
+            var connector = CreateConnectorClient(new Uri(conversation.ServiceUrl));
+            var message = CreateMessageActivity(conversationId);
+
+            try
+            {
+                if (!string.IsNullOrEmpty(messageText))
+                {
+                    message.Text = messageText;
+                    await connector.Conversations.SendToConversationAsync((Activity)message);
+                    await AddMessageLog(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                await SendAdminAsync(
+                    $"Error happen in client with ConversationId: {conversationId} & Message: {messageText}\n\n" +
+                    $"Exception: {ex.InnerException.Message}");
+            }
+        }
 
         public async Task SendAsync(string conversationId, string messageText, string serviceUrl)
         {
-            //var messageInfo = await _dbContext
-            //    .MessageInfo
-            //    .FirstOrDefaultAsync(info => info.ConversationId == conversationId);
             var connector = CreateConnectorClient(new Uri(serviceUrl));
             var message = CreateMessageActivity(conversationId);
 
@@ -52,21 +76,22 @@
                 {
                     message.Text = messageText;
                     await connector.Conversations.SendToConversationAsync((Activity)message);
+                    await AddMessageLog(message);
                 }
             }
             catch (Exception ex)
             {
-                //await SendAdminAsync(
-                //    $"Error happen in client {messageInfo?.ConversationId}\n\n" +
-                //    $"Exception: {ex.InnerException.Message}");
+                await SendAdminAsync(
+                    $"Error happen in client with ConversationId: {conversationId} & Message: {messageText}\n\n" +
+                    $"Exception: {ex.InnerException.Message}");
             }
         }
 
         public ConnectorClient CreateConnectorClient(Uri serviceUrl)
            => new ConnectorClient(
                 serviceUrl,
-                _configuration.GetSection("MicrosoftAppId").Value,
-                _configuration.GetSection("MicrosoftAppPassword").Value);
+                configuration.GetSection("MicrosoftAppId").Value,
+                configuration.GetSection("MicrosoftAppPassword").Value);
 
         //private static IMessageActivity CreateMessageActivity(MessageInfo messageInfo)
         //{
@@ -92,5 +117,17 @@
             return message;
         }
 
+        private async Task AddMessageLog(IMessageActivity activity)
+        {
+            var criteria = new InsertMessageLogCriteria
+            {
+                ConversationId = activity.Conversation.Id,
+                FromConversationId = activity.From.Id,
+                FromName = activity.From.Name,
+                MessageContent = activity.Text
+            };
+
+            await ExecuteNonQueryAsync(criteria);
+        }
     }
 }

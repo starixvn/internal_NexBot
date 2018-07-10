@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <Folder Include="Dialogs\" />
+    <Folder Include="Models\" />
   </ItemGroup>
 
 </Project>

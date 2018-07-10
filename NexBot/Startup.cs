@@ -47,9 +47,6 @@
                .Run();
 
             services.AddSingleton(_ => Configuration);
-            services.AddDbContext<BotDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("NexBot")));
 
             services.AddScoped<IBaseService, BaseService>();
             services.AddScoped<IConversationService, ConversationService>();

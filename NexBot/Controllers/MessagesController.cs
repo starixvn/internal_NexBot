@@ -1,32 +1,28 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Bot.Connector;
-using Microsoft.Extensions.Configuration;
-using NexBot.Core.Services.Interfaces;
-using NexBot.Services.Interfaces;
-using NexBot.Utilitites;
-
-namespace NexBot.Controllers
+﻿namespace NexBot.Controllers
 {
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Bot.Connector;
+    using Microsoft.Extensions.Configuration;
+    using NexBot.Services.Interfaces;
+    using NexBot.Utilitites;
+
     [Route("api/[controller]")]
     public class MessagesController : Controller
     {
         private readonly IMessageService messageService;
         private readonly IConfiguration configuration;
-        private readonly IBaseService baseService;
         private readonly IConversationService conversationService;
 
         public MessagesController(IMessageService messageService,
              IConfiguration configuration,
-             IBaseService baseService,
              IConversationService conversationService)
         {
             this.messageService = messageService;
             this.configuration = configuration;
-            this.baseService = baseService;
             this.conversationService = conversationService;
         }
 
@@ -58,6 +54,8 @@ namespace NexBot.Controllers
         {
             await ReplyMessage(activity, "You said: " + activity.Text + ". Send to: " + activity.ServiceUrl + " - ChanelId: " + activity.ChannelId
                 + " ConversationId: " + activity.Conversation.Id
+                + " FromId: " + activity.From.Id
+                + " FromName: " + activity.From.Name
                 );
         }
 
@@ -104,16 +102,16 @@ namespace NexBot.Controllers
             {
                 var message = $"Added " + string.Join(", ", activity.MembersAdded.Select(x => x.Name)) + "  to group";
                 await ReplyMessage(activity, message);
-                var result = await skypeUserService.AddMembersToGroup(activity.From.Id, activity.MembersAdded);
+                //var result = await skypeUserService.AddMembersToGroup(activity.From.Id, activity.MembersAdded);
 
-                await ReplyMessage(activity, result.IsSuccessful ? "Save db success" : result.Message);
+                //await ReplyMessage(activity, result.IsSuccessful ? "Save db success" : result.Message);
             }
             else if (activity.MembersRemoved != null && activity.MembersRemoved.Count > 0)
             {
                 var message = $"Removed out group." + activity.MembersRemoved[0].Name;
                 await ReplyMessage(activity, message);
-                var result = await skypeUserService.RemoveMembersFromGroup(activity.From.Id, activity.MembersRemoved);
-                await ReplyMessage(activity, result.IsSuccessful ? "Save db success" : result.Message);
+                //var result = await skypeUserService.RemoveMembersFromGroup(activity.From.Id, activity.MembersRemoved);
+                //await ReplyMessage(activity, result.IsSuccessful ? "Save db success" : result.Message);
             }
 
             return null;
@@ -121,10 +119,10 @@ namespace NexBot.Controllers
 
         private async Task<Activity> HandleContactRelationUpdate(Activity activity)
         {
-
+            var message = $"Hello {activity.From.Name}, I'm Nexus Chat Bot. If you have any question please contact admin (bb8).";
             await ReplyMessage(activity, message);
-            var result = await skypeUserService.AddContactWithBot(activity);
-            await ReplyMessage(activity, result.IsSuccessful ? "Save db success" : "Save db Failed");
+            //var result = await skypeUserService.AddContactWithBot(activity);
+            //await ReplyMessage(activity, result.IsSuccessful ? "Save db success" : "Save db Failed");
 
             await conversationService.AddContact(activity);
 
