@@ -102,11 +102,12 @@
             }
             else if (activity.MembersRemoved != null && activity.MembersRemoved.Count > 0)
             {
+                await messageService.SendAsync(activity, activity.MembersRemoved.ToString());
+
                 foreach (var member in activity.MembersRemoved)
                 {
                     await conversationService.RemoveMemberFromGroup(activity.Conversation.Id, member.Id);
                 }
-                await messageService.SendAsync(activity, "Rremove member from group");
             }
 
             return null;

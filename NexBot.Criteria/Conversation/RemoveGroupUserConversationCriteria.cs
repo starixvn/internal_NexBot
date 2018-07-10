@@ -8,7 +8,7 @@
 
         public string UserConversationId { get; set; }
 
-        public override string GetSettingKey() => "GroupUserConversation_Insert";
+        public override string GetSettingKey() => "GroupUserConversation_Remove";
 
         public override bool IsValid() => !string.IsNullOrWhiteSpace(GroupConversationId)
                                         && !string.IsNullOrWhiteSpace(UserConversationId);
