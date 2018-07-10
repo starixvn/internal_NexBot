@@ -96,7 +96,7 @@
             {
                 foreach (var member in activity.MembersAdded)
                 {
-                    await conversationService.AddNewMemberToGroup(activity.From.Id, member.Id);
+                    await conversationService.AddNewMemberToGroup(activity.Conversation.Id, member.Id);
                 }
                 await messageService.SendAsync(activity, "Add new member to group");
             }
@@ -104,7 +104,7 @@
             {
                 foreach (var member in activity.MembersRemoved)
                 {
-                    await conversationService.RemoveMemberFromGroup(activity.From.Id, member.Id);
+                    await conversationService.RemoveMemberFromGroup(activity.Conversation.Id, member.Id);
                 }
                 await messageService.SendAsync(activity, "Rremove member from group");
             }

@@ -91,7 +91,7 @@
         {
             var criteria = new RemoveConversationByIdCriteria
             {
-                ConversationId = activity.From.Id
+                ConversationId = activity.Conversation.Id
             };
             return await ExecuteNonQueryAsync(criteria);
         }
