@@ -120,8 +120,7 @@
                 var message = $"Hello {activity.From.Name}. I am NexBot. If you have any question please contact admin.";
                 await messageService.SendAsync(activity, message);
             }
-
-            if (activity.Action.Equals("remove"))
+            else
             {
                 await conversationService.RemoveContact(activity);
             }
