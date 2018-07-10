@@ -6,6 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Dialogs\**" />
+    <Content Remove="Dialogs\**" />
+    <EmbeddedResource Remove="Dialogs\**" />
+    <None Remove="Dialogs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="App_Data\SPName.xml" />
   </ItemGroup>
 
@@ -30,11 +37,6 @@
     <ProjectReference Include="..\NexBot.Core\NexBot.Core.csproj" />
     <ProjectReference Include="..\NexBot.Criteria\NexBot.Criteria.csproj" />
     <ProjectReference Include="..\NexBot.Services\NexBot.Services.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Dialogs\" />
-    <Folder Include="Models\" />
   </ItemGroup>
 
 </Project>

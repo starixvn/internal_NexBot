@@ -1,4 +1,4 @@
-﻿namespace NexBot
+﻿namespace NexBot.Core
 {
     public static class Constants
     {

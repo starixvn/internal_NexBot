@@ -15,7 +15,6 @@
         public override string GetSettingKey() => "MessageLog_Insert";
 
         public override bool IsValid() => !string.IsNullOrWhiteSpace(ConversationId)
-            && !string.IsNullOrWhiteSpace(FromConversationId)
             && !string.IsNullOrWhiteSpace(MessageContent);
     }
 }

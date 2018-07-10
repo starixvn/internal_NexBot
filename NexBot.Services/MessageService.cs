@@ -5,6 +5,7 @@
     using Microsoft.Bot.Connector;
     using Microsoft.Extensions.Configuration;
     using NexBot.Core.Services;
+    using NexBot.Core.Utilities;
     using NexBot.Criteria.Message;
     using NexBot.Services.Interfaces;
 
@@ -27,6 +28,7 @@
             var reply = (activity as Activity).CreateReply(message);
 
             await connector.Conversations.ReplyToActivityAsync(reply);
+            await AddMessageLog(activity);
         }
 
         public async Task SendAdminAsync(string message)
@@ -83,7 +85,7 @@
             {
                 await SendAdminAsync(
                     $"Error happen in client with ConversationId: {conversationId} & Message: {messageText}\n\n" +
-                    $"Exception: {ex.InnerException.Message}");
+                    $"Exception: {ex.Message}");
             }
         }
 
@@ -124,7 +126,7 @@
                 ConversationId = activity.Conversation.Id,
                 FromConversationId = activity.From.Id,
                 FromName = activity.From.Name,
-                MessageContent = activity.Text
+                MessageContent = BotHelper.GenerateMessage(activity.Text)
             };
 
             await ExecuteNonQueryAsync(criteria);

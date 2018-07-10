@@ -1,4 +1,4 @@
-﻿namespace Fanex.Bot.Core.Utilities
+﻿namespace NexBot.Core.Utilities
 {
     using System;
     using System.Collections.Generic;
