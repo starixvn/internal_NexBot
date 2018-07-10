@@ -26,7 +26,9 @@
                 UserName = activity.From.Name,
                 IsGroup = activity.Conversation.IsGroup,
                 IsActive = true,
-                IsAdmin = false
+                IsAdmin = false,
+                ConversationBotId = activity.Recipient.Id,
+                ConversationBotName = activity.Recipient.Name
             };
 
             await ExecuteNonQueryAsync(criteria);

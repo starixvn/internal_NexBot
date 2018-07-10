@@ -8,6 +8,7 @@
     using NexBot.Core.Utilities;
     using NexBot.Criteria;
     using NexBot.Criteria.Message;
+    using NexBot.Models;
     using NexBot.Services.Interfaces;
 
     public class MessageService : BaseService, IMessageService
@@ -23,7 +24,7 @@
             this.conversationService = conversationService;
         }
 
-        public async Task SendAsync(IMessageActivity activity, string message)
+        public async Task SendReplyAsync(IMessageActivity activity, string message)
         {
             var connector = CreateConnectorClient(new Uri(activity.ServiceUrl));
             var reply = (activity as Activity).CreateReply(message);
@@ -44,17 +45,18 @@
             foreach (var conversation in conversations)
             {
                 var connector = CreateConnectorClient(new Uri(conversation.ServiceUrl));
-                var adminMessage = CreateMessageActivity(conversation.ConversationId);
+                var adminMessage = CreateMessageActivity(conversation);
                 adminMessage.Text = message;
 
                 await connector.Conversations.SendToConversationAsync((Activity)adminMessage);
             }
         }
+
         public async Task SendAsync(string conversationId, string messageText)
         {
             var conversation = await conversationService.GetContactByConversationId(conversationId);
             var connector = CreateConnectorClient(new Uri(conversation.ServiceUrl));
-            var message = CreateMessageActivity(conversationId);
+            var message = CreateMessageActivity(conversation);
 
             try
             {
@@ -72,27 +74,6 @@
                     $"Exception: {ex.InnerException.Message}");
             }
         }
-        public async Task SendAsync(string conversationId, string messageText, string serviceUrl)
-        {
-            var connector = CreateConnectorClient(new Uri(serviceUrl));
-            var message = CreateMessageActivity(conversationId);
-
-            try
-            {
-                if (!string.IsNullOrEmpty(messageText))
-                {
-                    message.Text = messageText;
-                    await connector.Conversations.SendToConversationAsync((Activity)message);
-                    await AddMessageLog(message);
-                }
-            }
-            catch (Exception ex)
-            {
-                await SendAdminAsync(
-                    $"Error happen in client with ConversationId: {conversationId} & Message: {messageText}\n\n" +
-                    $"Exception: {ex.Message}");
-            }
-        }
 
         public ConnectorClient CreateConnectorClient(Uri serviceUrl)
            => new ConnectorClient(
@@ -100,13 +81,21 @@
                 configuration.GetSection("MicrosoftAppId").Value,
                 configuration.GetSection("MicrosoftAppPassword").Value);
 
-        private static IMessageActivity CreateMessageActivity(string conversationId)
+        private static IMessageActivity CreateMessageActivity(Conversation conversation)
         {
             var message = Activity.CreateMessageActivity();
-            //message.ChannelId = messageInfo.ChannelId;
-            message.From = new ChannelAccount();
-            message.Recipient = new ChannelAccount();
-            message.Conversation = new ConversationAccount(id: conversationId);
+            message.ChannelId = conversation.ChannelId;
+            message.From = new ChannelAccount
+            {
+                Id = conversation.ConversationBotId,
+                Name = conversation.ConversationBotName
+            };
+            message.Recipient = new ChannelAccount
+            {
+                Id = conversation.ConversationId,
+                Name = conversation.UserName
+            };
+            message.Conversation = new ConversationAccount(id: conversation.ConversationId);
 
             return message;
         }

@@ -18,6 +18,10 @@
 
         public bool IsAdmin { get; set; }
 
+        public string ConversationBotId { get; set; }
+
+        public string ConversationBotName { get; set; }
+
         public override string GetSettingKey() => "Conversation_Insert";
 
         public override bool IsValid() => !string.IsNullOrWhiteSpace(ConversationId)

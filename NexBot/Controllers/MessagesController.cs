@@ -41,7 +41,7 @@
         [Route("Forward")]
         public async Task Forward(string conversationId, string message)
         {
-            await messageService.SendAsync(conversationId, message, "https://smba.trafficmanager.net/apis");
+            await messageService.SendAsync(conversationId, message);
         }
 
         private async Task HandleMessageCommands(Activity activity)
@@ -50,7 +50,7 @@
                 + " ConversationId: " + activity.Conversation.Id
                 + " FromId: " + activity.From.Id
                 + " FromName: " + activity.From.Name;
-            await messageService.SendAsync(activity, message);
+            await messageService.SendReplyAsync(activity, message);
         }
 
         private async Task<Activity> HandleSystemMessage(Activity activity)
@@ -80,7 +80,7 @@
                     break;
 
                 case ActivityTypes.Ping:
-                    await messageService.SendAsync(activity, "Pong");
+                    await messageService.SendReplyAsync(activity, "Pong");
                     break;
 
                 default:
@@ -108,7 +108,7 @@
                     $"Channel: {activity.ChannelId}" +
                     $"Server URL: {activity.ServiceUrl}" +
                     $"From Name: {activity.From.Name}. Ended";
-                await messageService.SendAsync(activity, msg);
+                await messageService.SendReplyAsync(activity, msg);
             }
             else if (activity.MembersRemoved != null && activity.MembersRemoved.Count > 0)
             {
@@ -117,7 +117,7 @@
                     await conversationService.RemoveMemberFromGroup(activity.Conversation.Id, member.Id);
                 }
 
-                await messageService.SendAsync(activity, $"Removed {activity.MembersRemoved[0].Id} from group. {activity.Conversation.Id}");
+                await messageService.SendReplyAsync(activity, $"Removed {activity.MembersRemoved[0].Id} from group. {activity.Conversation.Id}");
             }
 
             return null;
@@ -138,8 +138,8 @@
             if (activity.Action.Equals("add"))
             {
                 await conversationService.AddContact(activity);
-                var message = $"Hello {activity.From.Name}. I am NexBot. If you have any question please contact admin.";
-                await messageService.SendAsync(activity, message);
+                var message = $"Hello {activity.From.Name}. I am {activity.Recipient.Name}. If you have any question please contact admin.";
+                await messageService.SendReplyAsync(activity, message);
             }
             else
             {
