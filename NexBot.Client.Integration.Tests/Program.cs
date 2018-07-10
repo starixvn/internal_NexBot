@@ -1,10 +1,8 @@
-﻿using System;
-
-namespace NexBot.Client.Integration.Tests
+﻿namespace NexBot.Client.Integration.Tests
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var botConnector = new BotConnector();
             var result = botConnector.Send(

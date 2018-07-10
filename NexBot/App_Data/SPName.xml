@@ -9,5 +9,7 @@
     
     <Setting Key="SkypeGroup_AddNewMemberToGroup" SpName="SkypeGroup_AddNewMemberToGroup" DbName="NexBot"></Setting>
     <Setting Key="SkypeUser_RemoveUserFromGroup" SpName="SkypeUser_RemoveUserFromGroup" DbName="NexBot"></Setting>
+    <Setting Key="Conversation_DeactiveById" SpName="Conversation_DeactiveById" DbName="NexBot"></Setting>
+    <Setting Key="GroupUserConversation_Insert" SpName="GroupUserConversation_Insert" DbName="NexBot"></Setting>
   </Function>
 </Functions>

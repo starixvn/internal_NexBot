@@ -43,7 +43,6 @@
                 await connector.Conversations.SendToConversationAsync((Activity)adminMessage);
             }
         }
-
         public async Task SendAsync(string conversationId, string messageText)
         {
             var conversation = await conversationService.GetContactByConversationId(conversationId);
@@ -66,7 +65,6 @@
                     $"Exception: {ex.InnerException.Message}");
             }
         }
-
         public async Task SendAsync(string conversationId, string messageText, string serviceUrl)
         {
             var connector = CreateConnectorClient(new Uri(serviceUrl));
@@ -95,19 +93,6 @@
                 configuration.GetSection("MicrosoftAppId").Value,
                 configuration.GetSection("MicrosoftAppPassword").Value);
 
-        //private static IMessageActivity CreateMessageActivity(MessageInfo messageInfo)
-        //{
-        //    var userAccount = new ChannelAccount(messageInfo.ToId, messageInfo.ToName);
-        //    var botAccount = new ChannelAccount(messageInfo.FromId, messageInfo.FromName);
-        //    var message = Activity.CreateMessageActivity();
-        //    message.ChannelId = messageInfo.ChannelId;
-        //    message.From = botAccount;
-        //    message.Recipient = userAccount;
-        //    message.Conversation = new ConversationAccount(id: messageInfo.ConversationId);
-
-        //    return message;
-        //}
-
         private static IMessageActivity CreateMessageActivity(string conversationId)
         {
             var message = Activity.CreateMessageActivity();
@@ -118,7 +103,6 @@
 
             return message;
         }
-
         private async Task AddMessageLog(IMessageActivity activity)
         {
             var criteria = new InsertMessageLogCriteria

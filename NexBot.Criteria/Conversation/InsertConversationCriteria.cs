@@ -10,7 +10,7 @@
 
         public string ServiceUrl { get; set; }
 
-        public bool IsGroup { get; set; }
+        public bool? IsGroup { get; set; }
 
         public string UserName { get; set; }
 

@@ -95,18 +95,21 @@
         {
             if (activity.MembersAdded != null && activity.MembersAdded.Count > 0)
             {
-                var message = $"Added " + string.Join(", ", activity.MembersAdded.Select(x => x.Name)) + "  to group";
-                await messageService.SendAsync(activity, message);
-                //var result = await skypeUserService.AddMembersToGroup(activity.From.Id, activity.MembersAdded);
+                foreach (var member in activity.MembersAdded)
+                {
+                    await conversationService.AddNewMemberToGroup(activity.From.Id, member.Id);
+                }
 
-                //await ReplyMessage(activity, result.IsSuccessful ? "Save db success" : result.Message);
+                await ReplyMessage(activity, "Added new member to group");
             }
             else if (activity.MembersRemoved != null && activity.MembersRemoved.Count > 0)
             {
-                var message = $"Removed out group." + activity.MembersRemoved[0].Name;
-                await messageService.SendAsync(activity, message);
-                //var result = await skypeUserService.RemoveMembersFromGroup(activity.From.Id, activity.MembersRemoved);
-                //await ReplyMessage(activity, result.IsSuccessful ? "Save db success" : result.Message);
+                foreach (var member in activity.MembersRemoved)
+                {
+                    await conversationService.RemoveMemberFromGroup(activity.From.Id, member.Id);
+                }
+
+                await ReplyMessage(activity, "Removed member from group");
             }
 
             return null;
@@ -114,10 +117,17 @@
 
         private async Task<Activity> HandleContactRelationUpdate(Activity activity)
         {
-            var message = $"Hello {activity.From.Name}, I'm Nexus Chat Bot. If you have any question please contact admin (bb8).";
-            await messageService.SendAsync(activity, message);
+            if (activity.Action.Equals("add"))
+            {
+                await conversationService.AddContact(activity);
+                var message = $"Hello {activity.From.Name}. I am NexBot. If you have any question please contact admin.";
+                await ReplyMessage(activity, message);
+            }
 
-            await conversationService.AddContact(activity);
+            if (activity.Action.Equals("remove"))
+            {
+                await conversationService.AddContact(activity);
+            }
 
             return null;
         }

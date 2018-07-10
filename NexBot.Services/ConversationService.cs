@@ -49,6 +49,28 @@
             return conversations.ToList();
         }
 
+         public async Task AddNewMemberToGroup(string groupConversationId, string userConversationId)
+        {
+            var criteria = new InsertGroupUserConversationCriteria
+            {
+                GroupConversationId = groupConversationId,
+                UserConversationId = userConversationId
+            };
+
+            await ExecuteNonQueryAsync(criteria);
+        }
+
+        public async Task RemoveMemberFromGroup(string groupConversationId, string userConversationId)
+        {
+            var criteria = new RemoveGroupUserConversationCriteria
+            {
+                GroupConversationId = groupConversationId,
+                UserConversationId = userConversationId
+            };
+
+            await ExecuteNonQueryAsync(criteria);
+        }
+
         private async Task<CommandResult> AddNew(Activity activity)
         {
             var criteria = new InsertConversationCriteria
@@ -57,7 +79,7 @@
                 ChannelId = activity.ChannelId,
                 ServiceUrl = activity.ServiceUrl,
                 UserName = activity.From.Name,
-                IsGroup = false,
+                IsGroup = activity.Conversation.IsGroup,
                 IsActive = true,
                 IsAdmin = false
             };
