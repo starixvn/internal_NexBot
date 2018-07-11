@@ -32,7 +32,7 @@
             await connector.Conversations.ReplyToActivityAsync(reply);
             await AddMessageLog(activity);
 
-            await AddSystemLog("FromId: " +  activity.From.Id + " & FromName: " + activity.From.Name 
+            await AddSystemLog("FromId: " + activity.From.Id + " & FromName: " + activity.From.Name
                 + " & RecipientId: " + activity.Recipient.Id + " & RecipientName: " + activity.Recipient.Name);
 
             await AddSystemLog("FromId: " + reply.From.Id + " & FromName: " + reply.From.Name
@@ -81,7 +81,7 @@
                 configuration.GetSection("MicrosoftAppId").Value,
                 configuration.GetSection("MicrosoftAppPassword").Value);
 
-        private static IMessageActivity CreateMessageActivity(Conversation conversation)
+        private static IMessageActivity CreateMessageActivity(ConversationModel conversation)
         {
             var message = Activity.CreateMessageActivity();
             message.ChannelId = conversation.ChannelId;
@@ -99,6 +99,7 @@
 
             return message;
         }
+
         private async Task AddMessageLog(IMessageActivity activity)
         {
             var criteria = new InsertMessageLogCriteria

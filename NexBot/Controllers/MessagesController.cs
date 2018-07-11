@@ -53,13 +53,13 @@
                 try
                 {
                     var msg = $"GroupId: {activity.Conversation.Id}, Group Name : {activity.Name + " or " + activity.Conversation.Name}";
-                    await messageService.SendAsync(activity, msg);
+                    await messageService.SendAsync(activity.Conversation.Id, msg);
                     await conversationService.InsertGroupInfo(activity);
-                    await messageService.SendAsync(activity, "Get info successful");
+                    await messageService.SendAsync(activity.Conversation.Id, "Get info successful");
                 }
                 catch (Exception ex)
                 {
-                    await messageService.SendAsync(activity, "Error: " + ex.Message);
+                    await messageService.SendAsync(activity.Conversation.Id, "Error: " + ex.Message);
                 }
             }
         }
