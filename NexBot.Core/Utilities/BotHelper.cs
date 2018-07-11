@@ -1,10 +1,5 @@
 ﻿namespace NexBot.Core.Utilities
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-    using System.Threading.Tasks;
-
     public static class BotHelper
     {
         public static string GenerateMessage(string message)

@@ -10,14 +10,16 @@
     {
         Task AddContact(Activity activity);
 
-        Task<Conversation> GetContactByConversationId(string conversationId);
+        Task<ConversationModel> GetContactByConversationId(string conversationId);
 
         Task AddNewMemberToGroup(string groupConversationId, string userConversationId);
-        
-        Task<IList<Conversation>> GetAdminConversation();
+
+        Task<IList<ConversationModel>> GetAdminConversation();
 
         Task<CommandResult> RemoveContact(Activity activity);
-         
+
         Task RemoveMemberFromGroup(string groupConversationId, string userConversationId);
+
+        Task InsertGroupInfo(Activity activity);
     }
 }

@@ -9,8 +9,4 @@
     <PackageReference Include="Fanex.Data.Repository" Version="3.0.0-rc1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="SkypeGroup\" />
-  </ItemGroup>
-
 </Project>

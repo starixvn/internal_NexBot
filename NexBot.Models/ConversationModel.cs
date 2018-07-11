@@ -1,6 +1,6 @@
 ﻿namespace NexBot.Models
 {
-    public class Conversation
+    public class ConversationModel
     {
         public string ConversationId { get; set; }
 

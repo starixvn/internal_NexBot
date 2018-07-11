@@ -3,6 +3,9 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Autofac;
+    using Microsoft.Bot.Builder.Dialogs;
+    using Microsoft.Bot.Builder.Dialogs.Internals;
     using Microsoft.Bot.Connector;
     using NexBot.Core.Models;
     using NexBot.Core.Services;
@@ -34,23 +37,23 @@
             await ExecuteNonQueryAsync(criteria);
         }
 
-        public async Task<Conversation> GetContactByConversationId(string conversationId)
+        public async Task<ConversationModel> GetContactByConversationId(string conversationId)
         {
             var criteria = new GetConversationByIdCriteria
             {
                 ConversationId = conversationId
             };
 
-            var conversation = await GetDataEntityAsync<Conversation>(criteria);
+            var conversation = await GetDataEntityAsync<ConversationModel>(criteria);
 
             return conversation;
         }
 
-        public async Task<IList<Conversation>> GetAdminConversation()
+        public async Task<IList<ConversationModel>> GetAdminConversation()
         {
             var criteria = new GetAdminConversationCriteria();
 
-            var conversations = await GetDataAsync<Conversation>(criteria);
+            var conversations = await GetDataAsync<ConversationModel>(criteria);
 
             return conversations.ToList();
         }
@@ -84,6 +87,39 @@
                 ConversationId = activity.Conversation.Id
             };
             return await ExecuteNonQueryAsync(criteria);
+        }
+
+        public async Task<IEnumerable<ChannelAccount>> GetAllMembersInGroup(Activity activity)
+        {
+            using (var scope = DialogModule.BeginLifetimeScope(Conversation.Container, activity))
+            {
+                IEnumerable<ChannelAccount> listMembers = new List<ChannelAccount>();
+
+                var client = scope.Resolve<IConnectorClient>();
+                listMembers = await client.Conversations.GetConversationMembersAsync(activity.Conversation.Id);
+                return listMembers.Where(m => !m.Id.Equals(activity.Recipient.Id));
+            }
+        }
+
+        private async Task InsertMemberConversation(ChannelAccount account)
+        {
+            var criteria = new InsertConversationByChannelAccountCriteria
+            {
+                ConversationId = account.Id,
+                UserName = account.Name
+            };
+
+            await ExecuteNonQueryAsync(criteria);
+        }
+
+        public async Task InsertGroupInfo(Activity activity)
+        {
+            var listMembers = await GetAllMembersInGroup(activity);
+
+            foreach (var member in listMembers)
+            {
+                await InsertMemberConversation(member);
+            }
         }
     }
 }

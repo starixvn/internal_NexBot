@@ -1,9 +1,11 @@
 ﻿namespace NexBot.Controllers
 {
+    using System;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Bot.Connector;
+    using NexBot.Core.Utilities;
     using NexBot.Services.Interfaces;
     using NexBot.Utilitites;
 
@@ -46,11 +48,20 @@
 
         private async Task HandleMessageCommands(Activity activity)
         {
-            var message = "You said: " + activity.Text + ". Send to: " + activity.ServiceUrl + " - ChanelId: " + activity.ChannelId
-                + " ConversationId: " + activity.Conversation.Id
-                + " FromId: " + activity.From.Id
-                + " FromName: " + activity.From.Name;
-            await messageService.SendReplyAsync(activity, message);
+            if (BotHelper.GenerateMessage(activity.Text) == "get_info")
+            {
+                try
+                {
+                    var msg = $"GroupId: {activity.Conversation.Id}, Group Name : {activity.Name + " or " + activity.Conversation.Name}";
+                    await messageService.SendAsync(activity, msg);
+                    await conversationService.InsertGroupInfo(activity);
+                    await messageService.SendAsync(activity, "Get info successful");
+                }
+                catch (Exception ex)
+                {
+                    await messageService.SendAsync(activity, "Error: " + ex.Message);
+                }
+            }
         }
 
         private async Task<Activity> HandleSystemMessage(Activity activity)
