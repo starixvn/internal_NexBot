@@ -1,4 +1,4 @@
-﻿namespace NexBot.Utilitites
+﻿namespace NexBot.Services.Interfaces
 {
     using System;
     using System.Threading.Tasks;

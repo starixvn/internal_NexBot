@@ -20,6 +20,6 @@
 
         Task RemoveMemberFromGroup(string groupConversationId, string userConversationId);
 
-        Task InsertGroupInfo(Activity activity);
+        Task InsertGroupMembersInfo(IList<ChannelAccount> members);
     }
 }

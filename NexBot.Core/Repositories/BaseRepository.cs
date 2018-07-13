@@ -4,8 +4,8 @@
     using System.Collections;
     using System.Threading.Tasks;
     using Fanex.Data;
-    using NexBot.Core.Models;
     using Fanex.Data.Repository;
+    using NexBot.Core.Models;
 
     public class BaseRepository : IBaseRepository
     {

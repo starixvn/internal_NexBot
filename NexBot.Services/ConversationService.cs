@@ -112,11 +112,9 @@
             await ExecuteNonQueryAsync(criteria);
         }
 
-        public async Task InsertGroupInfo(Activity activity)
+        public async Task InsertGroupMembersInfo(IList<ChannelAccount> members)
         {
-            var listMembers = await GetAllMembersInGroup(activity);
-
-            foreach (var member in listMembers)
+            foreach (var member in members)
             {
                 await InsertMemberConversation(member);
             }

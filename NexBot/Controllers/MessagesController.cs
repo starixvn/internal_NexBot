@@ -1,34 +1,41 @@
 ﻿namespace NexBot.Controllers
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Connector;
+    using NexBot.Core.Services.Interfaces;
     using NexBot.Core.Utilities;
     using NexBot.Services.Interfaces;
-    using NexBot.Utilitites;
 
     [Route("api/[controller]")]
     public class MessagesController : Controller
     {
         private readonly IMessageService messageService;
         private readonly IConversationService conversationService;
+        private readonly IBaseService baseService;
+        private readonly IRegisterMessageService registerMessageService;
 
         public MessagesController(IMessageService messageService,
-             IConversationService conversationService)
+             IConversationService conversationService,
+             IBaseService baseService,
+             IRegisterMessageService registerMessageService)
         {
             this.messageService = messageService;
             this.conversationService = conversationService;
+            this.baseService = baseService;
+            this.registerMessageService = registerMessageService;
         }
 
         [Authorize(Roles = "Bot")]
-        [HttpPost]
-        public async Task<OkResult> Post([FromBody] Activity activity)
+        public virtual async Task<OkResult> Post([FromBody] Activity activity)
         {
-            if (activity.Type == ActivityTypes.Message)
+            if (activity != null && activity.GetActivityType() == ActivityTypes.Message)
             {
-                await HandleMessageCommands(activity);
+                await HandleMessageReceivedAsync(activity);
             }
             else
             {
@@ -38,30 +45,50 @@
             return Ok();
         }
 
+        private async Task HandleMessageReceivedAsync(Activity activity)
+        {
+            var trimMessage = activity.Text.ToLowerInvariant().Trim();
+            trimMessage = BotHelper.GenerateMessage(trimMessage);
+            try
+            {
+                if (activity.Conversation.IsGroup == null)
+                {
+                    if (trimMessage.StartsWith("show_category_message"))
+                    {
+                        var msg = await registerMessageService.GetCategoryMessages(activity.Conversation.Id);
+                        await messageService.SendReplyAsync(activity, msg);
+                    }
+                    else if (trimMessage.StartsWith("register_message"))
+                    {
+                        var categoryId = int.Parse(trimMessage.Substring("register_message".Length));
+                        var result = await registerMessageService.RegisterEventMessage(activity.Conversation.Id, categoryId);
+
+                        await messageService.SendReplyAsync(activity, result.Message);
+                    }
+                    else if (trimMessage.StartsWith("remove_registed_message"))
+                    {
+                        var categoryId = int.Parse(trimMessage.Substring("register_message".Length));
+                        var result = await registerMessageService.RemoveRegisteredMessage(activity.Conversation.Id, categoryId);
+                        await messageService.SendReplyAsync(activity, result.Message);
+                    }
+                }
+                else
+                {
+                    await messageService.SendReplyAsync(activity, $"You said: {trimMessage}");
+                }
+            }
+            catch (Exception ex)
+            {
+                await messageService.SendReplyAsync(activity, ex.Message);
+            }
+        }
+
         [Authorize(Roles = "Bot")]
         [HttpPost]
         [Route("Forward")]
         public async Task Forward(string conversationId, string message)
         {
             await messageService.SendAsync(conversationId, message);
-        }
-
-        private async Task HandleMessageCommands(Activity activity)
-        {
-            if (BotHelper.GenerateMessage(activity.Text) == "get_info")
-            {
-                try
-                {
-                    var msg = $"GroupId: {activity.Conversation.Id}, Group Name : {activity.Name + " or " + activity.Conversation.Name}";
-                    await messageService.SendAsync(activity.Conversation.Id, msg);
-                    await conversationService.InsertGroupInfo(activity);
-                    await messageService.SendAsync(activity.Conversation.Id, "Get info successful");
-                }
-                catch (Exception ex)
-                {
-                    await messageService.SendAsync(activity.Conversation.Id, "Error: " + ex.Message);
-                }
-            }
         }
 
         private async Task<Activity> HandleSystemMessage(Activity activity)
@@ -114,11 +141,9 @@
                 {
                     await conversationService.AddNewMemberToGroup(activity.Conversation.Id, member.Id);
                 }
-                var msg = $"IsGroup: {activity.Conversation.IsGroup.ToString() } " +
-                    $"ConversationId: {activity.Conversation.Id} " +
-                    $"Channel: {activity.ChannelId}" +
-                    $"Server URL: {activity.ServiceUrl}" +
-                    $"From Name: {activity.From.Name}. Ended";
+
+                var msg = string.Join(",", activity.MembersAdded.Select(m => m.Id));
+
                 await messageService.SendReplyAsync(activity, msg);
             }
             else if (activity.MembersRemoved != null && activity.MembersRemoved.Count > 0)

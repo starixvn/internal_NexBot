@@ -8,15 +8,12 @@
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Bot.Connector;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using NexBot.Core.Services;
     using NexBot.Core.Services.Interfaces;
-    using NexBot.Models;
     using NexBot.Services;
     using NexBot.Services.Interfaces;
-    using NexBot.Utilitites;
 
     public class Startup
     {
@@ -51,6 +48,7 @@
             services.AddScoped<IBaseService, BaseService>();
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IMessageService, MessageService>();
+            services.AddScoped<IRegisterMessageService, RegisterMessageService>();
 
             var credentialProvider = new StaticCredentialProvider(Configuration.GetSection(MicrosoftAppCredentials.MicrosoftAppIdKey)?.Value,
                 Configuration.GetSection(MicrosoftAppCredentials.MicrosoftAppPasswordKey)?.Value);
@@ -66,7 +64,6 @@
                 .AddBotAuthentication(credentialProvider);
 
             services.AddSingleton(typeof(ICredentialProvider), credentialProvider);
-
             services.AddMvc(options =>
             {
                 options.Filters.Add(typeof(TrustServiceUrlAttribute));

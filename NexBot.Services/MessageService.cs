@@ -1,4 +1,4 @@
-﻿namespace NexBot.Utilitites
+﻿namespace NexBot.Services
 {
     using System;
     using System.Threading.Tasks;
@@ -30,13 +30,13 @@
             var reply = (activity as Activity).CreateReply(message);
 
             await connector.Conversations.ReplyToActivityAsync(reply);
-            await AddMessageLog(activity);
+            //await AddMessageLog(activity);
 
-            await AddSystemLog("FromId: " + activity.From.Id + " & FromName: " + activity.From.Name
-                + " & RecipientId: " + activity.Recipient.Id + " & RecipientName: " + activity.Recipient.Name);
+            //await AddSystemLog("FromId: " + activity.From.Id + " & FromName: " + activity.From.Name
+            //    + " & RecipientId: " + activity.Recipient.Id + " & RecipientName: " + activity.Recipient.Name);
 
-            await AddSystemLog("FromId: " + reply.From.Id + " & FromName: " + reply.From.Name
-                + " & RecipientId: " + reply.Recipient.Id + " & RecipientName: " + reply.Recipient.Name);
+            //await AddSystemLog("FromId: " + reply.From.Id + " & FromName: " + reply.From.Name
+            //    + " & RecipientId: " + reply.Recipient.Id + " & RecipientName: " + reply.Recipient.Name);
         }
 
         public async Task SendAdminAsync(string message)
