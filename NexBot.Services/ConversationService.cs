@@ -58,12 +58,13 @@
             return conversations.ToList();
         }
 
-        public async Task AddNewMemberToGroup(string groupConversationId, string userConversationId)
+        public async Task AddNewMemberToGroup(string groupConversationId, string userConversationId, string botConversationId)
         {
             var criteria = new InsertGroupUserConversationCriteria
             {
                 GroupConversationId = groupConversationId,
-                UserConversationId = userConversationId
+                UserConversationId = userConversationId,
+                ConversationBotId = botConversationId
             };
 
             await ExecuteNonQueryAsync(criteria);

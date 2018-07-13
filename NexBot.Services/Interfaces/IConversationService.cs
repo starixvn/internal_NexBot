@@ -12,7 +12,7 @@
 
         Task<ConversationModel> GetContactByConversationId(string conversationId);
 
-        Task AddNewMemberToGroup(string groupConversationId, string userConversationId);
+        Task AddNewMemberToGroup(string groupConversationId, string userConversationId, string botConversationId);
 
         Task<IList<ConversationModel>> GetAdminConversation();
 

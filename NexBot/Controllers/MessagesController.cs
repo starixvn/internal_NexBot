@@ -7,6 +7,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Connector;
+    using NexBot.Core;
     using NexBot.Core.Services.Interfaces;
     using NexBot.Core.Utilities;
     using NexBot.Services.Interfaces;
@@ -65,15 +66,23 @@
 
                         await messageService.SendReplyAsync(activity, result.Message);
                     }
-                    else if (trimMessage.StartsWith("remove_registed_message"))
+                    else if (trimMessage.StartsWith("remove_registered_message"))
                     {
-                        var categoryId = int.Parse(trimMessage.Substring("remove_registed_message".Length));
+                        var categoryId = int.Parse(trimMessage.Substring("remove_registered_message".Length));
                         var result = await registerMessageService.RemoveRegisteredMessage(activity.Conversation.Id, categoryId);
                         await messageService.SendReplyAsync(activity, result.Message);
                     }
+                    else if (trimMessage.StartsWith("help"))
+                    {
+                        var msg = $"List command: {Constants.NewLine}" +
+                            $"**show_category_message:** List all category messages {Constants.NewLine}" +
+                            $"**register_message `[categoryId]`:** Register to receive messages when an event triggered {Constants.NewLine}" +
+                            $"**remove_registered_message `[categoryId]`:** Remove a registation receive message. After remove that, you cannot receive message when the event trigger {Constants.NewLine}";
+                        await messageService.SendReplyAsync(activity, msg);
+                    }
                     else
                     {
-                        await messageService.SendReplyAsync(activity, $"You said: {trimMessage}");
+                        await messageService.SendReplyAsync(activity, $"Hello {activity.From.Name}, how are you today? {Constants.NewLine} If you need a help, please tag me with command *help*. Thanks.");
                     }
                 }
                 else
@@ -143,7 +152,7 @@
 
                 foreach (var member in activity.MembersAdded)
                 {
-                    await conversationService.AddNewMemberToGroup(activity.Conversation.Id, member.Id);
+                    await conversationService.AddNewMemberToGroup(activity.Conversation.Id, member.Id, activity.Recipient.Id);
                 }
 
                 var msg = string.Join(",", activity.MembersAdded.Select(m => m.Id));

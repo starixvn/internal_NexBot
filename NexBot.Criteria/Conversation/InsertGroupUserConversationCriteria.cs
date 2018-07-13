@@ -8,9 +8,12 @@
 
         public string UserConversationId { get; set; }
 
+        public string ConversationBotId { get; set; }
+
         public override string GetSettingKey() => "GroupUserConversation_Insert";
 
         public override bool IsValid() => !string.IsNullOrWhiteSpace(GroupConversationId)
-                                        && !string.IsNullOrWhiteSpace(UserConversationId);
+                                        && !string.IsNullOrWhiteSpace(UserConversationId)
+                                        && !string.IsNullOrWhiteSpace(ConversationBotId);
     }
 }

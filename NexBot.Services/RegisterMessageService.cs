@@ -26,7 +26,7 @@ namespace NexBot.Services
                     count++;
                 }
                 message += $"To register an event to receive message, please tag me with command `register_message [EventId]` {Constants.NewLine}";
-                message += $"To remove a registered event to receive message, please tag me with command `remove_registed_message [EventId]` {Constants.NewLine}";
+                message += $"To remove a registered event to receive message, please tag me with command `remove_registered_message [EventId]` {Constants.NewLine}";
             }
             else
             {

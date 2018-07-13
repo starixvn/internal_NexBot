@@ -18,5 +18,6 @@
   <Function Name="Conversation Register">
     <Setting Key="CategoryMessage_Get" SpName="CategoryMessage_Get" DbName="NexBot"></Setting>
     <Setting Key="ConversationRegister_Insert" SpName="ConversationRegister_Insert" DbName="NexBot"></Setting>
+    <Setting Key="ConversationRegister_Remove" SpName="ConversationRegister_Remove" DbName="NexBot"></Setting>
   </Function>
 </Functions>
