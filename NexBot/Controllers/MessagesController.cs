@@ -51,7 +51,7 @@
             trimMessage = BotHelper.GenerateMessage(trimMessage);
             try
             {
-                if (activity.Conversation.IsGroup == null)
+                if (activity.Conversation.IsGroup == true)
                 {
                     if (trimMessage.StartsWith("show_category_message"))
                     {
@@ -70,6 +70,10 @@
                         var categoryId = int.Parse(trimMessage.Substring("register_message".Length));
                         var result = await registerMessageService.RemoveRegisteredMessage(activity.Conversation.Id, categoryId);
                         await messageService.SendReplyAsync(activity, result.Message);
+                    }
+                    else
+                    {
+                        await messageService.SendReplyAsync(activity, $"You said: {trimMessage}");
                     }
                 }
                 else

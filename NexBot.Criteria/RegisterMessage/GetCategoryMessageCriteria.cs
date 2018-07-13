@@ -6,8 +6,6 @@
     {
         public string ConversationId { get; set; }
 
-        public bool IsRegistered { get; set; }
-
         public override string GetSettingKey() => "CategoryMessage_Get";
 
         public override bool IsValid() => !string.IsNullOrWhiteSpace(ConversationId);
