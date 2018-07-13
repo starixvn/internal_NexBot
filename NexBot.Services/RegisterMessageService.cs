@@ -25,8 +25,8 @@ namespace NexBot.Services
                     message += $"{count}. **Name: ** {item.Name}; **ID: ** {item.CategoryId}; **Registered: ** {item.IsRegistered.ToString()} {Constants.NewLine}";
                     count++;
                 }
-                message += $"To register an event to receive message, please tag me with command **register [EventId]** {Constants.NewLine}";
-                message += $"To remove a registered event to receive message, please tag me with command **remove [EventId]** {Constants.NewLine}";
+                message += $"To register an event to receive message, please tag me with command `register_message [EventId]` {Constants.NewLine}";
+                message += $"To remove a registered event to receive message, please tag me with command `remove_registed_message [EventId]` {Constants.NewLine}";
             }
             else
             {

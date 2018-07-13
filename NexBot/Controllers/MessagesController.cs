@@ -67,7 +67,7 @@
                     }
                     else if (trimMessage.StartsWith("remove_registed_message"))
                     {
-                        var categoryId = int.Parse(trimMessage.Substring("register_message".Length));
+                        var categoryId = int.Parse(trimMessage.Substring("remove_registed_message".Length));
                         var result = await registerMessageService.RemoveRegisteredMessage(activity.Conversation.Id, categoryId);
                         await messageService.SendReplyAsync(activity, result.Message);
                     }
