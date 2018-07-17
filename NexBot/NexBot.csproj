@@ -4,7 +4,9 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <UserSecretsId>NexBotFAECC93-B00F-4A90-B136-D803E61C1949</UserSecretsId>
   </PropertyGroup>
-
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
   <ItemGroup>
     <None Remove="App_Data\SPName.xml" />
   </ItemGroup>
@@ -16,16 +18,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CXuesong.Ported.Microsoft.Bot.Builder" Version="3.13.0.3" />
+    <PackageReference Include="CXuesong.Ported.Microsoft.Bot.Builder.Autofac" Version="3.13.0.3" />
+    <PackageReference Include="CXuesong.Ported.Microsoft.Bot.Connector" Version="3.13.0.3" />
     <PackageReference Include="Fanex.Data" Version="3.0.0-rc1" />
+    <PackageReference Include="Microsoft.AdaptiveCards" Version="0.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Bot.Builder" Version="3.15.3" />
-    <PackageReference Include="Microsoft.Bot.Builder.Azure" Version="3.15.2.2" />
-    <PackageReference Include="Microsoft.Bot.Connector.AspNetCore" Version="2.0.1.9" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(NoTools)' != 'True'">
-    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0-preview2-final" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup>

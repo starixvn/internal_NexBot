@@ -7,7 +7,6 @@
   <ItemGroup>
     <PackageReference Include="Fanex.Data" Version="3.0.0-rc1" />
     <PackageReference Include="Fanex.Data.Repository" Version="3.0.0-rc1" />
-    <PackageReference Include="Microsoft.Bot.Connector" Version="3.13.0.3" />
   </ItemGroup>
 
   <ItemGroup>

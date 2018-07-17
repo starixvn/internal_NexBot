@@ -8,8 +8,8 @@
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Connector;
     using NexBot.Core;
-    using NexBot.Core.Services.Interfaces;
     using NexBot.Core.Utilities;
+    using NexBot.Dialogs;
     using NexBot.Services.Interfaces;
 
     [Route("api/[controller]")]
@@ -17,17 +17,14 @@
     {
         private readonly IMessageService messageService;
         private readonly IConversationService conversationService;
-        private readonly IBaseService baseService;
         private readonly IRegisterMessageService registerMessageService;
 
         public MessagesController(IMessageService messageService,
              IConversationService conversationService,
-             IBaseService baseService,
              IRegisterMessageService registerMessageService)
         {
             this.messageService = messageService;
             this.conversationService = conversationService;
-            this.baseService = baseService;
             this.registerMessageService = registerMessageService;
         }
 
@@ -54,7 +51,13 @@
             {
                 if (activity.Conversation.IsGroup == true)
                 {
-                    if (trimMessage.StartsWith("show_category_message"))
+                    if (trimMessage.StartsWith("/events")
+                        || trimMessage.StartsWith("PostBack")
+                        || trimMessage.StartsWith("ImBack"))
+                    {
+                        await Conversation.SendAsync(activity, () => new CardsDialog());
+                    }
+                    else if (trimMessage.StartsWith("show_category_message"))
                     {
                         var msg = await registerMessageService.GetCategoryMessages(activity.Conversation.Id);
                         await messageService.SendReplyAsync(activity, msg);
@@ -87,7 +90,17 @@
                 }
                 else
                 {
-                    await messageService.SendReplyAsync(activity, $"You said: {trimMessage}");
+                    if (trimMessage.StartsWith("/events")
+                        || trimMessage.StartsWith("hero card")
+                        || trimMessage.StartsWith("postback")
+                        || trimMessage.StartsWith("imback"))
+                    {
+                        await Conversation.SendAsync(activity, () => new CardsDialog());
+                    }
+                    else
+                    {
+                        await messageService.SendReplyAsync(activity, $"You said: {trimMessage}");
+                    }
                 }
             }
             catch (Exception ex)
