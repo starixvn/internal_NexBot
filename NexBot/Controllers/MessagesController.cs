@@ -51,7 +51,7 @@
             {
                 if (activity.Conversation.IsGroup == true)
                 {
-                    if (trimMessage.StartsWith("/events")
+                    if (trimMessage.StartsWith("events")
                         || trimMessage.StartsWith("PostBack")
                         || trimMessage.StartsWith("ImBack"))
                     {
@@ -90,7 +90,7 @@
                 }
                 else
                 {
-                    if (trimMessage.StartsWith("/events")
+                    if (trimMessage.StartsWith("events")
                         || trimMessage.StartsWith("hero card")
                         || trimMessage.StartsWith("postback")
                         || trimMessage.StartsWith("imback"))
