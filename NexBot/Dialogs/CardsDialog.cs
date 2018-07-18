@@ -47,16 +47,22 @@
             {
                 case HeroCard:
                     return GetHeroCard();
+
                 case ThumbnailCard:
                     return GetThumbnailCard();
+
                 case ReceiptCard:
                     return GetReceiptCard();
+
                 case SigninCard:
                     return GetSigninCard();
+
                 case AnimationCard:
                     return GetAnimationCard();
+
                 case VideoCard:
                     return GetVideoCard();
+
                 case AudioCard:
                     return GetAudioCard();
 
