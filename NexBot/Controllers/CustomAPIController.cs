@@ -20,6 +20,8 @@ namespace NexBot.Controllers
         [HttpPost]
         public async Task<OkResult> SendMessage(SendMessageModel message)
         {
+            await messageService.AddSystemLog("customAPI");
+            await messageService.AddSystemLog("ConversationId: " + message.ConversationId + " & Message: " + message.Message);
             await messageService.SendAsync(message.ConversationId, message.Message);
             return Ok();
         }

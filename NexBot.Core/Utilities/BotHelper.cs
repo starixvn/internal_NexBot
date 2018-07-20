@@ -18,5 +18,41 @@
 
             return returnMessage;
         }
+
+        public static string GetMessageInGroupByChannel(string sourceMessage, string channelId)
+        {
+            var returnMessage = string.Empty;
+
+            switch (channelId)
+            {
+                case "skype":
+                    if (sourceMessage.StartsWith("@"))
+                    {
+                        var indexOfCommand = sourceMessage.IndexOf(' ');
+
+                        if (indexOfCommand > 0)
+                        {
+                            returnMessage = sourceMessage.Remove(0, indexOfCommand).Trim();
+                        }
+                    }
+                    break;
+                case "telegram":
+                    if (sourceMessage.StartsWith("/"))
+                    {
+                        var indexOfCommand = sourceMessage.IndexOf(' ');
+
+                        if (indexOfCommand > 0)
+                        {
+                            returnMessage = sourceMessage.Remove(0, indexOfCommand).Trim();
+                        }
+                    }
+                    break;
+                default:
+                    returnMessage = sourceMessage;
+                    break;
+            }
+
+            return returnMessage;
+        }
     }
 }

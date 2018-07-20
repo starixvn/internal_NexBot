@@ -11,5 +11,7 @@
         Task SendAsync(string conversationId, string messageText);
 
         ConnectorClient CreateConnectorClient(Uri serviceUrl);
+
+        Task AddSystemLog(string logContent);
     }
 }

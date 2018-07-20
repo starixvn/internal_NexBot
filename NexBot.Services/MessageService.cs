@@ -36,8 +36,13 @@
             await AddSystemLog("FromId: " + activity.From.Id + " & FromName: " + activity.From.Name
                 + " & RecipientId: " + activity.Recipient.Id + " & RecipientName: " + activity.Recipient.Name);
 
-            await AddSystemLog("FromId: " + reply.From.Id + " & FromName: " + reply.From.Name
-                + " & RecipientId: " + reply.Recipient.Id + " & RecipientName: " + reply.Recipient.Name);
+            await AddSystemLog("ConversationId: " + activity.Conversation.Id
+                + "ConversationName: " + activity.Conversation.Name
+                + "IsGroup: " + activity.Conversation.IsGroup
+                + "Properties: " + activity.Conversation.Properties
+
+                + "Properties: " + activity.Conversation.Properties
+                );
         }
 
         public async Task SendAdminAsync(string message)
@@ -55,10 +60,11 @@
 
         public async Task SendAsync(string conversationId, string messageText)
         {
+            await AddSystemLog("aa");
             var conversation = await conversationService.GetContactByConversationId(conversationId);
             var connector = CreateConnectorClient(new Uri(conversation.ServiceUrl));
             var message = CreateMessageActivity(conversation);
-
+            await AddSystemLog("bb");
             try
             {
                 if (!string.IsNullOrEmpty(messageText))
@@ -66,10 +72,13 @@
                     message.Text = messageText;
                     await connector.Conversations.SendToConversationAsync((Activity)message);
                     await AddMessageLog(message);
+                    await AddSystemLog("cc");
                 }
             }
             catch (Exception ex)
             {
+                await AddSystemLog("dd");
+                await AddSystemLog(ex.Message);
                 await SendAdminAsync(
                     $"Error happen in client with ConversationId: {conversationId} & Message: {messageText}\n\n" +
                     $"Exception: {ex.InnerException.Message}");
@@ -114,7 +123,7 @@
             await ExecuteNonQueryAsync(criteria);
         }
 
-        private async Task AddSystemLog(string logContent)
+        public async Task AddSystemLog(string logContent)
         {
             var criteria = new InsertSystemLogCriteria
             {

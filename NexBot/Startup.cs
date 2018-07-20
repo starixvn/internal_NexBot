@@ -10,6 +10,7 @@
     using Microsoft.Bot.Connector;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using NexBot.Channels;
     using NexBot.Core.Services;
     using NexBot.Core.Services.Interfaces;
     using NexBot.Services;
@@ -46,6 +47,8 @@
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IRegisterMessageService, RegisterMessageService>();
+            services.AddScoped<IChannel, SkypeChannel>();
+            services.AddScoped<IChannel, TelegramChannel>();
 
             var credentialProvider = new StaticCredentialProvider(Configuration.GetSection(MicrosoftAppCredentials.MicrosoftAppIdKey)?.Value,
                 Configuration.GetSection(MicrosoftAppCredentials.MicrosoftAppPasswordKey)?.Value);
