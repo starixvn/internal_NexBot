@@ -5,7 +5,7 @@
         public CommandResult()
         {
             Code = 1;
-            Message = Resources.Message.InvalidData;
+            Message = "Invalid Data";
         }
 
         public int Code { get; set; }

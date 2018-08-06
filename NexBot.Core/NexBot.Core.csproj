@@ -11,7 +11,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NexBot.Criteria\NexBot.Criteria.csproj" />
-    <ProjectReference Include="..\NexBot.Resources\NexBot.Resources.csproj" />
   </ItemGroup>
 
 </Project>

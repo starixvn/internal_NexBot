@@ -12,7 +12,6 @@
     <ProjectReference Include="..\NexBot.Core\NexBot.Core.csproj" />
     <ProjectReference Include="..\NexBot.Criteria\NexBot.Criteria.csproj" />
     <ProjectReference Include="..\NexBot.Models\NexBot.Models.csproj" />
-    <ProjectReference Include="..\NexBot.Resources\NexBot.Resources.csproj" />
   </ItemGroup>
 
 </Project>
