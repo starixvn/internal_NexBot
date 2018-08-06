@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="4.8.1" />
     <PackageReference Include="CXuesong.Ported.Microsoft.Bot.Connector" Version="3.13.0.3" />
   </ItemGroup>
 

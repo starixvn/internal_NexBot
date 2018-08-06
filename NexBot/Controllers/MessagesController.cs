@@ -26,7 +26,6 @@
         [Authorize(Roles = "Bot")]
         public virtual async Task<OkResult> Post([FromBody] Activity activity)
         {
-            await messageService.AddSystemLog("aaaa");
             IChannel channel;
             switch (activity.ChannelId)
             {

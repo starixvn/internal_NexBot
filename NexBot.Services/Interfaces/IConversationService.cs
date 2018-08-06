@@ -8,18 +8,22 @@
 
     public interface IConversationService
     {
-        Task AddContact(Activity activity);
+        Task AddConversation(Activity activity);
 
-        Task<ConversationModel> GetContactByConversationId(string conversationId);
+        Task<ConversationModel> GetConversationById(string conversationId);
 
-        Task AddNewMemberToGroup(string groupConversationId, string userConversationId, string botConversationId);
+        Task<ConversationModel> GetConversationBotById(string conversationId);
 
         Task<IList<ConversationModel>> GetAdminConversation();
 
-        Task<CommandResult> RemoveContact(Activity activity);
+        Task<bool> CheckIsBot(string conversationId);
 
-        Task RemoveMemberFromGroup(string groupConversationId, string userConversationId);
+        Task AddConversationGroup(Activity activity);
 
-        Task InsertGroupMembersInfo(IList<ChannelAccount> members);
+        Task AddMembersToGroup(string groupConversationId, string userConversationIds);
+
+        Task<CommandResult> RemoveConversation(Activity activity);
+
+        Task RemoveMembersOutGroup(string groupConversationId, string userConversationIds);
     }
 }

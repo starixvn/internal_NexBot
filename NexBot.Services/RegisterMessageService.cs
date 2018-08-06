@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NexBot.Core;
-using NexBot.Core.Models;
-using NexBot.Core.Services;
-using NexBot.Criteria.RegisterMessage;
-using NexBot.Models.CategoryMessage;
-using NexBot.Services.Interfaces;
-
-namespace NexBot.Services
+﻿namespace NexBot.Services
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using NexBot.Core;
+    using NexBot.Core.Models;
+    using NexBot.Core.Services;
+    using NexBot.Criteria.RegisterMessage;
+    using NexBot.Models.CategoryMessage;
+    using NexBot.Services.Interfaces;
+
     public class RegisterMessageService : BaseService, IRegisterMessageService
     {
         public async Task<string> GetCategoryMessages(string conversationId)
@@ -36,15 +36,6 @@ namespace NexBot.Services
             return message;
         }
 
-        private async Task<IEnumerable<CategoryMessage>> GetAllCategoryMessage(string conversationId)
-        {
-            var criteria = new GetCategoryMessageCriteria
-            {
-                ConversationId = conversationId
-            };
-            return await GetDataAsync<CategoryMessage>(criteria);
-        }
-
         public async Task<CommandResult> RegisterEventMessage(string conversationId, int categoryId)
         {
             var criteria = new InsertConversationRegisterCriteria
@@ -69,6 +60,15 @@ namespace NexBot.Services
             var result = await ExecuteNonQueryAsync(criteria);
 
             return result;
+        }
+
+        public async Task<IList<CategoryMessage>> GetAllCategoryMessage(string conversationId)
+        {
+            var criteria = new GetCategoryMessageCriteria
+            {
+                ConversationId = conversationId
+            };
+            return (await GetDataAsync<CategoryMessage>(criteria)).ToList();
         }
     }
 }

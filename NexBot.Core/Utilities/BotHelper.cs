@@ -1,7 +1,21 @@
-﻿namespace NexBot.Core.Utilities
+﻿using System.Collections.Generic;
+
+namespace NexBot.Core.Utilities
 {
     public static class BotHelper
     {
+        public static IList<string> MainEvents
+        {
+            get
+            {
+                return new List<string>
+                {
+                    Constants.RegisterEvents,
+                    Constants.RemoveEvents
+                };
+            }
+        }
+
         public static string GenerateMessage(string message)
         {
             var returnMessage = message;
@@ -19,14 +33,15 @@
             return returnMessage;
         }
 
-        public static string GetMessageInGroupByChannel(string sourceMessage, string channelId)
+        public static string GetMessageInGroupByChannel(string sourceMessage, string channelId, string botName)
         {
-            var returnMessage = string.Empty;
+            var returnMessage = sourceMessage;
 
             switch (channelId)
             {
                 case "skype":
-                    if (sourceMessage.StartsWith("@"))
+                    if (sourceMessage.StartsWith("@") 
+                        || sourceMessage.StartsWith(botName))
                     {
                         var indexOfCommand = sourceMessage.IndexOf(' ');
 

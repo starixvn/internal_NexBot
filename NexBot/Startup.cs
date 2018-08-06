@@ -41,8 +41,6 @@
                .UseDefaultDbSettingProvider("~/App_Data")
                .Run();
 
-            //services.AddSingleton(_ => Configuration);
-
             services.AddScoped<IBaseService, BaseService>();
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IMessageService, MessageService>();

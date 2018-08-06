@@ -32,17 +32,6 @@
 
             await connector.Conversations.ReplyToActivityAsync(reply);
             await AddMessageLog(activity);
-
-            await AddSystemLog("FromId: " + activity.From.Id + " & FromName: " + activity.From.Name
-                + " & RecipientId: " + activity.Recipient.Id + " & RecipientName: " + activity.Recipient.Name);
-
-            await AddSystemLog("ConversationId: " + activity.Conversation.Id
-                + "ConversationName: " + activity.Conversation.Name
-                + "IsGroup: " + activity.Conversation.IsGroup
-                + "Properties: " + activity.Conversation.Properties
-
-                + "Properties: " + activity.Conversation.Properties
-                );
         }
 
         public async Task SendAdminAsync(string message)
@@ -60,11 +49,9 @@
 
         public async Task SendAsync(string conversationId, string messageText)
         {
-            await AddSystemLog("aa");
-            var conversation = await conversationService.GetContactByConversationId(conversationId);
+            var conversation = await conversationService.GetConversationById(conversationId);
             var connector = CreateConnectorClient(new Uri(conversation.ServiceUrl));
             var message = CreateMessageActivity(conversation);
-            await AddSystemLog("bb");
             try
             {
                 if (!string.IsNullOrEmpty(messageText))
@@ -72,24 +59,25 @@
                     message.Text = messageText;
                     await connector.Conversations.SendToConversationAsync((Activity)message);
                     await AddMessageLog(message);
-                    await AddSystemLog("cc");
                 }
             }
             catch (Exception ex)
             {
-                await AddSystemLog("dd");
                 await AddSystemLog(ex.Message);
                 await SendAdminAsync(
                     $"Error happen in client with ConversationId: {conversationId} & Message: {messageText}\n\n" +
-                    $"Exception: {ex.InnerException.Message}");
+                    $"Exception: {ex.Message}");
             }
         }
 
         public ConnectorClient CreateConnectorClient(Uri serviceUrl)
-           => new ConnectorClient(
-                serviceUrl,
-                configuration.GetSection("MicrosoftAppId").Value,
-                configuration.GetSection("MicrosoftAppPassword").Value);
+        {
+            MicrosoftAppCredentials.TrustServiceUrl(serviceUrl.ToString(), DateTime.Now.AddDays(7));
+            var account = new MicrosoftAppCredentials(configuration.GetSection("MicrosoftAppId").Value, configuration.GetSection("MicrosoftAppPassword").Value);
+            var connector = new ConnectorClient(serviceUrl, account);
+
+            return connector;
+        }
 
         private static IMessageActivity CreateMessageActivity(ConversationModel conversation)
         {

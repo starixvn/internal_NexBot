@@ -1,13 +1,16 @@
 ﻿namespace NexBot.Channels
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Autofac;
     using Microsoft.Bot.Builder.Dialogs;
+    using Microsoft.Bot.Builder.Dialogs.Internals;
     using Microsoft.Bot.Connector;
-    using NexBot.Core;
     using NexBot.Core.Utilities;
     using NexBot.Dialogs;
+    using NexBot.Models.CategoryMessage;
     using NexBot.Services.Interfaces;
 
     public class SkypeChannel : IChannel
@@ -27,78 +30,88 @@
 
         public async Task Post(Activity activity)
         {
-            await messageService.AddSystemLog("aaaa");
-            if (activity != null && activity.GetActivityType() == ActivityTypes.Message)
-            {
-                await HandleMessageReceivedAsync(activity);
-            }
-            else
-            {
-                await HandleSystemMessage(activity);
-            }
-        }
-
-        private async Task HandleMessageReceivedAsync(Activity activity)
-        {
-            await messageService.AddSystemLog("bbbb");
-            var trimMessage = activity.Text.ToLowerInvariant().Trim();
-            trimMessage = BotHelper.GenerateMessage(trimMessage);
-            await messageService.AddSystemLog("ccc");
-            await messageService.AddSystemLog(trimMessage);
-
-            if (activity.Conversation.IsGroup == true)
-            {
-                trimMessage = BotHelper.GetMessageInGroupByChannel(trimMessage, activity.ChannelId);
-            }
-
             try
             {
-                if (trimMessage.StartsWith("events")
-                        || trimMessage.StartsWith("postback")
-                        || trimMessage.StartsWith("imback"))
+                if (activity != null && activity.GetActivityType() == ActivityTypes.Message)
                 {
-                    await Conversation.SendAsync(activity, () => new CardsDialog());
-                }
-                else if (trimMessage.StartsWith("show_category_message"))
-                {
-                    var msg = await registerMessageService.GetCategoryMessages(activity.Conversation.Id);
-                    await messageService.SendReplyAsync(activity, msg);
-                }
-                else if (trimMessage.StartsWith("register_message"))
-                {
-                    var categoryId = int.Parse(trimMessage.Substring("register_message".Length));
-                    var result = await registerMessageService.RegisterEventMessage(activity.Conversation.Id, categoryId);
-
-                    await messageService.SendReplyAsync(activity, result.Message);
-                }
-                else if (trimMessage.StartsWith("remove_registered_message"))
-                {
-                    var categoryId = int.Parse(trimMessage.Substring("remove_registered_message".Length));
-                    var result = await registerMessageService.RemoveRegisteredMessage(activity.Conversation.Id, categoryId);
-                    await messageService.SendReplyAsync(activity, result.Message);
-                }
-                else if (trimMessage.StartsWith("help"))
-                {
-                    var msg = $"List command: {Constants.NewLine}" +
-                        $"**show_category_message:** List all category messages {Constants.NewLine}" +
-                        $"**register_message `[categoryId]`:** Register to receive messages when an event triggered {Constants.NewLine}" +
-                        $"**remove_registered_message `[categoryId]`:** Remove a registation receive message. After remove that, you cannot receive message when the event trigger {Constants.NewLine}";
-                    await messageService.SendReplyAsync(activity, msg);
+                    await HandleMessageReceivedAsync(activity);
                 }
                 else
                 {
-                    await messageService.SendReplyAsync(activity, $"Hello {activity.From.Name}, how are you today? {Constants.NewLine} If you need a help, please tag me with command *help*. Thanks.");
+                    await HandleSystemMessage(activity);
                 }
             }
             catch (Exception ex)
             {
-                await messageService.SendReplyAsync(activity, ex.Message);
+                await messageService.AddSystemLog(ex.Message);
+                throw;
+            }
+            
+        }
+
+        private async Task<Activity> HandleContactRelationUpdate(Activity activity)
+        {
+            if (activity.Action.Equals("add"))
+            {
+                await conversationService.AddConversation(activity);
+                var message = $"Hello {activity.From.Name}. I am {activity.Recipient.Name}. If you have any question please contact admin.";
+                await messageService.SendReplyAsync(activity, message);
+            }
+            else
+            {
+                await conversationService.RemoveConversation(activity);
+            }
+
+            return null;
+        }
+
+        private async Task HandleMessageReceivedAsync(Activity activity)
+        {
+            try
+            {
+                IList<CategoryMessage> eventCategories;
+                var trimMessage = activity.Text.Trim();
+                
+                if (activity.Conversation.IsGroup == true)
+                {
+                    trimMessage = BotHelper.GetMessageInGroupByChannel(trimMessage, activity.ChannelId, activity.Recipient.Name);
+                }
+
+                await Conversation.SendAsync(activity, () => new RegisterEventsDialog());
+                await messageService.AddSystemLog("aaa");
+                eventCategories = await registerMessageService.GetAllCategoryMessage(activity.Conversation.Id);
+                if (trimMessage.StartsWith("Remove"))
+                {
+                    if (eventCategories.Any(t => t.RemoveCommand.Equals(trimMessage)))
+                    {
+                        var categoryId = eventCategories.FirstOrDefault(t => t.RemoveCommand.Equals(trimMessage)).CategoryId;
+                        var result = await registerMessageService.RemoveRegisteredMessage(activity.Conversation.Id, categoryId);
+                        await messageService.SendReplyAsync(activity, result.Message);
+                    }
+                }
+                else
+                {
+                    if (eventCategories.Any(t => t.RegisterCommand.Equals(trimMessage)))
+                    {
+                        var categoryId = eventCategories.FirstOrDefault(t => t.RegisterCommand.Equals(trimMessage)).CategoryId;
+                        var result = await registerMessageService.RegisterEventMessage(activity.Conversation.Id, categoryId);
+
+                        await messageService.SendReplyAsync(activity, result.Message);
+                    }
+                    else
+                    {
+                        await messageService.AddSystemLog(trimMessage);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await messageService.AddSystemLog(ex.Message);
             }
         }
 
-        private async Task<Activity> HandleSystemMessage(Activity activity)
+        private async Task HandleSystemMessage(Activity activity)
         {
-            await messageService.AddSystemLog("add into group");
             switch (activity.Type)
             {
                 case ActivityTypes.DeleteUserData:
@@ -130,65 +143,59 @@
                 default:
                     break;
             }
-
-            return null;
         }
 
-        private async Task<Activity> HandleConversationUpdate(Activity activity)
+        private async Task HandleConversationUpdate(Activity activity)
         {
             if (activity.MembersAdded != null && activity.MembersAdded.Count > 0)
             {
-                if (activity.Conversation.IsGroup == true)
-                {
-                    await InsertConversationGroup(activity);
-                }
-
-                foreach (var member in activity.MembersAdded)
-                {
-                    await conversationService.AddNewMemberToGroup(activity.Conversation.Id, member.Id, activity.Recipient.Id);
-                }
-
-                var msg = string.Join(",", activity.MembersAdded.Select(m => m.Id));
-
-                await messageService.SendReplyAsync(activity, msg);
+                await HandleAddMemberIntoGroup(activity);
             }
             else if (activity.MembersRemoved != null && activity.MembersRemoved.Count > 0)
             {
-                foreach (var member in activity.MembersRemoved)
+                await HandleRemoveMemberOutGroup(activity);
+            }
+        }
+
+        private async Task HandleAddMemberIntoGroup(Activity activity)
+        {
+            if (activity.Conversation.IsGroup == true)
+            {
+                await conversationService.AddConversationGroup(activity);
+            }
+
+            var memberIds = string.Join(",", activity.MembersAdded.Select(m => m.Id));
+            await conversationService.AddMembersToGroup(activity.Conversation.Id, memberIds);
+            await messageService.AddSystemLog($"Added {memberIds} into group. {activity.Conversation.Id}");
+
+            foreach (var member in activity.MembersAdded)
+            {
+                var isBot = await conversationService.CheckIsBot(member.Id);
+                if (isBot)
                 {
-                    await conversationService.RemoveMemberFromGroup(activity.Conversation.Id, member.Id);
+                    var memberExists = await GetAllMembersInfoInGroup(activity);
+                    memberIds = string.Join(",", memberExists.Select(m => m.Id));
+                    await conversationService.AddMembersToGroup(activity.Conversation.Id, memberIds);
+                    await messageService.AddSystemLog($"Add bot to group with exists members: {memberIds}");
                 }
-
-                await messageService.SendReplyAsync(activity, $"Removed {activity.MembersRemoved[0].Id} from group. {activity.Conversation.Id}");
-            }
-
-            return null;
-        }
-
-        private async Task InsertConversationGroup(Activity activity)
-        {
-            var conversation = await conversationService.GetContactByConversationId(activity.Conversation.Id);
-
-            if (conversation == null)
-            {
-                await conversationService.AddContact(activity);
             }
         }
 
-        private async Task<Activity> HandleContactRelationUpdate(Activity activity)
+        private async Task HandleRemoveMemberOutGroup(Activity activity)
         {
-            if (activity.Action.Equals("add"))
-            {
-                await conversationService.AddContact(activity);
-                var message = $"Hello {activity.From.Name}. I am {activity.Recipient.Name}. If you have any question please contact admin.";
-                await messageService.SendReplyAsync(activity, message);
-            }
-            else
-            {
-                await conversationService.RemoveContact(activity);
-            }
+            var memberIds = string.Join(",", activity.MembersAdded.Select(m => m.Id));
+            await conversationService.RemoveMembersOutGroup(activity.Conversation.Id, memberIds);
+            await messageService.AddSystemLog($"Removed {memberIds} out group. {activity.Conversation.Id}");
+        }
 
-            return null;
+        private async Task<IList<ChannelAccount>> GetAllMembersInfoInGroup(Activity activity)
+        {
+            using (var scope = DialogModule.BeginLifetimeScope(Conversation.Container, activity))
+            {
+                var client = scope.Resolve<IConnectorClient>();
+                var activityMembers = await client.Conversations.GetConversationMembersAsync(activity.Conversation.Id);
+                return activityMembers;
+            }
         }
     }
 }

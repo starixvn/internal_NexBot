@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Autofac;
     using Microsoft.Bot.Connector;
     using NexBot.Core.Models;
     using NexBot.Core.Services;
@@ -13,11 +12,7 @@
 
     public class ConversationService : BaseService, IConversationService
     {
-        public ConversationService()
-        {
-        }
-
-        public async Task AddContact(Activity activity)
+        public async Task AddConversation(Activity activity)
         {
             var criteria = new InsertConversationCriteria
             {
@@ -35,7 +30,7 @@
             await ExecuteNonQueryAsync(criteria);
         }
 
-        public async Task<ConversationModel> GetContactByConversationId(string conversationId)
+        public async Task<ConversationModel> GetConversationById(string conversationId)
         {
             var criteria = new GetConversationByIdCriteria
             {
@@ -47,6 +42,25 @@
             return conversation;
         }
 
+        public async Task<ConversationModel> GetConversationBotById(string conversationId)
+        {
+            var criteria = new GetConversationBotByIdCriteria
+            {
+                ConversationId = conversationId
+            };
+
+            var conversation = await GetDataEntityAsync<ConversationModel>(criteria);
+
+            return conversation;
+        }
+
+        public async Task<bool> CheckIsBot(string conversationId)
+        {
+            var conversation = await GetConversationBotById(conversationId);
+            var isBot = conversation != null && !string.IsNullOrWhiteSpace(conversation.ConversationId);
+            return isBot;
+        }
+
         public async Task<IList<ConversationModel>> GetAdminConversation()
         {
             var criteria = new GetAdminConversationCriteria();
@@ -56,30 +70,39 @@
             return conversations.ToList();
         }
 
-        public async Task AddNewMemberToGroup(string groupConversationId, string userConversationId, string botConversationId)
+        public async Task AddConversationGroup(Activity activity)
         {
-            var criteria = new InsertGroupUserConversationCriteria
+            var conversation = await GetConversationById(activity.Conversation.Id);
+
+            if (conversation == null)
+            {
+                await AddConversation(activity);
+            }
+        }
+
+        public async Task AddMembersToGroup(string groupConversationId, string userConversationIds)
+        {
+            var criteria = new InsertUsersIntoGroupConversationCriteria
             {
                 GroupConversationId = groupConversationId,
-                UserConversationId = userConversationId,
-                ConversationBotId = botConversationId
+                UserConversationIds = userConversationIds
             };
 
             await ExecuteNonQueryAsync(criteria);
         }
 
-        public async Task RemoveMemberFromGroup(string groupConversationId, string userConversationId)
+        public async Task RemoveMembersOutGroup(string groupConversationId, string userConversationIds)
         {
-            var criteria = new RemoveGroupUserConversationCriteria
+            var criteria = new RemoveUsersOutGroupConversationCriteria
             {
                 GroupConversationId = groupConversationId,
-                UserConversationId = userConversationId
+                UserConversationIds = userConversationIds
             };
 
             await ExecuteNonQueryAsync(criteria);
         }
 
-        public async Task<CommandResult> RemoveContact(Activity activity)
+        public async Task<CommandResult> RemoveConversation(Activity activity)
         {
             var criteria = new RemoveConversationByIdCriteria
             {
@@ -87,18 +110,6 @@
             };
             return await ExecuteNonQueryAsync(criteria);
         }
-
-        //public async Task<IEnumerable<ChannelAccount>> GetAllMembersInGroup(Activity activity)
-        //{
-        //    using (var scope = DialogModule.BeginLifetimeScope(Conversation.Container, activity))
-        //    {
-        //        IEnumerable<ChannelAccount> listMembers = new List<ChannelAccount>();
-
-        //        var client = scope.Resolve<IConnectorClient>();
-        //        listMembers = await client.Conversations.GetConversationMembersAsync(activity.Conversation.Id);
-        //        return listMembers.Where(m => !m.Id.Equals(activity.Recipient.Id));
-        //    }
-        //}
 
         private async Task InsertMemberConversation(ChannelAccount account)
         {
