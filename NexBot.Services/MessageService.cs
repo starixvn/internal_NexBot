@@ -29,9 +29,7 @@
             var connector = CreateConnectorClient(new Uri(activity.ServiceUrl));
             var reply = (activity as Activity).CreateReply(message);
             reply.TextFormat = "markdown";
-
             await connector.Conversations.ReplyToActivityAsync(reply);
-            await AddMessageLog(activity);
         }
 
         public async Task SendAdminAsync(string message)
