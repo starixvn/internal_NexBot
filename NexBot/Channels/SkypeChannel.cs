@@ -78,7 +78,6 @@
                 }
 
                 await Conversation.SendAsync(activity, () => new RegisterEventsDialog());
-                await messageService.AddSystemLog("aaa");
                 eventCategories = await registerMessageService.GetAllCategoryMessage(activity.Conversation.Id);
                 if (trimMessage.StartsWith("Remove"))
                 {
@@ -97,10 +96,6 @@
                         var result = await registerMessageService.RegisterEventMessage(activity.Conversation.Id, categoryId);
 
                         await messageService.SendReplyAsync(activity, result.Message);
-                    }
-                    else
-                    {
-                        await messageService.AddSystemLog(trimMessage);
                     }
                 }
             }
