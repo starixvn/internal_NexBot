@@ -78,7 +78,7 @@
             var cardActions = new List<CardAction>();
             foreach (var category in categories)
             {
-                var cardAction = new CardAction(ActionTypes.PostBack, category.Name, value: category.Name);
+                var cardAction = new CardAction(ActionTypes.PostBack, category.Name, value: category.RegisterCommand);
                 cardActions.Add(cardAction);
             }
 
@@ -113,7 +113,7 @@
             var cardActions = new List<CardAction>();
             foreach (var category in categories)
             {
-                var cardAction = new CardAction(ActionTypes.PostBack, category.Name, value: category.Name);
+                var cardAction = new CardAction(ActionTypes.PostBack, category.Name, value: category.RemoveCommand);
                 cardActions.Add(cardAction);
             }
 
