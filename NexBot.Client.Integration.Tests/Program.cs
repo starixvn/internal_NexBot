@@ -35,7 +35,7 @@ namespace NexBot.Client.Integration.Tests
             //    "Good morning !!", "29:1B0ITrMh54YOyDr7OHDCwULK81Ok3QQcOBrQYrVlw9vo");
 
             var result1 = botConnector.Send1(
-                "Good morning !!", "29:1B0ITrMh54YOyDr7OHDCwULK81Ok3QQcOBrQYrVlw9vo", attachment);
+                subject, "29:1B0ITrMh54YOyDr7OHDCwULK81Ok3QQcOBrQYrVlw9vo", attachment);
 
             
 

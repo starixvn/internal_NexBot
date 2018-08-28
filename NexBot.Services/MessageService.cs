@@ -86,7 +86,7 @@
 
                     var heroCard = new HeroCard
                     {
-                        Title = messageText,
+                        Text = messageText,
                         Buttons = cardActions
                     };
 
