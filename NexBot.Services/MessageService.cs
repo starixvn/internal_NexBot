@@ -1,6 +1,7 @@
 ﻿namespace NexBot.Services
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Microsoft.Bot.Connector;
     using Microsoft.Extensions.Configuration;
@@ -55,6 +56,33 @@
                 if (!string.IsNullOrEmpty(messageText))
                 {
                     message.Text = messageText;
+                    await connector.Conversations.SendToConversationAsync((Activity)message);
+                    await AddMessageLog(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                await AddSystemLog(ex.Message);
+                await SendAdminAsync(
+                    $"Error happen in client with ConversationId: {conversationId} & Message: {messageText}\n\n" +
+                    $"Exception: {ex.Message}");
+            }
+        }
+
+        public async Task SendWithAttachmentAsync(string conversationId, string messageText, Attachment attachment)
+        {
+            var conversation = await conversationService.GetConversationById(conversationId);
+            var connector = CreateConnectorClient(new Uri(conversation.ServiceUrl));
+            var message = CreateMessageActivity(conversation);
+            try
+            {
+                if (!string.IsNullOrEmpty(messageText))
+                {
+                    message.Text = messageText;
+                    message.Attachments = new List<Attachment>()
+                    {
+                        attachment
+                    };
                     await connector.Conversations.SendToConversationAsync((Activity)message);
                     await AddMessageLog(message);
                 }

@@ -50,7 +50,17 @@
         [Route("Forward")]
         public async Task Forward(string conversationId, string message)
         {
+            await messageService.AddSystemLog("Forward");
             await messageService.SendAsync(conversationId, message);
+        }
+
+        [Authorize(Roles = "Bot")]
+        [HttpPost]
+        [Route("Forward")]
+        public async Task ForwardWithAttachment(string conversationId, string message, Attachment attachment)
+        {
+            await messageService.AddSystemLog("Forward with attachment");
+            await messageService.SendWithAttachmentAsync(conversationId, message, attachment);
         }
     }
 }

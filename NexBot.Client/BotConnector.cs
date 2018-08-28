@@ -1,6 +1,7 @@
 ﻿namespace NexBot.Client
 {
     using System.Text;
+    using Microsoft.Bot.Connector;
     using NexBot.Client.Configuration;
     using NexBot.Client.Models;
     using RestSharp;
@@ -24,6 +25,30 @@
             var result = ForwardToBot(message, conversationId, token);
 
             return result;
+        }
+
+        public string Send1(string message, string conversationId, Attachment attachment)
+        {
+            var token = GetToken();
+            var result = ForwardToBot1(message, conversationId, attachment, token);
+
+            return result;
+        }
+
+        private string ForwardToBot1(string message, string conversationId, Attachment attachment, Token token)
+        {
+            _webClient.BaseUrl = BotSettings.BotServiceUrl;
+
+            var request = new RestRequest("/messages/forwardwithattachment", Method.POST);
+            request.AddHeader("Authorization", $"Bearer {token.AccessToken}");
+            request.AddHeader("content-type", "application/x-www-form-urlencoded");
+            request.AddParameter("message", message);
+            request.AddParameter("attachment", attachment);
+            request.AddParameter("conversationId", conversationId);
+
+            var result = _webClient.Execute(request);
+
+            return result.Content;
         }
 
         private string ForwardToBot(string message, string conversationId, Token token)
