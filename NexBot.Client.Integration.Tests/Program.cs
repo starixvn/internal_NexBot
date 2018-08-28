@@ -10,9 +10,9 @@ namespace NexBot.Client.Integration.Tests
 
             var subject = "Dear Quinn, \n\n"
 + "This is inform you about your member, Oliver(Đặng Hoàng Hải) had a leave request \n\n"
-+ "- Date: 24 Aug, 2018(0.5 day from 08:00 to 12:00) \n\n"
-+ "- Type: Annual Leave \n\n"
-+ "- Remark:  Tesing \n\n"
++ "_- Date: 24 Aug, 2018 (0.5 day from 08:00 to 12:00)_ \n\n"
++ "_- Type: Annual Leave_ \n\n"
++ "_- Remark:  Tesing_ \n\n"
 + "Please process this request at: http://hrm.nexcel.vn/request/member \n\n"
             + "Any questions, please contact HR department.";
 
@@ -21,7 +21,7 @@ namespace NexBot.Client.Integration.Tests
             var cardActions = new List<CardAction>();
             
             cardActions.Add(new CardAction(ActionTypes.PostBack, "Approve", value: "Approve"));
-            cardActions.Add(new CardAction(ActionTypes.PostBack, "Reject", value: "Reject"));
+            //cardActions.Add(new CardAction(ActionTypes.PostBack, "Reject", value: "Reject"));
 
             var heroCard = new HeroCard
             {
