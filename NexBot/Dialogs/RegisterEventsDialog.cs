@@ -41,6 +41,34 @@
                         3,
                         PromptStyle.Auto);
                 }
+                else if (message.Equals("test"))
+                {
+                    var subject = "Dear Quinn, \n\n"
++ "This is inform you about your member, Oliver(Đặng Hoàng Hải) had a leave request \n\n"
++ "- Date: 24 Aug, 2018 (0.5 day from 08:00 to 12:00) \n\n"
++ "- Type: Annual Leave \n\n"
++ "- Remark:  Tesing \n\n"
++ "Please process this request at: http://hrm.nexcel.vn/request/member \n\n"
+           + "Any questions, please contact HR department.";
+
+                    var cardActions = new List<CardAction>();
+
+                    cardActions.Add(new CardAction(ActionTypes.PostBack, "Approve", value: "Approve"));
+                    cardActions.Add(new CardAction(ActionTypes.PostBack, "Reject", value: "Reject"));
+
+                    var heroCard = new HeroCard
+                    {
+                        Buttons = cardActions
+                    };
+
+                    var attachment = heroCard.ToAttachment();
+
+                    var messageReply = context.MakeMessage();
+                    messageReply.Text = subject;
+                    messageReply.Attachments.Add(attachment);
+
+                    await context.PostAsync(messageReply);
+                }
             }
         }
 

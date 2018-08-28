@@ -26,6 +26,7 @@ namespace NexBot.Client.Integration.Tests
             var heroCard = new HeroCard
             {
                 Title = subject,
+                
                 Buttons = cardActions
             };
 

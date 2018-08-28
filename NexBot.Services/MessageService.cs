@@ -78,15 +78,14 @@
             {
                 if (!string.IsNullOrEmpty(messageText))
                 {
-                    //message.Text = messageText;
+                    message.Text = messageText;
                     var cardActions = new List<CardAction>();
 
                     cardActions.Add(new CardAction(ActionTypes.PostBack, "Approve", value: "Approve"));
                     cardActions.Add(new CardAction(ActionTypes.PostBack, "Reject", value: "Reject"));
 
                     var heroCard = new HeroCard
-                    {
-                        Text = messageText,
+                    { 
                         Buttons = cardActions
                     };
 
