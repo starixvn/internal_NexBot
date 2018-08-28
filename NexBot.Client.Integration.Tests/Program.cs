@@ -25,15 +25,15 @@ namespace NexBot.Client.Integration.Tests
 
             var attachment = heroCard.ToAttachment();
 
-            var result = botConnector.Send(
-                "Good morning !!", "29:1B0ITrMh54YOyDr7OHDCwULK81Ok3QQcOBrQYrVlw9vo");
+            //var result = botConnector.Send(
+            //    "Good morning !!", "29:1B0ITrMh54YOyDr7OHDCwULK81Ok3QQcOBrQYrVlw9vo");
 
             var result1 = botConnector.Send1(
                 "Good morning !!", "29:1B0ITrMh54YOyDr7OHDCwULK81Ok3QQcOBrQYrVlw9vo", attachment);
 
             
 
-            System.Console.WriteLine(result);
+            System.Console.WriteLine(result1);
             System.Console.ReadLine();
         }
     }

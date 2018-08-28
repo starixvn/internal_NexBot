@@ -79,9 +79,22 @@
                 if (!string.IsNullOrEmpty(messageText))
                 {
                     message.Text = messageText;
+                    var cardActions = new List<CardAction>();
+
+                    cardActions.Add(new CardAction(ActionTypes.PostBack, "Approve", value: "Approve"));
+                    cardActions.Add(new CardAction(ActionTypes.PostBack, "Reject", value: "Reject"));
+
+                    var heroCard = new HeroCard
+                    {
+                        Subtitle = "Please Action request!",
+                        Buttons = cardActions
+                    };
+
+                    var attachment1 = heroCard.ToAttachment();
+
                     message.Attachments = new List<Attachment>()
                     {
-                        attachment
+                        attachment1
                     };
                     await connector.Conversations.SendToConversationAsync((Activity)message);
                     await AddMessageLog(message);
