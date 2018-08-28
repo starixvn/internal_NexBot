@@ -78,7 +78,7 @@
             {
                 if (!string.IsNullOrEmpty(messageText))
                 {
-                    message.Text = messageText;
+                    //message.Text = messageText;
                     var cardActions = new List<CardAction>();
 
                     cardActions.Add(new CardAction(ActionTypes.PostBack, "Approve", value: "Approve"));
@@ -86,7 +86,7 @@
 
                     var heroCard = new HeroCard
                     {
-                        Subtitle = "Please Action request!",
+                        Title = messageText,
                         Buttons = cardActions
                     };
 

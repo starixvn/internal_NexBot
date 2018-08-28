@@ -8,7 +8,13 @@ namespace NexBot.Client.Integration.Tests
         private static void Main(string[] args)
         {
 
-
+            var subject = "Dear Quinn, \n\n"
++ "This is inform you about your member, Oliver(Đặng Hoàng Hải) had a leave request \n\n"
++ "- Date: 24 Aug, 2018(0.5 day from 08:00 to 12:00) \n\n"
++ "- Type: Annual Leave \n\n"
++ "- Remark:  Tesing \n\n"
++ "Please process this request at: http://hrm.nexcel.vn/request/member \n\n"
+            + "Any questions, please contact HR department.";
 
             var botConnector = new BotConnector();
 
@@ -19,7 +25,7 @@ namespace NexBot.Client.Integration.Tests
 
             var heroCard = new HeroCard
             {
-                Subtitle = "Please Action request!",
+                Title = subject,
                 Buttons = cardActions
             };
 
