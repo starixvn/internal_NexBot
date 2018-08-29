@@ -27,7 +27,7 @@
 
         private string ForwardToHRM(long requestId, string nickName)
         {
-            webClient.BaseUrl = new Uri("http://10.18.200.114:8081/api/");
+            webClient.BaseUrl = new Uri("http://10.18.200.114:8081/api");
 
             var request = new RestRequest("/Request/ProcessRequest", Method.POST);
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
