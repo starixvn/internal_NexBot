@@ -18,25 +18,8 @@ namespace NexBot.Client.Integration.Tests
 
             var botConnector = new BotConnector();
 
-            var cardActions = new List<CardAction>();
-            
-            cardActions.Add(new CardAction(ActionTypes.PostBack, "Approve", value: "Approve"));
-            //cardActions.Add(new CardAction(ActionTypes.PostBack, "Reject", value: "Reject"));
-
-            var heroCard = new HeroCard
-            {
-                Title = subject,
-                
-                Buttons = cardActions
-            };
-
-            var attachment = heroCard.ToAttachment();
-
-            //var result = botConnector.Send(
-            //    "Good morning !!", "29:1B0ITrMh54YOyDr7OHDCwULK81Ok3QQcOBrQYrVlw9vo");
-
-            var result1 = botConnector.Send1(
-                subject, "29:1B0ITrMh54YOyDr7OHDCwULK81Ok3QQcOBrQYrVlw9vo", attachment);
+            var result1 = botConnector.Send(
+                subject, "29:1B0ITrMh54YOyDr7OHDCwULK81Ok3QQcOBrQYrVlw9vo");
 
             
 
