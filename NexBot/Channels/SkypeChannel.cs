@@ -93,6 +93,8 @@
                 }
                 else if (trimMessage.StartsWith("cmdApprovedRequest"))
                 {
+                    await messageService.AddSystemLog("click approve");
+                    await messageService.AddSystemLog(trimMessage);
                     await requestService.ApproveRequest(activity.Conversation.Id, trimMessage);
                 }
                 else
