@@ -44,6 +44,7 @@
             services.AddScoped<IBaseService, BaseService>();
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IMessageService, MessageService>();
+            services.AddScoped<IRequestService, RequestService>();
             services.AddScoped<IRegisterMessageService, RegisterMessageService>();
             services.AddScoped<IChannel, SkypeChannel>();
             services.AddScoped<IChannel, TelegramChannel>();
