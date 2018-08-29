@@ -11,14 +11,17 @@
     public class MessagesController : Controller
     {
         private readonly IMessageService messageService;
+        private readonly IRequestService requestService;
         private readonly IConversationService conversationService;
         private readonly IRegisterMessageService registerMessageService;
 
         public MessagesController(IMessageService messageService,
+             IRequestService requestService,
              IConversationService conversationService,
              IRegisterMessageService registerMessageService)
         {
             this.messageService = messageService;
+            this.requestService = requestService;
             this.conversationService = conversationService;
             this.registerMessageService = registerMessageService;
         }
@@ -30,13 +33,13 @@
             switch (activity.ChannelId)
             {
                 case "skype":
-                    channel = new SkypeChannel(messageService, conversationService, registerMessageService);
+                    channel = new SkypeChannel(messageService, requestService, conversationService, registerMessageService);
                     break;
                 case "telegram":
                     channel = new TelegramChannel(messageService, conversationService, registerMessageService);
                     break;
                 default:
-                    channel = new SkypeChannel(messageService, conversationService, registerMessageService);
+                    channel = new SkypeChannel(messageService, requestService, conversationService, registerMessageService);
                     break;
             }
 
@@ -52,15 +55,6 @@
         {
             await messageService.AddSystemLog("Forward");
             await messageService.SendAsync(conversationId, message);
-        }
-
-        [Authorize(Roles = "Bot")]
-        [HttpPost]
-        [Route("ForwardWithAttachment")]
-        public async Task ForwardWithAttachment(string conversationId, string message, Attachment attachment)
-        {
-            await messageService.AddSystemLog("Forward with attachment");
-            await messageService.SendWithAttachmentAsync(conversationId, message, attachment);
         }
     }
 }

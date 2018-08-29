@@ -10,7 +10,7 @@
 
         Task SendAsync(string conversationId, string messageText);
 
-        Task SendWithAttachmentAsync(string conversationId, string messageText, Attachment attachment);
+        Task SendRequestAsync(string conversationId, long requestId, string messageText);
 
         ConnectorClient CreateConnectorClient(Uri serviceUrl);
 

@@ -69,7 +69,7 @@
             }
         }
 
-        public async Task SendWithAttachmentAsync(string conversationId, string messageText, Attachment attachment)
+        public async Task SendRequestAsync(string conversationId, long requestId, string messageText)
         {
             var conversation = await conversationService.GetConversationById(conversationId);
             var connector = CreateConnectorClient(new Uri(conversation.ServiceUrl));
@@ -81,19 +81,16 @@
                     message.Text = messageText;
                     var cardActions = new List<CardAction>();
 
-                    cardActions.Add(new CardAction(ActionTypes.PostBack, "Approve", value: "Approve"));
-                    //cardActions.Add(new CardAction(ActionTypes.PostBack, "Reject", value: "Reject"));
-
+                    cardActions.Add(new CardAction(ActionTypes.PostBack, "Approved", value: "cmdApprovedRequest:" + requestId.ToString()));
                     var heroCard = new HeroCard
                     { 
                         Buttons = cardActions
                     };
 
-                    var attachment1 = heroCard.ToAttachment();
-
+                    var attachment = heroCard.ToAttachment();
                     message.Attachments = new List<Attachment>()
                     {
-                        attachment1
+                        attachment
                     };
                     await connector.Conversations.SendToConversationAsync((Activity)message);
                     await AddMessageLog(message);

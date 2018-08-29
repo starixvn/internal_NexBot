@@ -16,14 +16,17 @@
     public class SkypeChannel : IChannel
     {
         private readonly IMessageService messageService;
+        private readonly IRequestService requestService;
         private readonly IConversationService conversationService;
         private readonly IRegisterMessageService registerMessageService;
 
         public SkypeChannel(IMessageService messageService,
+             IRequestService requestService,
              IConversationService conversationService,
              IRegisterMessageService registerMessageService)
         {
             this.messageService = messageService;
+            this.requestService = requestService;
             this.conversationService = conversationService;
             this.registerMessageService = registerMessageService;
         }
@@ -87,6 +90,10 @@
                         var result = await registerMessageService.RemoveRegisteredMessage(activity.Conversation.Id, categoryId);
                         await messageService.SendReplyAsync(activity, result.Message);
                     }
+                }
+                else if (trimMessage.StartsWith("cmdApprovedRequest"))
+                {
+                    await requestService.ApproveRequest(activity.Conversation.Id, trimMessage);
                 }
                 else
                 {

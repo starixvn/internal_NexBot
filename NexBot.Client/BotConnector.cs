@@ -39,7 +39,7 @@
         {
             _webClient.BaseUrl = BotSettings.BotServiceUrl;
 
-            var request = new RestRequest("/messages/forwardwithattachment", Method.POST);
+            var request = new RestRequest("/request/approve", Method.POST);
             request.AddHeader("Authorization", $"Bearer {token.AccessToken}");
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
             request.AddParameter("message", message);
