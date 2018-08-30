@@ -27,14 +27,11 @@
 
         private string ForwardToHRM(long requestId, string nickName)
         {
-            webClient.BaseUrl = new Uri("http://10.18.200.114:8081");
+            webClient.BaseUrl = new Uri("http://10.18.200.114:8081/api/");
+            var requestUrl = string.Format("Request/ProcessRequest?requestId={0}&command={1}&nickName={2}", requestId, "approve", nickName);
 
-            var request = new RestRequest("/api/Request/ProcessRequest", Method.POST);
+            var request = new RestRequest(requestUrl, Method.POST);
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
-            request.AddParameter("requestId", requestId.ToString());
-            request.AddParameter("command", "approve");
-            request.AddParameter("nickName", nickName);
-
             var result = webClient.Execute(request);
 
             return result.Content;

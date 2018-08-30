@@ -30,26 +30,23 @@
                 long requestId;
                 long.TryParse(slitCommandRequest[1], out requestId);
                 await messageService.AddSystemLog(requestId.ToString());
-                //var hrmConnector = new HRMConnector();
-                //hrmConnector.Send(requestId, nickName);
+                var hrmConnector = new HRMConnector();
+                hrmConnector.Send(requestId, nickName);
 
-                var webClient = new RestClient { Encoding = Encoding.UTF8 };
+                //var webClient = new RestClient { Encoding = Encoding.UTF8 };
+                //webClient.BaseUrl = new Uri("http://10.18.200.114:8081/api/");
+                //var requestUrl = string.Format("Request/ProcessRequest?requestId={0}&command={1}&nickName={2}", requestId, "approve", nickName);
 
-                webClient.BaseUrl = new Uri("http://10.18.200.114:8081/api/");
+                //var request = new RestRequest(requestUrl, Method.POST);
+                //request.AddHeader("content-type", "application/x-www-form-urlencoded");
 
-                var request = new RestRequest("/request/processrequest", Method.POST);
-                request.AddHeader("content-type", "application/x-www-form-urlencoded");
-                request.AddParameter("requestId", requestId.ToString());
-                request.AddParameter("command", "approve");
-                request.AddParameter("nickName", nickName);
+                //await messageService.AddSystemLog(request.ToString());
 
-                await messageService.AddSystemLog(request.ToString());
+                //var result = webClient.Execute(request);
 
-                var result = webClient.Execute(request);
+                //await messageService.AddSystemLog(result.StatusCode.ToString());
 
-                await messageService.AddSystemLog(result.StatusCode.ToString());
-
-                await messageService.AddSystemLog("done");
+                //await messageService.AddSystemLog("done");
             }
 
         }
