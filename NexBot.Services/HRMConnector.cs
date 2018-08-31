@@ -27,7 +27,7 @@
 
         private string ForwardToHRM(long requestId, string nickName)
         {
-            webClient.BaseUrl = new Uri("http://10.18.200.114:8081/api/");
+            webClient.BaseUrl = new Uri("https://hrm.nexcel.vn/api/");
             var requestUrl = "Request/ProcessRequest?requestId={requestId}&command={command}&nickName={nickName}";
 
             var request = new RestRequest(requestUrl, Method.POST);
