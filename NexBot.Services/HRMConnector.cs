@@ -33,7 +33,7 @@
             var request = new RestRequest(requestUrl, Method.POST);
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
             request.AddParameter("requestId", requestId, ParameterType.UrlSegment);
-            request.AddParameter("command", "approve", ParameterType.UrlSegment);
+            request.AddParameter("command", "Approve", ParameterType.UrlSegment);
             request.AddParameter("nickName", nickName, ParameterType.UrlSegment);
 
             var result = webClient.Execute(request);
