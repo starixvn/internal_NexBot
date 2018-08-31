@@ -81,9 +81,9 @@
                     message.Text = messageText;
                     var cardActions = new List<CardAction>();
 
-                    cardActions.Add(new CardAction(ActionTypes.PostBack, "Approved", value: "cmdApprovedRequest:" + requestId.ToString()));
+                    cardActions.Add(new CardAction(ActionTypes.PostBack, "Approve", value: "cmdApprovedRequest:" + requestId.ToString()));
                     var heroCard = new HeroCard
-                    { 
+                    {
                         Buttons = cardActions
                     };
 

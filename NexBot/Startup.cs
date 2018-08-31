@@ -11,6 +11,7 @@
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using NexBot.Channels;
+    using NexBot.Core;
     using NexBot.Core.Services;
     using NexBot.Core.Services.Interfaces;
     using NexBot.Services;
@@ -40,6 +41,7 @@
                .UseConnectionStrings(connections)
                .UseDefaultDbSettingProvider("~/App_Data")
                .Run();
+            services.Configure<AppSettings>(options => Configuration.GetSection("AppSettings").Bind(options));
 
             services.AddScoped<IBaseService, BaseService>();
             services.AddScoped<IConversationService, ConversationService>();

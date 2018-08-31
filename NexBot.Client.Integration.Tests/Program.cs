@@ -1,14 +1,9 @@
-﻿using System;
-using System.Text;
-using RestSharp;
-
-namespace NexBot.Client.Integration.Tests
+﻿namespace NexBot.Client.Integration.Tests
 {
     internal class Program
     {
         private static void Main(string[] args)
         {
-
             var subject = "Dear Quinn, \n\n"
             + "This is inform you about your member, Oliver(Đặng Hoàng Hải) had a leave request \n\n"
             + "_- Date: 24 Aug, 2018 (0.5 day from 08:00 to 12:00)_ \n\n"

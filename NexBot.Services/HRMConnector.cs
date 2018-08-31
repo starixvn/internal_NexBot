@@ -2,20 +2,24 @@
 {
     using System;
     using System.Text;
+    using Microsoft.Extensions.Options;
+    using NexBot.Core;
     using NexBot.Services.Interfaces;
     using RestSharp;
 
-    public class HRMConnector: IHRMConnector
+    public class HRMConnector : IHRMConnector
     {
         private readonly IRestClient webClient;
+        private readonly IOptionsSnapshot<AppSettings> appSettings;
 
-        public HRMConnector() : this(null)
+        public HRMConnector() : this(null, null)
         {
         }
 
-        protected internal HRMConnector(IRestClient webClient)
+        protected internal HRMConnector(IRestClient webClient, IOptionsSnapshot<AppSettings> appSettings)
         {
             this.webClient = webClient ?? new RestClient { Encoding = Encoding.UTF8 };
+            this.appSettings = appSettings;
         }
 
         public string Send(long requestId, string nickName)
@@ -27,7 +31,7 @@
 
         private string ForwardToHRM(long requestId, string nickName)
         {
-            webClient.BaseUrl = new Uri("https://hrm.nexcel.vn/api/");
+            webClient.BaseUrl = new Uri(appSettings.Value.HrmBaseUrl);
             var requestUrl = "Request/ProcessRequest?requestId={requestId}&command={command}&nickName={nickName}";
 
             var request = new RestRequest(requestUrl, Method.POST);
@@ -40,6 +44,5 @@
 
             return result.Content;
         }
-
     }
 }
