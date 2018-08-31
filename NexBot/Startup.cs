@@ -16,6 +16,7 @@
     using NexBot.Core.Services.Interfaces;
     using NexBot.Services;
     using NexBot.Services.Interfaces;
+    using RestSharp;
 
     public class Startup
     {
@@ -46,6 +47,8 @@
             services.AddScoped<IBaseService, BaseService>();
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IMessageService, MessageService>();
+            services.AddScoped<IRestClient, RestClient>();
+            services.AddScoped<IHRMConnector, HRMConnector>();
             services.AddScoped<IRequestService, RequestService>();
             services.AddScoped<IRegisterMessageService, RegisterMessageService>();
             services.AddScoped<IChannel, SkypeChannel>();

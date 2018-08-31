@@ -35,9 +35,11 @@
                 case "skype":
                     channel = new SkypeChannel(messageService, requestService, conversationService, registerMessageService);
                     break;
+
                 case "telegram":
                     channel = new TelegramChannel(messageService, conversationService, registerMessageService);
                     break;
+
                 default:
                     channel = new SkypeChannel(messageService, requestService, conversationService, registerMessageService);
                     break;

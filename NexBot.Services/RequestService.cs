@@ -1,21 +1,22 @@
 ﻿namespace NexBot.Services
 {
-    using System;
-    using System.Text;
     using System.Threading.Tasks;
     using NexBot.Core.Services;
     using NexBot.Services.Interfaces;
-    using RestSharp;
 
     public class RequestService : BaseService, IRequestService
     {
         private readonly IConversationService conversationService;
         private readonly IMessageService messageService;
+        private readonly IHRMConnector hrmConnector;
 
-        public RequestService(IConversationService conversationService, IMessageService messageService)
+        public RequestService(IConversationService conversationService,
+            IMessageService messageService,
+            IHRMConnector hrmConnector)
         {
             this.conversationService = conversationService;
             this.messageService = messageService;
+            this.hrmConnector = hrmConnector;
         }
 
         public async Task ApproveRequest(string conversationId, string commandRequest)
@@ -30,7 +31,6 @@
                 long requestId;
                 long.TryParse(slitCommandRequest[1], out requestId);
                 await messageService.AddSystemLog(requestId.ToString());
-                var hrmConnector = new HRMConnector();
                 hrmConnector.Send(requestId, nickName);
 
                 //var webClient = new RestClient { Encoding = Encoding.UTF8 };
@@ -48,7 +48,6 @@
 
                 //await messageService.AddSystemLog("done");
             }
-
         }
     }
 }

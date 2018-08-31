@@ -12,11 +12,7 @@
         private readonly IRestClient webClient;
         private readonly IOptionsSnapshot<AppSettings> appSettings;
 
-        public HRMConnector() : this(null, null)
-        {
-        }
-
-        protected internal HRMConnector(IRestClient webClient, IOptionsSnapshot<AppSettings> appSettings)
+        public HRMConnector(IRestClient webClient, IOptionsSnapshot<AppSettings> appSettings)
         {
             this.webClient = webClient ?? new RestClient { Encoding = Encoding.UTF8 };
             this.appSettings = appSettings;
