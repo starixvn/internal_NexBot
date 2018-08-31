@@ -55,7 +55,6 @@
         [Route("Forward")]
         public async Task Forward(string conversationId, string message)
         {
-            await messageService.AddSystemLog("Forward");
             await messageService.SendAsync(conversationId, message);
         }
     }
