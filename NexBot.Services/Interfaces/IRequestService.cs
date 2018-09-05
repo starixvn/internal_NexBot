@@ -4,6 +4,6 @@
 
     public interface IRequestService
     {
-        Task ApproveRequest(string conversationId, string commandRequest);
+        Task ProcessRequest(string conversationId, string commandRequest, string command);
     }
 }

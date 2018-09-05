@@ -15,7 +15,7 @@
             this.hrmConnector = hrmConnector;
         }
 
-        public async Task ApproveRequest(string conversationId, string commandRequest)
+        public async Task ProcessRequest(string conversationId, string commandRequest, string command)
         {
             var conversation = await conversationService.GetConversationById(conversationId);
             var nickName = conversation.NickName;
@@ -24,7 +24,7 @@
             {
                 long requestId;
                 long.TryParse(slitCommandRequest[1], out requestId);
-                hrmConnector.Send(requestId, nickName);
+                hrmConnector.Send(requestId, nickName, command);
             }
         }
     }

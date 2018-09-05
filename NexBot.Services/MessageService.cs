@@ -82,6 +82,7 @@
                     var cardActions = new List<CardAction>();
 
                     cardActions.Add(new CardAction(ActionTypes.PostBack, "Approve", value: "cmdApprovedRequest:" + requestId.ToString()));
+                    cardActions.Add(new CardAction(ActionTypes.PostBack, "Reject", value: "cmdRejectRequest:" + requestId.ToString()));
                     var heroCard = new HeroCard
                     {
                         Buttons = cardActions

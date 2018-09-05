@@ -2,6 +2,6 @@
 {
     public interface IHRMConnector
     {
-        string Send(long requestId, string nickName);
+        string Send(long requestId, string nickName, string command);
     }
 }

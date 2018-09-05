@@ -18,14 +18,14 @@
             this.appSettings = appSettings;
         }
 
-        public string Send(long requestId, string nickName)
+        public string Send(long requestId, string nickName, string command)
         {
-            var result = ForwardToHRM(requestId, nickName);
+            var result = ForwardToHRM(requestId, nickName, command);
 
             return result;
         }
 
-        private string ForwardToHRM(long requestId, string nickName)
+        private string ForwardToHRM(long requestId, string nickName, string command)
         {
             webClient.BaseUrl = new Uri(appSettings.Value.HrmBaseUrl);
             var requestUrl = "Request/ProcessRequest?requestId={requestId}&command={command}&nickName={nickName}";
@@ -33,7 +33,7 @@
             var request = new RestRequest(requestUrl, Method.POST);
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
             request.AddParameter("requestId", requestId, ParameterType.UrlSegment);
-            request.AddParameter("command", "Approve", ParameterType.UrlSegment);
+            request.AddParameter("command", command, ParameterType.UrlSegment);
             request.AddParameter("nickName", nickName, ParameterType.UrlSegment);
 
             var result = webClient.Execute(request);

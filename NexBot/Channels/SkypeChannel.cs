@@ -93,9 +93,11 @@
                 }
                 else if (trimMessage.StartsWith("cmdApprovedRequest"))
                 {
-                    await messageService.AddSystemLog("click approve");
-                    await messageService.AddSystemLog(trimMessage);
-                    await requestService.ApproveRequest(activity.Conversation.Id, trimMessage);
+                    await requestService.ProcessRequest(activity.Conversation.Id, trimMessage, "Approve");
+                }
+                else if (trimMessage.StartsWith("cmdRejectRequest"))
+                {
+                    await requestService.ProcessRequest(activity.Conversation.Id, trimMessage, "Reject");
                 }
                 else
                 {
