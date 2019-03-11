@@ -23,5 +23,13 @@
 
             return Json(accounts);
         }
+
+        [Route("GetAll")]
+        public async Task<JsonResult> GetAll()
+        {
+            var accounts = await accountService.GetAllConversationUser().ConfigureAwait(false);
+
+            return Json(accounts);
+        }
     }
 }
