@@ -47,6 +47,7 @@
             services.AddScoped<IBaseService, BaseService>();
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IMessageService, MessageService>();
+            services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IRestClient, RestClient>();
             services.AddScoped<IHRMConnector, HRMConnector>();
             services.AddScoped<IRequestService, RequestService>();
