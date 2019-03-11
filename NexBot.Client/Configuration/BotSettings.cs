@@ -9,7 +9,7 @@
 
         public static Uri BotServiceUrl { get; internal set; }
             = new Uri(ConfigurationManager.AppSettings["FanexBotClient:BotServiceUrl"] ??
-                "https://t1.tkns.stream/api/");
+                "https://nexbot.tk/api/");
 
         public static string ClientId { get; internal set; }
             = ConfigurationManager.AppSettings["MicrosoftAppId"] ??

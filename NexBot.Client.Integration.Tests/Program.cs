@@ -4,18 +4,12 @@
     {
         private static void Main(string[] args)
         {
-            var subject = "Dear Quinn, \n\n"
-            + "This is inform you about your member, Oliver(Đặng Hoàng Hải) had a leave request \n\n"
-            + "_- Date: 24 Aug, 2018 (0.5 day from 08:00 to 12:00)_ \n\n"
-            + "_- Type: Annual Leave_ \n\n"
-            + "_- Remark:  Tesing1 _ \n\n"
-            + "Please process this request at: http://hrm.nexcel.vn/request/member \n\n"
-            + "Any questions, please contact HR department.";
+            var subject = "Good morning!";
 
             var botConnector = new BotConnector();
 
             var result = botConnector.Send(
-                subject, "29:1B0ITrMh54YOyDr7OHDCwULK81Ok3QQcOBrQYrVlw9vo");
+                subject, "29:1FHnlKj9e2Pnz9eb5NgXGBkemLvJ9L-fqB8x3LKMLpso");
 
             //var webClient = new RestClient { Encoding = Encoding.UTF8 };
             //webClient.BaseUrl = new Uri("http://10.18.200.114:8081/api/");

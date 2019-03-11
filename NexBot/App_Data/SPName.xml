@@ -7,6 +7,7 @@
     <Setting Key="Conversation_DeactiveById" SpName="Conversation_DeactiveById" DbName="NexBot"></Setting>
     <Setting Key="Conversation_InsertByChannelAccount" SpName="Conversation_InsertByChannelAccount" DbName="NexBot"></Setting>
     <Setting Key="ConversationBot_GetById" SpName="ConversationBot_GetById" DbName="NexBot"></Setting>
+    <Setting Key="ConversationUser_GetAll" SpName="ConversationUser_GetAll" DbName="NexBot"></Setting>
   </Function>
   <Function Name="GroupConversation">
     <Setting Key="GroupUserConversation_InsertMulti" SpName="GroupUserConversation_InsertMulti" DbName="NexBot"></Setting>

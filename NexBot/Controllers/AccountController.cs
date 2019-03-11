@@ -1,0 +1,27 @@
+﻿namespace NexBot.Controllers
+{
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using NexBot.Services.Interfaces;
+
+    [Route("api/[controller]")]
+    public class AccountController : Controller
+    {
+        private readonly IAccountService accountService;
+
+        public AccountController(IAccountService accountService)
+        {
+            this.accountService = accountService;
+        }
+
+        [Authorize(Roles = "Bot")]
+        [Route("Index")]
+        public async Task<JsonResult> Get()
+        {
+            var accounts = await accountService.GetAllConversationUser().ConfigureAwait(false);
+
+            return Json(accounts);
+        }
+    }
+}
