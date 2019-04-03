@@ -99,6 +99,10 @@
                 {
                     await requestService.ProcessRequest(activity.Conversation.Id, trimMessage, "Reject");
                 }
+                else if (trimMessage.StartsWith("getid"))
+                {
+                    await messageService.SendReplyAsync(activity, activity.Conversation.Id);
+                }
                 else
                 {
                     if (eventCategories.Any(t => t.RegisterCommand.Equals(trimMessage)))
