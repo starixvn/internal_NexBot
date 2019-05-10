@@ -114,7 +114,7 @@
                 }
                 else if (trimMessage.StartsWith("start_remind_reachedworkingtime"))
                 {
-                    var result = await registerMessageService.RegisterEventMessage(activity.Conversation.Id, (int)MessageCategoryEnum.ReminderReachedWorkingHour);
+                    var result = await registerMessageService.RemoveIgnoredEventMessage(activity.Conversation.Id, (int)MessageCategoryEnum.ReminderReachedWorkingHour);
                     if (result.IsSuccessful)
                     {
                         await messageService.SendReplyAsync(activity, result.Message);
