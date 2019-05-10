@@ -8,6 +8,7 @@
     <Setting Key="Conversation_InsertByChannelAccount" SpName="Conversation_InsertByChannelAccount" DbName="NexBot"></Setting>
     <Setting Key="ConversationBot_GetById" SpName="ConversationBot_GetById" DbName="NexBot"></Setting>
     <Setting Key="ConversationUser_GetAll" SpName="ConversationUser_GetAll" DbName="NexBot"></Setting>
+    <Setting Key="Conversation_GetIgnoredAccountByMessageCategory" SpName="Conversation_GetIgnoredAccountByMessageCategory" DbName="NexBot"></Setting>
   </Function>
   <Function Name="GroupConversation">
     <Setting Key="GroupUserConversation_InsertMulti" SpName="GroupUserConversation_InsertMulti" DbName="NexBot"></Setting>
@@ -21,5 +22,7 @@
     <Setting Key="CategoryMessage_Get" SpName="CategoryMessage_Get" DbName="NexBot"></Setting>
     <Setting Key="ConversationRegister_Insert" SpName="ConversationRegister_Insert" DbName="NexBot"></Setting>
     <Setting Key="ConversationRegister_Remove" SpName="ConversationRegister_Remove" DbName="NexBot"></Setting>
+    <Setting Key="ConversationIgnored_Insert" SpName="ConversationIgnored_Insert" DbName="NexBot"></Setting>
+    <Setting Key="ConversationIgnored_Remove" SpName="ConversationIgnored_Remove" DbName="NexBot"></Setting>
   </Function>
 </Functions>

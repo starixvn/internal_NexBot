@@ -8,6 +8,7 @@
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Builder.Dialogs.Internals;
     using Microsoft.Bot.Connector;
+    using NexBot.Core;
     using NexBot.Core.Utilities;
     using NexBot.Dialogs;
     using NexBot.Models.CategoryMessage;
@@ -102,6 +103,22 @@
                 else if (trimMessage.StartsWith("getid"))
                 {
                     await messageService.SendReplyAsync(activity, activity.Conversation.Id);
+                }
+                else if (trimMessage.StartsWith("stop_remind_reachedworkingtime"))
+                {
+                    var result = await registerMessageService.IgnoreEventMessage(activity.Conversation.Id, (int)MessageCategoryEnum.ReminderReachedWorkingHour);
+                    if (result.IsSuccessful)
+                    {
+                        await messageService.SendReplyAsync(activity, result.Message);
+                    }
+                }
+                else if (trimMessage.StartsWith("start_remind_reachedworkingtime"))
+                {
+                    var result = await registerMessageService.RegisterEventMessage(activity.Conversation.Id, (int)MessageCategoryEnum.ReminderReachedWorkingHour);
+                    if (result.IsSuccessful)
+                    {
+                        await messageService.SendReplyAsync(activity, result.Message);
+                    }
                 }
                 else
                 {

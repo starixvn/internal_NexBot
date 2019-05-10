@@ -24,6 +24,15 @@
             return Json(accounts);
         }
 
+        //[Authorize(Roles = "Bot")]
+        [Route("GetIgnoredAccountByMessageCategory")]
+        public async Task<JsonResult> GetIgnoredAccountByMessageCategory(int messageCategoryId)
+        {
+            var accounts = await accountService.GetIgnoredAccountByMessageCategory(messageCategoryId).ConfigureAwait(false);
+
+            return Json(accounts);
+        }
+
         [Route("GetAll")]
         public async Task<JsonResult> GetAll()
         {

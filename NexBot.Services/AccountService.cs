@@ -18,5 +18,17 @@
 
             return conversationUsers.ToList();
         }
+
+        public async Task<IList<ConversationUser>> GetIgnoredAccountByMessageCategory(int messageCategoryId)
+        {
+            var criteria = new GetIgnoredAccountByMessageCategoryCriteria
+            {
+                MessageCategoryId = messageCategoryId
+            };
+
+            var conversationUsers = await GetDataAsync<ConversationUser>(criteria);
+
+            return conversationUsers.ToList();
+        }
     }
 }

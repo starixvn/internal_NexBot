@@ -62,6 +62,32 @@
             return result;
         }
 
+        public async Task<CommandResult> IgnoreEventMessage(string conversationId, int categoryId)
+        {
+            var criteria = new IgnoreEventMessageCriteria
+            {
+                ConversationId = conversationId,
+                CategoryId = categoryId
+            };
+
+            var result = await ExecuteNonQueryAsync(criteria);
+
+            return result;
+        }
+
+        public async Task<CommandResult> RemoveIgnoredEventMessage(string conversationId, int categoryId)
+        {
+            var criteria = new RemoveIgnoredEventMessageCriteria
+            {
+                ConversationId = conversationId,
+                CategoryId = categoryId
+            };
+
+            var result = await ExecuteNonQueryAsync(criteria);
+
+            return result;
+        }
+
         public async Task<IList<CategoryMessage>> GetAllCategoryMessage(string conversationId)
         {
             var criteria = new GetCategoryMessageCriteria

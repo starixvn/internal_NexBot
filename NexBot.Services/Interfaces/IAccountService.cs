@@ -7,5 +7,7 @@
     public interface IAccountService
     {
         Task<IList<ConversationUser>> GetAllConversationUser();
+
+        Task<IList<ConversationUser>> GetIgnoredAccountByMessageCategory(int messageCategoryId);
     }
 }
