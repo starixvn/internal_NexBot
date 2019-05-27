@@ -57,5 +57,11 @@
         {
             await messageService.SendAsync(conversationId, message);
         }
+
+        [Route("ResendErrorMessage")]
+        public async Task ResendErrorMessage()
+        {
+            await messageService.ReSendErrorMeesage();
+        }
     }
 }

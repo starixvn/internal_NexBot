@@ -11,6 +11,7 @@
     using NexBot.Criteria.Message;
     using NexBot.Models;
     using NexBot.Services.Interfaces;
+    using System.Linq;
 
     public class MessageService : BaseService, IMessageService
     {
@@ -62,6 +63,7 @@
             }
             catch (Exception ex)
             {
+                await AddErrorMessageLog(message);
                 await AddSystemLog(ex.Message);
                 await SendAdminAsync(
                     $"Error happen in client with ConversationId: {conversationId} & Message: {messageText}\n\n" +
@@ -99,10 +101,41 @@
             }
             catch (Exception ex)
             {
+                await AddErrorMessageLog(message);
                 await AddSystemLog(ex.Message);
                 await SendAdminAsync(
                     $"Error happen in client with ConversationId: {conversationId} & Message: {messageText}\n\n" +
                     $"Exception: {ex.Message}");
+            }
+        }
+
+        public async Task ReSendErrorMeesage()
+        {
+            var messages = await GetMessageLog();
+
+            foreach (var message in messages)
+            {
+                await ReSendMessage(message.ConversationId, message.MessageContent);
+            }
+        }
+
+        private async Task ReSendMessage(string conversationId, string messageText)
+        {
+            var conversation = await conversationService.GetConversationById(conversationId);
+            var connector = CreateConnectorClient(new Uri(conversation.ServiceUrl));
+            var message = CreateMessageActivity(conversation);
+            try
+            {
+                if (!string.IsNullOrEmpty(messageText))
+                {
+                    message.Text = messageText;
+                    await connector.Conversations.SendToConversationAsync((Activity)message);
+                    await AddMessageLog(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                await AddSystemLog(ex.Message);
             }
         }
 
@@ -147,6 +180,19 @@
             await ExecuteNonQueryAsync(criteria);
         }
 
+        private async Task AddErrorMessageLog(IMessageActivity activity)
+        {
+            var criteria = new InsertErrorMessageLogCriteria
+            {
+                ConversationId = activity.Conversation.Id,
+                FromConversationId = activity.From.Id,
+                FromName = activity.From.Name,
+                MessageContent = BotHelper.GenerateMessage(activity.Text)
+            };
+
+            await ExecuteNonQueryAsync(criteria);
+        }
+
         public async Task AddSystemLog(string logContent)
         {
             var criteria = new InsertSystemLogCriteria
@@ -155,6 +201,15 @@
             };
 
             await ExecuteNonQueryAsync(criteria);
+        }
+
+        public async Task<IList<Message>> GetMessageLog()
+        {
+            var criteria = new GetErrorMessageLogCriteria();
+
+            var messages = await GetDataAsync<Message>(criteria);
+
+            return messages.ToList();
         }
     }
 }

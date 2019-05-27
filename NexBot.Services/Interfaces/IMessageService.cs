@@ -15,5 +15,7 @@
         ConnectorClient CreateConnectorClient(Uri serviceUrl);
 
         Task AddSystemLog(string logContent);
+
+        Task ReSendErrorMeesage();
     }
 }

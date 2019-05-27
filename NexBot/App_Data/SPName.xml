@@ -16,6 +16,8 @@
   </Function>
   <Function Name="Log">
     <Setting Key="MessageLog_Insert" SpName="MessageLog_Insert" DbName="NexBot"></Setting>
+    <Setting Key="ErrorMessageLog_Insert" SpName="ErrorMessageLog_Insert" DbName="NexBot"></Setting>
+    <Setting Key="ErrorMessageLog_Get" SpName="ErrorMessageLog_Get" DbName="NexBot"></Setting>
     <Setting Key="SystemLog_Insert" SpName="SystemLog_Insert" DbName="NexBot"></Setting>
   </Function>
   <Function Name="Conversation Register">
