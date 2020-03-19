@@ -50,7 +50,6 @@
                 await messageService.AddSystemLog(ex.Message);
                 throw;
             }
-            
         }
 
         private async Task<Activity> HandleContactRelationUpdate(Activity activity)
@@ -75,13 +74,16 @@
             {
                 IList<CategoryMessage> eventCategories;
                 var trimMessage = activity.Text.Trim();
-                
+
                 if (activity.Conversation.IsGroup == true)
                 {
                     trimMessage = BotHelper.GetMessageInGroupByChannel(trimMessage, activity.ChannelId, activity.Recipient.Name);
                 }
+                else
+                {
+                    await Conversation.SendAsync(activity, () => new RegisterEventsDialog());
+                }
 
-                await Conversation.SendAsync(activity, () => new RegisterEventsDialog());
                 eventCategories = await registerMessageService.GetAllCategoryMessage(activity.Conversation.Id);
                 if (trimMessage.StartsWith("Remove"))
                 {
