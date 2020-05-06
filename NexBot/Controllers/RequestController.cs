@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using NexBot.Models;
     using NexBot.Services.Interfaces;
 
     [Route("api/[controller]")]
@@ -18,10 +19,10 @@
         [Authorize(Roles = "Bot")]
         [HttpPost]
         [Route("Approve")]
-        public async Task ApproveRequest(string conversationId, long requestId, string message)
+        public async Task ApproveRequest(SendRequestMessage requestMessage)
         {
             await messageService.AddSystemLog("Approve request");
-            await messageService.SendRequestAsync(conversationId, requestId, message);
+            await messageService.SendRequestAsync(requestMessage);
         }
     }
 }

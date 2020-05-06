@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using NexBot.Core.Services;
+    using NexBot.Models;
     using NexBot.Services.Interfaces;
 
     public class RequestService : BaseService, IRequestService
@@ -18,13 +19,20 @@
         public async Task ProcessRequest(string conversationId, string commandRequest, string command)
         {
             var conversation = await conversationService.GetConversationById(conversationId);
-            var nickName = conversation.NickName;
-            var slitCommandRequest = commandRequest.Split(':');
-            if (slitCommandRequest.Length == 2)
+            var slitCommandRequest = commandRequest.Split('_');
+            if (slitCommandRequest.Length == 3)
             {
                 long requestId;
                 long.TryParse(slitCommandRequest[1], out requestId);
-                hrmConnector.Send(requestId, nickName, command);
+                var processRequest = new ProcessRequest
+                {
+                    RequestId = requestId,
+                    NickName = conversation.NickName,
+                    Command = command,
+                    CallBackUrl = slitCommandRequest[2]
+                };
+
+                hrmConnector.Send(processRequest);
             }
         }
     }

@@ -1,7 +1,9 @@
 ﻿namespace NexBot.Services.Interfaces
 {
+    using NexBot.Models;
+
     public interface IHRMConnector
     {
-        string Send(long requestId, string nickName, string command);
+        string Send(ProcessRequest processRequest);
     }
 }

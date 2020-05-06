@@ -71,20 +71,22 @@
             }
         }
 
-        public async Task SendRequestAsync(string conversationId, long requestId, string messageText)
+        public async Task SendRequestAsync(SendRequestMessage requestMessage)
         {
-            var conversation = await conversationService.GetConversationById(conversationId);
+            var conversation = await conversationService.GetConversationById(requestMessage.ConversationId);
             var connector = CreateConnectorClient(new Uri(conversation.ServiceUrl));
             var message = CreateMessageActivity(conversation);
             try
             {
-                if (!string.IsNullOrEmpty(messageText))
+                if (!string.IsNullOrEmpty(requestMessage.Message))
                 {
-                    message.Text = messageText;
+                    message.Text = requestMessage.Message;
+                    var approveCommand = string.Format("{0}_{1}_{2}", "cmdApprovedRequest", requestMessage.RequestId.ToString(), requestMessage.CallBackUrl);
+                    var rejectCommand = string.Format("{0}_{1}_{2}", "cmdRejectRequest", requestMessage.RequestId.ToString(), requestMessage.CallBackUrl);
                     var cardActions = new List<CardAction>();
 
-                    cardActions.Add(new CardAction(ActionTypes.PostBack, "Approve", value: "cmdApprovedRequest:" + requestId.ToString()));
-                    cardActions.Add(new CardAction(ActionTypes.PostBack, "Reject", value: "cmdRejectRequest:" + requestId.ToString()));
+                    cardActions.Add(new CardAction(ActionTypes.PostBack, "Approve", value: approveCommand));
+                    cardActions.Add(new CardAction(ActionTypes.PostBack, "Reject", value: rejectCommand));
                     var heroCard = new HeroCard
                     {
                         Buttons = cardActions
@@ -104,7 +106,7 @@
                 await AddErrorMessageLog(message);
                 await AddSystemLog(ex.Message);
                 await SendAdminAsync(
-                    $"Error happen in client with ConversationId: {conversationId} & Message: {messageText}\n\n" +
+                    $"Error happen in client with ConversationId: {requestMessage.ConversationId} & Message: {requestMessage.Message}\n\n" +
                     $"Exception: {ex.Message}");
             }
         }

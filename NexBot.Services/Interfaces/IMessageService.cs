@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using Microsoft.Bot.Connector;
+    using NexBot.Models;
 
     public interface IMessageService
     {
@@ -10,7 +11,7 @@
 
         Task SendAsync(string conversationId, string messageText);
 
-        Task SendRequestAsync(string conversationId, long requestId, string messageText);
+        Task SendRequestAsync(SendRequestMessage requestMessage);
 
         ConnectorClient CreateConnectorClient(Uri serviceUrl);
 

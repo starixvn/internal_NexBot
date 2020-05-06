@@ -1,8 +1,5 @@
 ﻿namespace NexBot
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using Fanex.Data;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Builder;
@@ -11,12 +8,14 @@
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using NexBot.Channels;
-    using NexBot.Core;
     using NexBot.Core.Services;
     using NexBot.Core.Services.Interfaces;
     using NexBot.Services;
     using NexBot.Services.Interfaces;
     using RestSharp;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class Startup
     {
@@ -42,7 +41,6 @@
                .UseConnectionStrings(connections)
                .UseDefaultDbSettingProvider("~/App_Data")
                .Run();
-            services.Configure<AppSettings>(options => Configuration.GetSection("AppSettings").Bind(options));
 
             services.AddScoped<IBaseService, BaseService>();
             services.AddScoped<IConversationService, ConversationService>();
