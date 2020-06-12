@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Microsoft.Bot.Connector;
+    using Microsoft.Bot.Schema;
     using NexBot.Core.Models;
     using NexBot.Models;
 

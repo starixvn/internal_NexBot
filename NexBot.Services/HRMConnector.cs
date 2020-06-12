@@ -8,15 +8,23 @@
     using System;
     using System.Text;
 
-    public class HRMConnector : IHRMConnector
+    public class HrmConnector : IHRMConnector
     {
         private readonly IRestClient webClient;
         private readonly IConfiguration configuration;
 
-        public HRMConnector(IConfiguration configuration, IRestClient webClient)
+        public HrmConnector(IRestClient webClient, IOptionsSnapshot<AppSettings> appSettings)
         {
             this.configuration = configuration;
             this.webClient = webClient ?? new RestClient { Encoding = Encoding.UTF8 };
+            this.appSettings = appSettings;
+        }
+
+        public string Send(long requestId, string nickName, string command)
+        {
+            var result = ForwardToHRM(requestId, nickName, command);
+
+            return result;
         }
 
         public string Send(ProcessRequest processRequest)

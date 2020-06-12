@@ -1,8 +1,7 @@
 ﻿namespace NexBot.Services.Interfaces
 {
-    using System;
     using System.Threading.Tasks;
-    using Microsoft.Bot.Connector;
+    using Microsoft.Bot.Schema;
     using NexBot.Models;
 
     public interface IMessageService
@@ -12,8 +11,6 @@
         Task SendAsync(string conversationId, string messageText);
 
         Task SendRequestAsync(SendRequestMessage requestMessage);
-
-        ConnectorClient CreateConnectorClient(Uri serviceUrl);
 
         Task AddSystemLog(string logContent);
 

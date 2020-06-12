@@ -47,7 +47,7 @@
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IRestClient, RestClient>();
-            services.AddScoped<IHRMConnector, HRMConnector>();
+            services.AddScoped<IHRMConnector, HrmConnector>();
             services.AddScoped<IRequestService, RequestService>();
             services.AddScoped<IRegisterMessageService, RegisterMessageService>();
             services.AddScoped<IChannel, SkypeChannel>();

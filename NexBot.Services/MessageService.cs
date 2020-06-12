@@ -2,8 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Bot.Builder.Integration;
     using Microsoft.Bot.Connector;
+    using Microsoft.Bot.Connector.Authentication;
+    using Microsoft.Bot.Schema;
     using Microsoft.Extensions.Configuration;
     using NexBot.Core.Services;
     using NexBot.Core.Utilities;
@@ -11,104 +16,31 @@
     using NexBot.Criteria.Message;
     using NexBot.Models;
     using NexBot.Services.Interfaces;
-    using System.Linq;
 
     public class MessageService : BaseService, IMessageService
     {
         private readonly IConfiguration configuration;
+        private readonly IAdapterIntegration adapter;
         private readonly IConversationService conversationService;
 
         public MessageService(
+            IAdapterIntegration adapter,
             IConfiguration configuration,
             IConversationService conversationService)
         {
             this.configuration = configuration;
+            this.adapter = adapter;
             this.conversationService = conversationService;
         }
 
-        public async Task SendReplyAsync(IMessageActivity activity, string message)
+        public async Task AddSystemLog(string logContent)
         {
-            var connector = CreateConnectorClient(new Uri(activity.ServiceUrl));
-            var reply = (activity as Activity).CreateReply(message);
-            reply.TextFormat = "markdown";
-            await connector.Conversations.ReplyToActivityAsync(reply);
-        }
-
-        public async Task SendAdminAsync(string message)
-        {
-            var conversations = await conversationService.GetAdminConversation();
-            foreach (var conversation in conversations)
+            var criteria = new InsertSystemLogCriteria
             {
-                var connector = CreateConnectorClient(new Uri(conversation.ServiceUrl));
-                var adminMessage = CreateMessageActivity(conversation);
-                adminMessage.Text = message;
+                LogContent = logContent
+            };
 
-                await connector.Conversations.SendToConversationAsync((Activity)adminMessage);
-            }
-        }
-
-        public async Task SendAsync(string conversationId, string messageText)
-        {
-            var conversation = await conversationService.GetConversationById(conversationId);
-            var connector = CreateConnectorClient(new Uri(conversation.ServiceUrl));
-            var message = CreateMessageActivity(conversation);
-            try
-            {
-                if (!string.IsNullOrEmpty(messageText))
-                {
-                    message.Text = messageText;
-                    await connector.Conversations.SendToConversationAsync((Activity)message);
-                    await AddMessageLog(message);
-                }
-            }
-            catch (Exception ex)
-            {
-                await AddErrorMessageLog(message);
-                await AddSystemLog(ex.Message);
-                await SendAdminAsync(
-                    $"Error happen in client with ConversationId: {conversationId} & Message: {messageText}\n\n" +
-                    $"Exception: {ex.Message}");
-            }
-        }
-
-        public async Task SendRequestAsync(SendRequestMessage requestMessage)
-        {
-            var conversation = await conversationService.GetConversationById(requestMessage.ConversationId);
-            var connector = CreateConnectorClient(new Uri(conversation.ServiceUrl));
-            var message = CreateMessageActivity(conversation);
-            try
-            {
-                if (!string.IsNullOrEmpty(requestMessage.Message))
-                {
-                    message.Text = requestMessage.Message;
-                    var approveCommand = string.Format("{0}_{1}_{2}", "cmdApprovedRequest", requestMessage.RequestId.ToString(), requestMessage.CallBackUrl);
-                    var rejectCommand = string.Format("{0}_{1}_{2}", "cmdRejectRequest", requestMessage.RequestId.ToString(), requestMessage.CallBackUrl);
-                    var cardActions = new List<CardAction>();
-
-                    cardActions.Add(new CardAction(ActionTypes.PostBack, "Approve", value: approveCommand));
-                    cardActions.Add(new CardAction(ActionTypes.PostBack, "Reject", value: rejectCommand));
-                    var heroCard = new HeroCard
-                    {
-                        Buttons = cardActions
-                    };
-
-                    var attachment = heroCard.ToAttachment();
-                    message.Attachments = new List<Attachment>()
-                    {
-                        attachment
-                    };
-                    await connector.Conversations.SendToConversationAsync((Activity)message);
-                    await AddMessageLog(message);
-                }
-            }
-            catch (Exception ex)
-            {
-                await AddErrorMessageLog(message);
-                await AddSystemLog(ex.Message);
-                await SendAdminAsync(
-                    $"Error happen in client with ConversationId: {requestMessage.ConversationId} & Message: {requestMessage.Message}\n\n" +
-                    $"Exception: {ex.Message}");
-            }
+            await ExecuteNonQueryAsync(criteria);
         }
 
         public async Task ReSendErrorMeesage()
@@ -141,9 +73,115 @@
             }
         }
 
+        public async Task SendAsync(string conversationId, string messageText)
+        {
+            var conversationModel = await conversationService.GetConversationById(conversationId);
+            var conversationInfo = GetConversationReference(conversationModel);
+
+            await SendMessageAsync(conversationInfo, messageText);
+        }
+
+        private async Task SendMessageAsync(ConversationReference conversationReference, string message)
+        {
+            try
+            {
+                string appId = configuration.GetSection("MicrosoftAppId")?.Value;
+                await adapter.ContinueConversationAsync(appId, conversationReference,
+                        async (context, token) =>
+                        {
+                            AppCredentials.TrustServiceUrl(conversationReference.ServiceUrl);
+                            await context.SendActivityAsync(message);
+                        },
+                        new CancellationToken());
+            }
+            catch (Exception ex)
+            {
+                await AddErrorMessageLog(conversationReference, message);
+                await AddSystemLog(ex.Message);
+                await SendAdminAsync(
+                    $"Error happen in client with ConversationId: {conversationReference.Conversation.Id} & Message: {message}\n\n" +
+                    $"Exception: {ex.Message}");
+            }
+        }
+
+        private ConversationReference GetConversationReference(ConversationModel conversationModel)
+        {
+            var coversation = new ConversationReference
+            {
+                Bot = new ChannelAccount { Id = conversationModel.ConversationBotId, Name = conversationModel.ConversationBotName, Role = "bot" },
+                Conversation = new ConversationAccount { Id = conversationModel.ConversationId },
+                ServiceUrl = conversationModel.ServiceUrl,
+                ChannelId = conversationModel.ChannelId
+            };
+
+            return coversation;
+        }
+
+        private async Task AddErrorMessageLog(ConversationReference conversationReference, string message)
+        {
+            var criteria = new InsertErrorMessageLogCriteria
+            {
+                ConversationId = conversationReference.Conversation.Id,
+                FromConversationId = conversationReference.Bot.Id,
+                FromName = conversationReference.Bot.Name,
+                MessageContent = BotHelper.GenerateMessage(message)
+            };
+
+            await ExecuteNonQueryAsync(criteria);
+        }
+
+        public async Task SendRequestAsync(string conversationId, long requestId, string messageText)
+        {
+            var conversation = await conversationService.GetConversationById(requestMessage.ConversationId);
+            var connector = CreateConnectorClient(new Uri(conversation.ServiceUrl));
+            var message = CreateMessageActivity(conversation);
+            try
+            {
+                if (!string.IsNullOrEmpty(requestMessage.Message))
+                {
+                    message.Text = requestMessage.Message;
+                    var cardActions = new List<CardAction>
+                    {
+                        new CardAction(ActionTypes.PostBack, "Approve", value: "cmdApprovedRequest:" + requestId.ToString()),
+                        new CardAction(ActionTypes.PostBack, "Reject", value: "cmdRejectRequest:" + requestId.ToString())
+                    };
+                    var heroCard = new HeroCard
+                    {
+                        Buttons = cardActions
+                    };
+
+                    var attachment = heroCard.ToAttachment();
+                    message.Attachments = new List<Attachment>()
+                    {
+                        attachment
+                    };
+                    await connector.Conversations.SendToConversationAsync((Activity)message);
+                    await AddMessageLog(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                await AddErrorMessageLog(message);
+                await AddSystemLog(ex.Message);
+                await SendAdminAsync(
+                    $"Error happen in client with ConversationId: {requestMessage.ConversationId} & Message: {requestMessage.Message}\n\n" +
+                    $"Exception: {ex.Message}");
+            }
+        }
+
+        public async Task SendAdminAsync(string message)
+        {
+            var conversations = await conversationService.GetAdminConversation();
+            foreach (var conversation in conversations)
+            {
+                var adminConversationReferrence = GetConversationReference(conversation);
+                await SendMessageAsync(adminConversationReferrence, message);
+            }
+        }
+
         public ConnectorClient CreateConnectorClient(Uri serviceUrl)
         {
-            MicrosoftAppCredentials.TrustServiceUrl(serviceUrl.ToString(), DateTime.Now.AddDays(7));
+            AppCredentials.TrustServiceUrl(serviceUrl.ToString(), DateTime.Now.AddDays(7));
             var account = new MicrosoftAppCredentials(configuration.GetSection("MicrosoftAppId").Value, configuration.GetSection("MicrosoftAppPassword").Value);
             var connector = new ConnectorClient(serviceUrl, account);
 
@@ -167,6 +205,14 @@
             message.Conversation = new ConversationAccount(id: conversation.ConversationId);
 
             return message;
+        }
+
+        public async Task SendReplyAsync(IMessageActivity activity, string message)
+        {
+            var connector = CreateConnectorClient(new Uri(activity.ServiceUrl));
+            var reply = (activity as Activity).CreateReply(message);
+            reply.TextFormat = "markdown";
+            await connector.Conversations.ReplyToActivityAsync(reply);
         }
 
         private async Task AddMessageLog(IMessageActivity activity)
@@ -195,17 +241,7 @@
             await ExecuteNonQueryAsync(criteria);
         }
 
-        public async Task AddSystemLog(string logContent)
-        {
-            var criteria = new InsertSystemLogCriteria
-            {
-                LogContent = logContent
-            };
-
-            await ExecuteNonQueryAsync(criteria);
-        }
-
-        public async Task<IList<Message>> GetMessageLog()
+        private async Task<IList<Message>> GetMessageLog()
         {
             var criteria = new GetErrorMessageLogCriteria();
 

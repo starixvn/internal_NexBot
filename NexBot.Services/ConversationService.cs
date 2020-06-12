@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Microsoft.Bot.Connector;
+    using Microsoft.Bot.Schema;
     using NexBot.Core.Models;
     using NexBot.Core.Services;
     using NexBot.Criteria.Conversation;

@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexBot", "NexBot\NexBot.csproj", "{B049632B-D86D-47F4-8630-AF46E11CF0DA}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexBot.Core", "NexBot.Core\NexBot.Core.csproj", "{9EADA55E-FF05-4B12-8C57-E2399B0EC844}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexBot.Criteria", "NexBot.Criteria\NexBot.Criteria.csproj", "{A37303BF-2BFB-47D7-9096-A20AE1673C82}"
@@ -19,16 +17,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexBot.Client", "NexBot.Cli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexBot.Client.Integration.Tests", "NexBot.Client.Integration.Tests\NexBot.Client.Integration.Tests.csproj", "{33E2301F-7CED-4160-997C-F41859072B72}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexBot", "NexBot.Webhook\NexBot.csproj", "{3D9BEE0C-437C-4FF4-A807-9A127EE88707}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B049632B-D86D-47F4-8630-AF46E11CF0DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B049632B-D86D-47F4-8630-AF46E11CF0DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B049632B-D86D-47F4-8630-AF46E11CF0DA}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{B049632B-D86D-47F4-8630-AF46E11CF0DA}.Release|Any CPU.Build.0 = Debug|Any CPU
 		{9EADA55E-FF05-4B12-8C57-E2399B0EC844}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9EADA55E-FF05-4B12-8C57-E2399B0EC844}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9EADA55E-FF05-4B12-8C57-E2399B0EC844}.Release|Any CPU.ActiveCfg = Debug|Any CPU
@@ -53,6 +49,10 @@ Global
 		{33E2301F-7CED-4160-997C-F41859072B72}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33E2301F-7CED-4160-997C-F41859072B72}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{33E2301F-7CED-4160-997C-F41859072B72}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{3D9BEE0C-437C-4FF4-A807-9A127EE88707}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D9BEE0C-437C-4FF4-A807-9A127EE88707}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D9BEE0C-437C-4FF4-A807-9A127EE88707}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D9BEE0C-437C-4FF4-A807-9A127EE88707}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
