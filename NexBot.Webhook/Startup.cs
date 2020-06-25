@@ -3,15 +3,19 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Net.Http;
     using Fanex.Data;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Builder.Integration.AspNet.Core;
+    using Microsoft.Bot.Connector.Authentication;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
     using NexBot.Bots;
+    using NexBot.Configurations;
     using NexBot.Core;
     using NexBot.Core.Services;
     using NexBot.Core.Services.Interfaces;
@@ -21,9 +25,12 @@
 
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly ILogger logger;
+
+        public Startup(IConfiguration configuration, ILogger<Startup> logger)
         {
             Configuration = configuration;
+            this.logger = logger;
         }
 
         public IConfiguration Configuration { get; }
@@ -53,9 +60,31 @@
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
+            BotServiceDI(services);
+        }
 
+        private void BotServiceDI(IServiceCollection services)
+        {
+            services.AddTransient<ICredentialProvider, CredentialProvider>();
             services.AddTransient<IBot, SkypeBotHandler>();
+            var appSettingsSection = Configuration.GetSection("SkypeBotConfigurations");
+            services.Configure<SkypeBotConfigurations>(appSettingsSection);
+            var skypeBotConfigurations = appSettingsSection.Get<SkypeBotConfigurations>();
+            services.Configure<SkypeBotConfigurations>(options => Configuration.GetSection("SkypeBotConfigurations").Bind(options));
+
+            var botFrameworkHttpAdapter = GetBotFrameworkHttpAdapter(skypeBotConfigurations);
+            services.AddSingleton(botFrameworkHttpAdapter);
+
+            services.AddBot<SkypeBotHandler>(options =>
+            {
+                options.CredentialProvider = new CredentialProvider(skypeBotConfigurations);
+                options.HttpClient = new HttpClient();
+                options.OnTurnError = (turnContext, exception) =>
+                {
+                    logger.LogError($"Exception caught : {exception.Message}");
+                    throw exception;
+                };
+            });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -73,6 +102,15 @@
             app.UseStaticFiles();
             app.UseWebSockets();
             app.UseMvc();
+        }
+
+        private static IBotFrameworkHttpAdapter GetBotFrameworkHttpAdapter(SkypeBotConfigurations botConfig)
+        {
+            var credentialProvider = new CredentialProvider(botConfig);
+            HttpClient httpClient = new HttpClient();
+            IBotFrameworkHttpAdapter botFrameworkHttpAdapter = new BotFrameworkHttpAdapter(credentialProvider, null, httpClient, null);
+
+            return botFrameworkHttpAdapter;
         }
     }
 }
