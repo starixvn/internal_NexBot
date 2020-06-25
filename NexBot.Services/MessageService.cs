@@ -85,7 +85,7 @@
         {
             try
             {
-                string appId = configuration.GetSection("MicrosoftAppId")?.Value;
+                string appId = configuration.GetSection("SkypeBotConfigurations:MicrosoftAppId")?.Value;
                 await adapter.ContinueConversationAsync(appId, conversationReference,
                         async (context, token) =>
                         {
