@@ -30,5 +30,17 @@
 
             return conversationUsers.ToList();
         }
+
+        public async Task<IList<ConversationUser>> GetRegisteredConversationByMessageCategory(int messageCategoryId)
+        {
+            var criteria = new GetRegisteredConversationCriteria
+            {
+                MessageCategoryId = messageCategoryId
+            };
+
+            var conversationUsers = await GetDataAsync<ConversationUser>(criteria);
+
+            return conversationUsers.ToList();
+        }
     }
 }

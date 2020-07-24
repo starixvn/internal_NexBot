@@ -33,6 +33,14 @@
             return Json(accounts);
         }
 
+        [Route("GetRegisteredConversationByMessageCategory")]
+        public async Task<JsonResult> GetRegisteredConversationByMessageCategory(int messageCategoryId)
+        {
+            var accounts = await accountService.GetRegisteredConversationByMessageCategory(messageCategoryId).ConfigureAwait(false);
+
+            return Json(accounts);
+        }
+
         [Route("GetAll")]
         public async Task<JsonResult> GetAll()
         {

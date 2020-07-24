@@ -9,5 +9,7 @@
         Task<IList<ConversationUser>> GetAllConversationUser();
 
         Task<IList<ConversationUser>> GetIgnoredAccountByMessageCategory(int messageCategoryId);
+
+        Task<IList<ConversationUser>> GetRegisteredConversationByMessageCategory(int messageCategoryId);
     }
 }
