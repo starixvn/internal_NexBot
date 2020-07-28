@@ -41,7 +41,7 @@
         private string GetToken(string baseUrl)
         {
             webClient.BaseUrl = new Uri(baseUrl);
-            var route = $"{baseUrl}/api/Token/GetToken/?username={configuration.GetSection("NexHRId").Value}&password={configuration.GetSection("NexHRPassword").Value}";
+            var route = $"/Token/GetToken/?username={configuration.GetSection("NexHRId").Value}&password={configuration.GetSection("NexHRPassword").Value}";
             var request = new RestRequest(route, Method.POST);
             var tokenReponse = webClient.Execute(request);
             return tokenReponse.Content;
