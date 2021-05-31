@@ -21,7 +21,6 @@
     using NexBot.Core.Services.Interfaces;
     using NexBot.Services;
     using NexBot.Services.Interfaces;
-    using RestSharp;
 
     public class Startup
     {
@@ -49,11 +48,12 @@
                .Run();
             services.Configure<AppSettings>(options => Configuration.GetSection("AppSettings").Bind(options));
 
+            services.AddHttpClient();
+
             services.AddScoped<IBaseService, BaseService>();
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IAccountService, AccountService>();
-            services.AddScoped<IRestClient, RestClient>();
             services.AddScoped<IHRMConnector, HrmConnector>();
             services.AddScoped<IRequestService, RequestService>();
             services.AddScoped<IRegisterMessageService, RegisterMessageService>();
@@ -66,6 +66,10 @@
         private void BotServiceDI(IServiceCollection services)
         {
             services.AddTransient<ICredentialProvider, CredentialProvider>();
+            services.AddSingleton<UserState>();
+            services.AddSingleton<ConversationState>();
+            services.AddSingleton<IStorage, MemoryStorage>();
+
             services.AddTransient<IBot, SkypeBotHandler>();
             var appSettingsSection = Configuration.GetSection("SkypeBotConfigurations");
             services.Configure<SkypeBotConfigurations>(appSettingsSection);
@@ -107,7 +111,7 @@
         private static IBotFrameworkHttpAdapter GetBotFrameworkHttpAdapter(SkypeBotConfigurations botConfig)
         {
             var credentialProvider = new CredentialProvider(botConfig);
-            HttpClient httpClient = new HttpClient();
+            HttpClient httpClient = new();
             IBotFrameworkHttpAdapter botFrameworkHttpAdapter = new BotFrameworkHttpAdapter(credentialProvider, null, httpClient, null);
 
             return botFrameworkHttpAdapter;

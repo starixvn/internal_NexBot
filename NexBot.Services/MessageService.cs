@@ -6,7 +6,6 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Bot.Builder.Integration;
-    using Microsoft.Bot.Connector;
     using Microsoft.Bot.Connector.Authentication;
     using Microsoft.Bot.Schema;
     using Microsoft.Extensions.Configuration;
@@ -56,15 +55,15 @@
         private async Task ReSendMessage(string conversationId, string messageText)
         {
             var conversation = await conversationService.GetConversationById(conversationId);
-            var connector = CreateConnectorClient(new Uri(conversation.ServiceUrl));
-            var message = CreateMessageActivity(conversation);
+            var conversationReference = GetConversationReference(conversation);
+            var activity = CreateMessageActivity(conversationReference);
             try
             {
                 if (!string.IsNullOrEmpty(messageText))
                 {
-                    message.Text = messageText;
-                    await connector.Conversations.SendToConversationAsync((Activity)message);
-                    await AddMessageLog(message);
+                    activity.Text = messageText;
+                    await SendMessageAsync(conversationReference, activity);
+                    await AddMessageLog(activity);
                 }
             }
             catch (Exception ex)
@@ -77,31 +76,9 @@
         {
             var conversationModel = await conversationService.GetConversationById(conversationId);
             var conversationInfo = GetConversationReference(conversationModel);
-
-            await SendMessageAsync(conversationInfo, messageText);
-        }
-
-        private async Task SendMessageAsync(ConversationReference conversationReference, string message)
-        {
-            try
-            {
-                string appId = configuration.GetSection("SkypeBotConfigurations:MicrosoftAppId")?.Value;
-                await adapter.ContinueConversationAsync(appId, conversationReference,
-                        async (context, token) =>
-                        {
-                            AppCredentials.TrustServiceUrl(conversationReference.ServiceUrl);
-                            await context.SendActivityAsync(message);
-                        },
-                        new CancellationToken());
-            }
-            catch (Exception ex)
-            {
-                await AddErrorMessageLog(conversationReference, message);
-                await AddSystemLog(ex.Message);
-                await SendAdminAsync(
-                    $"Error happen in client with ConversationId: {conversationReference.Conversation.Id} & Message: {message}\n\n" +
-                    $"Exception: {ex.Message}");
-            }
+            var activity = CreateMessageActivity(conversationInfo);
+            activity.Text = messageText;
+            await SendMessageAsync(conversationInfo, activity);
         }
 
         private ConversationReference GetConversationReference(ConversationModel conversationModel)
@@ -133,13 +110,13 @@
         public async Task SendRequestAsync(string conversationId, long requestId, string messageText)
         {
             var conversation = await conversationService.GetConversationById(requestMessage.ConversationId);
-            var connector = CreateConnectorClient(new Uri(conversation.ServiceUrl));
-            var message = CreateMessageActivity(conversation);
+            var conversationReference = GetConversationReference(conversation);
+            var activity = CreateMessageActivity(conversationReference);
             try
             {
                 if (!string.IsNullOrEmpty(requestMessage.Message))
                 {
-                    message.Text = requestMessage.Message;
+                    activity.Text = messageText;
                     var cardActions = new List<CardAction>
                     {
                         new CardAction(ActionTypes.PostBack, "Approve", value: "cmdApprovedRequest:" + requestId.ToString()),
@@ -151,17 +128,18 @@
                     };
 
                     var attachment = heroCard.ToAttachment();
-                    message.Attachments = new List<Attachment>()
+                    activity.Attachments = new List<Attachment>()
                     {
                         attachment
                     };
-                    await connector.Conversations.SendToConversationAsync((Activity)message);
-                    await AddMessageLog(message);
+
+                    await SendMessageAsync(conversationReference, (Activity)activity);
+                    await AddMessageLog(activity);
                 }
             }
             catch (Exception ex)
             {
-                await AddErrorMessageLog(message);
+                await AddErrorMessageLog(conversationReference, activity.Text);
                 await AddSystemLog(ex.Message);
                 await SendAdminAsync(
                     $"Error happen in client with ConversationId: {requestMessage.ConversationId} & Message: {requestMessage.Message}\n\n" +
@@ -175,62 +153,34 @@
             foreach (var conversation in conversations)
             {
                 var adminConversationReferrence = GetConversationReference(conversation);
-                await SendMessageAsync(adminConversationReferrence, message);
+                var activity = CreateMessageActivity(adminConversationReferrence);
+                activity.Text = message;
+                await SendMessageAsync(adminConversationReferrence, activity);
             }
         }
 
-        public ConnectorClient CreateConnectorClient(Uri serviceUrl)
-        {
-            AppCredentials.TrustServiceUrl(serviceUrl.ToString(), DateTime.Now.AddDays(7));
-            var account = new MicrosoftAppCredentials(configuration.GetSection("MicrosoftAppId").Value, configuration.GetSection("MicrosoftAppPassword").Value);
-            var connector = new ConnectorClient(serviceUrl, account);
-
-            return connector;
-        }
-
-        private static IMessageActivity CreateMessageActivity(ConversationModel conversation)
+        private static IMessageActivity CreateMessageActivity(ConversationReference conversation)
         {
             var message = Activity.CreateMessageActivity();
             message.ChannelId = conversation.ChannelId;
             message.From = new ChannelAccount
             {
-                Id = conversation.ConversationBotId,
-                Name = conversation.ConversationBotName
+                Id = conversation.Bot.Id,
+                Name = conversation.Bot.Name
             };
             message.Recipient = new ChannelAccount
             {
-                Id = conversation.ConversationId,
-                Name = conversation.UserName
+                Id = conversation.Conversation.Id,
+                Name = conversation.Conversation.Name
             };
-            message.Conversation = new ConversationAccount(id: conversation.ConversationId);
+            message.Conversation = new ConversationAccount(id: conversation.Conversation.Id);
 
             return message;
-        }
-
-        public async Task SendReplyAsync(IMessageActivity activity, string message)
-        {
-            var connector = CreateConnectorClient(new Uri(activity.ServiceUrl));
-            var reply = (activity as Activity).CreateReply(message);
-            reply.TextFormat = "markdown";
-            await connector.Conversations.ReplyToActivityAsync(reply);
         }
 
         private async Task AddMessageLog(IMessageActivity activity)
         {
             var criteria = new InsertMessageLogCriteria
-            {
-                ConversationId = activity.Conversation.Id,
-                FromConversationId = activity.From.Id,
-                FromName = activity.From.Name,
-                MessageContent = BotHelper.GenerateMessage(activity.Text)
-            };
-
-            await ExecuteNonQueryAsync(criteria);
-        }
-
-        private async Task AddErrorMessageLog(IMessageActivity activity)
-        {
-            var criteria = new InsertErrorMessageLogCriteria
             {
                 ConversationId = activity.Conversation.Id,
                 FromConversationId = activity.From.Id,
@@ -248,6 +198,29 @@
             var messages = await GetDataAsync<Message>(criteria);
 
             return messages.ToList();
+        }
+
+        private async Task SendMessageAsync(ConversationReference conversationReference, IActivity activity)
+        {
+            try
+            {
+                string appId = configuration.GetSection("SkypeBotConfigurations:MicrosoftAppId")?.Value;
+                await adapter.ContinueConversationAsync(appId, conversationReference,
+                        async (context, token) =>
+                        {
+                            AppCredentials.TrustServiceUrl(conversationReference.ServiceUrl);
+                            await context.SendActivityAsync(activity, token);
+                        },
+                        new CancellationToken());
+            }
+            catch (Exception ex)
+            {
+                await AddErrorMessageLog(conversationReference, activity.AsMessageActivity().Text);
+                await AddSystemLog(ex.Message);
+                await SendAdminAsync(
+                    $"Error happen in client with ConversationId: {conversationReference.Conversation.Id} & Message: {activity.AsMessageActivity().Text}\n\n" +
+                    $"Exception: {ex.Message}");
+            }
         }
     }
 }

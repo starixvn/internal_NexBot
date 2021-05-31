@@ -17,14 +17,17 @@ namespace NexBot.Bots
         private readonly IMessageService messageService;
         private readonly IRequestService requestService;
         private readonly IRegisterMessageService registerMessageService;
+        protected readonly BotState conversationState;
 
         public SkypeBotHandler(IMessageService messageService,
              IRequestService requestService,
+             ConversationState conversationState,
              IRegisterMessageService registerMessageService)
         {
             this.messageService = messageService;
             this.requestService = requestService;
             this.registerMessageService = registerMessageService;
+            this.conversationState = conversationState;
         }
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
@@ -38,10 +41,11 @@ namespace NexBot.Bots
                 {
                     trimMessage = BotHelper.GetMessageInGroupByChannel(trimMessage, turnContext.Activity.ChannelId, turnContext.Activity.Recipient.Name);
                 }
-                else
-                {
-                    await turnContext.SendActivityAsync(MessageFactory.Text(trimMessage, trimMessage), cancellationToken);
-                }
+
+                //if (trimMessage.ToLowerInvariant().Equals("help"))
+                //{
+                //    await dialog.RunAsync(turnContext, conversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+                //}
 
                 eventCategories = await registerMessageService.GetAllCategoryMessage(turnContext.Activity.Conversation.Id);
                 if (trimMessage.StartsWith("Remove"))
