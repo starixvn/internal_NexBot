@@ -1,58 +1,63 @@
 ﻿namespace NexBot.Services
 {
+    using System;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
+    using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
-    using Newtonsoft.Json;
     using NexBot.Models;
     using NexBot.Services.Interfaces;
-    using RestSharp;
-    using System;
-    using System.Text;
 
     public class HrmConnector : IHRMConnector
     {
-        private readonly IRestClient webClient;
+        private readonly IHttpClientFactory httpClientFactory;
         private readonly IConfiguration configuration;
 
-        public HrmConnector(IRestClient webClient, IOptionsSnapshot<AppSettings> appSettings)
+        public HrmConnector(IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             this.configuration = configuration;
-            this.webClient = webClient ?? new RestClient { Encoding = Encoding.UTF8 };
-            this.appSettings = appSettings;
+            this.httpClientFactory = httpClientFactory;
         }
 
-        public string Send(long requestId, string nickName, string command)
+        public async Task<string> Send(ProcessRequest processRequest)
         {
-            var result = ForwardToHRM(requestId, nickName, command);
+            string result = string.Empty;
+            var baseUrl = processRequest.CallBackUrl;
+            var token = await GetTokenAsync(baseUrl);
+
+            var httpClient = httpClientFactory.CreateClient();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var url = new Uri($"{baseUrl}/Request/ProcessRequest?requestId={processRequest.RequestId}&command={processRequest.Command}&nickName={processRequest.NickName}");
+
+            using (var request = new HttpRequestMessage(HttpMethod.Post, url))
+            {
+                using (var response = await httpClient.SendAsync(request))
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        result = await response.Content.ReadAsStringAsync();
+                    }
+                }
+            }
 
             return result;
         }
 
-        public string Send(ProcessRequest processRequest)
+        private async Task<string> GetTokenAsync(string baseUrl)
         {
-            var baseUrl = processRequest.CallBackUrl;
-            webClient.BaseUrl = new Uri(baseUrl);
-            var requestUrl = "Request/ProcessRequest?requestId={requestId}&command={command}&nickName={nickName}";
-            var token = GetToken(baseUrl);
+            var url = new Uri($"{baseUrl}/Token/GetToken?username={configuration.GetSection("NexHRId").Value}&password={configuration.GetSection("NexHRPassword").Value}");
 
-            var request = new RestRequest(requestUrl, Method.POST);
-            request.AddHeader("content-type", "application/x-www-form-urlencoded");
-            request.AddHeader("Authorization", $"Bearer {JsonConvert.DeserializeObject(token).ToString()}");
-            request.AddParameter("requestId", processRequest.RequestId, ParameterType.UrlSegment);
-            request.AddParameter("command", processRequest.Command, ParameterType.UrlSegment);
-            request.AddParameter("nickName", processRequest.NickName, ParameterType.UrlSegment);
+            var httpClient = httpClientFactory.CreateClient();
 
-            var result = webClient.Execute(request);
-
-            return result.Content;
-        }
-
-        private string GetToken(string baseUrl)
-        {
-            webClient.BaseUrl = new Uri(baseUrl);
-            var route = $"/Token/GetToken/?username={configuration.GetSection("NexHRId").Value}&password={configuration.GetSection("NexHRPassword").Value}";
-            var request = new RestRequest(route, Method.POST);
-            var tokenReponse = webClient.Execute(request);
-            return tokenReponse.Content;
+            using (var request = new HttpRequestMessage(HttpMethod.Post, url))
+            {
+                using (var response = await httpClient.SendAsync(request))
+                {
+                    var responseData = await response.Content.ReadAsStringAsync();
+                    return responseData;
+                }
+            }
         }
     }
 }

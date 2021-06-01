@@ -9,7 +9,6 @@
     <PackageReference Include="Microsoft.Bot.Builder.Dialogs" Version="4.13.2" />
     <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.13.2" />
     <PackageReference Include="Microsoft.Bot.Configuration" Version="4.13.2" />
-    <PackageReference Include="RestSharp" Version="106.11.7" />
   </ItemGroup>
 
   <ItemGroup>

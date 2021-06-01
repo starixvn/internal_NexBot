@@ -12,7 +12,8 @@
 
         public RequestService(IConversationService conversationService,
             IHRMConnector hrmConnector)
-        {            this.conversationService = conversationService;
+        {
+            this.conversationService = conversationService;
             this.hrmConnector = hrmConnector;
         }
 
@@ -22,17 +23,16 @@
             var slitCommandRequest = commandRequest.Split('_');
             if (slitCommandRequest.Length == 3)
             {
-                long requestId;
-                long.TryParse(slitCommandRequest[1], out requestId);
+                long.TryParse(slitCommandRequest[1], out long requestId);
                 var processRequest = new ProcessRequest
                 {
                     RequestId = requestId,
-                    NickName = conversation.NickName,
+                    NickName = conversation?.NickName ?? "Oliver",
                     Command = command,
                     CallBackUrl = slitCommandRequest[2]
                 };
 
-                hrmConnector.Send(processRequest);
+                await hrmConnector.Send(processRequest);
             }
         }
     }

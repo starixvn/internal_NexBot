@@ -16,7 +16,6 @@
     using Microsoft.Extensions.Logging;
     using NexBot.Bots;
     using NexBot.Configurations;
-    using NexBot.Core;
     using NexBot.Core.Services;
     using NexBot.Core.Services.Interfaces;
     using NexBot.Services;
@@ -46,7 +45,6 @@
                .UseConnectionStrings(connections)
                .UseDefaultDbSettingProvider("~/App_Data")
                .Run();
-            services.Configure<AppSettings>(options => Configuration.GetSection("AppSettings").Bind(options));
 
             services.AddHttpClient();
 

@@ -107,43 +107,34 @@
             await ExecuteNonQueryAsync(criteria);
         }
 
-        public async Task SendRequestAsync(string conversationId, long requestId, string messageText)
+        public async Task SendRequestAsync(SendRequestMessage requestMessage)
         {
             var conversation = await conversationService.GetConversationById(requestMessage.ConversationId);
             var conversationReference = GetConversationReference(conversation);
             var activity = CreateMessageActivity(conversationReference);
-            try
+            if (!string.IsNullOrEmpty(requestMessage.Message))
             {
-                if (!string.IsNullOrEmpty(requestMessage.Message))
+                activity.Text = requestMessage.Message;
+                var approveCommand = string.Format("{0}_{1}_{2}", "cmdApprovedRequest", requestMessage.RequestId.ToString(), requestMessage.CallBackUrl);
+                var rejectCommand = string.Format("{0}_{1}_{2}", "cmdRejectRequest", requestMessage.RequestId.ToString(), requestMessage.CallBackUrl);
+                var cardActions = new List<CardAction>
+                    {
+                        new CardAction(ActionTypes.PostBack, "Approve", value: approveCommand),
+                        new CardAction(ActionTypes.PostBack, "Reject", value: rejectCommand)
+                    };
+                var heroCard = new HeroCard
                 {
-                    activity.Text = messageText;
-                    var cardActions = new List<CardAction>
-                    {
-                        new CardAction(ActionTypes.PostBack, "Approve", value: "cmdApprovedRequest:" + requestId.ToString()),
-                        new CardAction(ActionTypes.PostBack, "Reject", value: "cmdRejectRequest:" + requestId.ToString())
-                    };
-                    var heroCard = new HeroCard
-                    {
-                        Buttons = cardActions
-                    };
+                    Buttons = cardActions
+                };
 
-                    var attachment = heroCard.ToAttachment();
-                    activity.Attachments = new List<Attachment>()
+                var attachment = heroCard.ToAttachment();
+                activity.Attachments = new List<Attachment>()
                     {
                         attachment
                     };
 
-                    await SendMessageAsync(conversationReference, (Activity)activity);
-                    await AddMessageLog(activity);
-                }
-            }
-            catch (Exception ex)
-            {
-                await AddErrorMessageLog(conversationReference, activity.Text);
-                await AddSystemLog(ex.Message);
-                await SendAdminAsync(
-                    $"Error happen in client with ConversationId: {requestMessage.ConversationId} & Message: {requestMessage.Message}\n\n" +
-                    $"Exception: {ex.Message}");
+                await SendMessageAsync(conversationReference, (Activity)activity);
+                await AddMessageLog(activity);
             }
         }
 

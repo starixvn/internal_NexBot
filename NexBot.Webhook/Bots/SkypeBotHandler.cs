@@ -42,11 +42,6 @@ namespace NexBot.Bots
                     trimMessage = BotHelper.GetMessageInGroupByChannel(trimMessage, turnContext.Activity.ChannelId, turnContext.Activity.Recipient.Name);
                 }
 
-                //if (trimMessage.ToLowerInvariant().Equals("help"))
-                //{
-                //    await dialog.RunAsync(turnContext, conversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
-                //}
-
                 eventCategories = await registerMessageService.GetAllCategoryMessage(turnContext.Activity.Conversation.Id);
                 if (trimMessage.StartsWith("Remove"))
                 {
