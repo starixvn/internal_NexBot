@@ -2,9 +2,9 @@
 {
     using System;
     using System.Net.Http;
-    using System.Net.Http.Headers;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
+    using Newtonsoft.Json;
     using NexBot.Models;
     using NexBot.Services.Interfaces;
 
@@ -55,7 +55,7 @@
                 using (var response = await httpClient.SendAsync(request))
                 {
                     var responseData = await response.Content.ReadAsStringAsync();
-                    return responseData;
+                    return JsonConvert.DeserializeObject<string>(responseData);
                 }
             }
         }
