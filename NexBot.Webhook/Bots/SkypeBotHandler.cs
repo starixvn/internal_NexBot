@@ -18,16 +18,37 @@ namespace NexBot.Bots
         private readonly IRequestService requestService;
         private readonly IRegisterMessageService registerMessageService;
         protected readonly BotState conversationState;
+        protected readonly IConversationService conversationService;
+        
 
         public SkypeBotHandler(IMessageService messageService,
              IRequestService requestService,
              ConversationState conversationState,
-             IRegisterMessageService registerMessageService)
+             IRegisterMessageService registerMessageService,
+             IConversationService conversationService)
         {
             this.messageService = messageService;
             this.requestService = requestService;
             this.registerMessageService = registerMessageService;
             this.conversationState = conversationState;
+            this.conversationService = conversationService;
+        }
+
+        protected override async Task OnUnrecognizedActivityTypeAsync(ITurnContext turnContext, CancellationToken cancellationToken)
+        {
+            if (turnContext.Activity.Type == ActivityTypes.ContactRelationUpdate)
+            {
+                if (turnContext.Activity.Action.Equals("add"))
+                {
+                    await conversationService.AddConversation(turnContext.Activity);
+                    var message = $"Hello {turnContext.Activity.From.Name}. I am {turnContext.Activity.Recipient.Name}. If you have any question please contact admin.";
+                    await turnContext.SendActivityAsync(MessageFactory.Text(message, turnContext.Activity.Conversation.Id), cancellationToken);
+                }
+                else
+                {
+                    await conversationService.RemoveConversation(turnContext.Activity);
+                }
+            }
         }
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
