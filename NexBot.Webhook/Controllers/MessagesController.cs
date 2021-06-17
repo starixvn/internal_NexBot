@@ -1,7 +1,6 @@
 ﻿namespace NexBot.Controllers
 {
     using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using NexBot.Services.Interfaces;
 
@@ -15,7 +14,7 @@
             this.messageService = messageService;
         }
 
-        [Authorize(Roles = "Bot")]
+        //[Authorize(Roles = "Bot")]
         [HttpPost]
         [Route("Forward")]
         public async Task Forward(string conversationId, string message)

@@ -15,7 +15,7 @@
             this.accountService = accountService;
         }
 
-        [Authorize(Roles = "Bot")]
+        //[Authorize(Roles = "Bot")]
         [Route("Index")]
         public async Task<JsonResult> Get()
         {
