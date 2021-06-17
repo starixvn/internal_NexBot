@@ -27,7 +27,7 @@
                 var processRequest = new ProcessRequest
                 {
                     RequestId = requestId,
-                    NickName = conversation?.NickName ?? "Oliver",
+                    NickName = conversation.NickName,
                     Command = command,
                     CallBackUrl = slitCommandRequest[2]
                 };
