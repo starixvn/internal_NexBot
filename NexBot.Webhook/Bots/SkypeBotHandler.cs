@@ -19,7 +19,6 @@ namespace NexBot.Bots
         private readonly IRegisterMessageService registerMessageService;
         protected readonly BotState conversationState;
         protected readonly IConversationService conversationService;
-        
 
         public SkypeBotHandler(IMessageService messageService,
              IRequestService requestService,
@@ -115,18 +114,6 @@ namespace NexBot.Bots
             catch (Exception ex)
             {
                 await messageService.AddSystemLog(ex.Message);
-            }
-        }
-
-        protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
-        {
-            var welcomeText = "Hello and welcome!";
-            foreach (var member in membersAdded)
-            {
-                if (member.Id != turnContext.Activity.Recipient.Id)
-                {
-                    await turnContext.SendActivityAsync(MessageFactory.Text(welcomeText, welcomeText), cancellationToken);
-                }
             }
         }
     }
