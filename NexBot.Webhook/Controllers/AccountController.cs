@@ -24,6 +24,14 @@
             return Json(accounts);
         }
 
+        [Route("GetRegisteredConversationByMessageCategory")]
+        public async Task<JsonResult> GetRegisteredConversationByMessageCategory(int messageCategoryId)
+        {
+            var accounts = await accountService.GetRegisteredConversationByMessageCategory(messageCategoryId).ConfigureAwait(false);
+
+            return Json(accounts);
+        }
+
         //[Authorize(Roles = "Bot")]
         [Route("GetIgnoredAccountByMessageCategory")]
         public async Task<JsonResult> GetIgnoredAccountByMessageCategory(int messageCategoryId)
