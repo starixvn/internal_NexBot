@@ -47,6 +47,7 @@
                .Run();
 
             services.AddHttpClient();
+            services.AddControllers();
 
             services.AddScoped<IBaseService, BaseService>();
             services.AddScoped<IConversationService, ConversationService>();
