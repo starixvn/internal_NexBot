@@ -7,12 +7,12 @@
     using Fanex.Data;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
-    using Microsoft.AspNetCore.Mvc;
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Builder.Integration.AspNet.Core;
     using Microsoft.Bot.Connector.Authentication;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using NexBot.Bots;
     using NexBot.Configurations;
@@ -55,8 +55,7 @@
             services.AddScoped<IHRMConnector, HrmConnector>();
             services.AddScoped<IRequestService, RequestService>();
             services.AddScoped<IRegisterMessageService, RegisterMessageService>();
-
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddTransient<ILogProviderService, LogProviderService>();
 
             BotServiceDI(services);
         }
@@ -89,7 +88,7 @@
             });
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -100,10 +99,17 @@
                 app.UseHsts();
             }
 
+            app.UseRouting();
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseWebSockets();
-            app.UseMvc();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+            });
         }
 
         private static IBotFrameworkHttpAdapter GetBotFrameworkHttpAdapter(SkypeBotConfigurations botConfig)
