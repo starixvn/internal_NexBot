@@ -79,6 +79,7 @@
             var activity = CreateMessageActivity(conversationInfo);
             activity.Text = messageText;
             await SendMessageAsync(conversationInfo, activity);
+            await AddMessageLog(activity);
         }
 
         private ConversationReference GetConversationReference(ConversationModel conversationModel)
