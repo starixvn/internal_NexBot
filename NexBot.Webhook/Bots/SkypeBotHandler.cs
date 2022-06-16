@@ -8,6 +8,7 @@ namespace NexBot.Bots
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Schema;
     using NexBot.Core;
+    using NexBot.Core.Services.Interfaces;
     using NexBot.Core.Utilities;
     using NexBot.Models.CategoryMessage;
     using NexBot.Services.Interfaces;
@@ -19,22 +20,26 @@ namespace NexBot.Bots
         private readonly IRegisterMessageService registerMessageService;
         protected readonly BotState conversationState;
         protected readonly IConversationService conversationService;
+        private readonly ILogProviderService logger;
 
         public SkypeBotHandler(IMessageService messageService,
              IRequestService requestService,
              ConversationState conversationState,
              IRegisterMessageService registerMessageService,
-             IConversationService conversationService)
+             IConversationService conversationService,
+             ILogProviderService logger)
         {
             this.messageService = messageService;
             this.requestService = requestService;
             this.registerMessageService = registerMessageService;
             this.conversationState = conversationState;
             this.conversationService = conversationService;
+            this.logger = logger;
         }
 
         protected override async Task OnUnrecognizedActivityTypeAsync(ITurnContext turnContext, CancellationToken cancellationToken)
         {
+            logger.WriteLogFileInfo($"Message from {turnContext.Activity.Conversation.Id}, content: {turnContext.Activity.Text.Trim()}");
             if (turnContext.Activity.Type == ActivityTypes.ContactRelationUpdate)
             {
                 if (turnContext.Activity.Action.Equals("add"))
