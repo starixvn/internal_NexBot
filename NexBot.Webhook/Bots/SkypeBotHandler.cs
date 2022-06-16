@@ -8,7 +8,6 @@ namespace NexBot.Bots
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Schema;
     using NexBot.Core;
-    using NexBot.Core.Services.Interfaces;
     using NexBot.Core.Utilities;
     using NexBot.Models.CategoryMessage;
     using NexBot.Services.Interfaces;
@@ -20,46 +19,34 @@ namespace NexBot.Bots
         private readonly IRegisterMessageService registerMessageService;
         protected readonly BotState conversationState;
         protected readonly IConversationService conversationService;
-        private readonly ILogProviderService logger;
 
         public SkypeBotHandler(IMessageService messageService,
              IRequestService requestService,
              ConversationState conversationState,
              IRegisterMessageService registerMessageService,
-             IConversationService conversationService,
-             ILogProviderService logger)
+             IConversationService conversationService)
         {
             this.messageService = messageService;
             this.requestService = requestService;
             this.registerMessageService = registerMessageService;
             this.conversationState = conversationState;
             this.conversationService = conversationService;
-            this.logger = logger;
         }
 
         protected override async Task OnUnrecognizedActivityTypeAsync(ITurnContext turnContext, CancellationToken cancellationToken)
         {
-            try
+            if (turnContext.Activity.Type == ActivityTypes.ContactRelationUpdate)
             {
-                logger.WriteLogFileInfo($"Message from {turnContext.Activity.Conversation.Id}, content: {turnContext.Activity.Text.Trim()}");
-                if (turnContext.Activity.Type == ActivityTypes.ContactRelationUpdate)
+                if (turnContext.Activity.Action.Equals("add"))
                 {
-                    if (turnContext.Activity.Action.Equals("add"))
-                    {
-                        await conversationService.AddConversation(turnContext.Activity);
-                        var message = $"Hello {turnContext.Activity.From.Name}. I am {turnContext.Activity.Recipient.Name}. If you have any question please contact admin.";
-                        await turnContext.SendActivityAsync(MessageFactory.Text(message, turnContext.Activity.Conversation.Id), cancellationToken);
-                    }
-                    else
-                    {
-                        await conversationService.RemoveConversation(turnContext.Activity);
-                    }
+                    await conversationService.AddConversation(turnContext.Activity);
+                    var message = $"Hello {turnContext.Activity.From.Name}. I am {turnContext.Activity.Recipient.Name}. If you have any question please contact admin.";
+                    await turnContext.SendActivityAsync(MessageFactory.Text(message, turnContext.Activity.Conversation.Id), cancellationToken);
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.WriteLogFileInfo(ex.Message);
-                throw;
+                else
+                {
+                    await conversationService.RemoveConversation(turnContext.Activity);
+                }
             }
         }
 
