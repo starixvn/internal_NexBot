@@ -39,19 +39,27 @@ namespace NexBot.Bots
 
         protected override async Task OnUnrecognizedActivityTypeAsync(ITurnContext turnContext, CancellationToken cancellationToken)
         {
-            logger.WriteLogFileInfo($"Message from {turnContext.Activity.Conversation.Id}, content: {turnContext.Activity.Text.Trim()}");
-            if (turnContext.Activity.Type == ActivityTypes.ContactRelationUpdate)
+            try
             {
-                if (turnContext.Activity.Action.Equals("add"))
+                logger.WriteLogFileInfo($"Message from {turnContext.Activity.Conversation.Id}, content: {turnContext.Activity.Text.Trim()}");
+                if (turnContext.Activity.Type == ActivityTypes.ContactRelationUpdate)
                 {
-                    await conversationService.AddConversation(turnContext.Activity);
-                    var message = $"Hello {turnContext.Activity.From.Name}. I am {turnContext.Activity.Recipient.Name}. If you have any question please contact admin.";
-                    await turnContext.SendActivityAsync(MessageFactory.Text(message, turnContext.Activity.Conversation.Id), cancellationToken);
+                    if (turnContext.Activity.Action.Equals("add"))
+                    {
+                        await conversationService.AddConversation(turnContext.Activity);
+                        var message = $"Hello {turnContext.Activity.From.Name}. I am {turnContext.Activity.Recipient.Name}. If you have any question please contact admin.";
+                        await turnContext.SendActivityAsync(MessageFactory.Text(message, turnContext.Activity.Conversation.Id), cancellationToken);
+                    }
+                    else
+                    {
+                        await conversationService.RemoveConversation(turnContext.Activity);
+                    }
                 }
-                else
-                {
-                    await conversationService.RemoveConversation(turnContext.Activity);
-                }
+            }
+            catch (Exception ex)
+            {
+                logger.WriteLogFileInfo(ex.Message);
+                throw;
             }
         }
 
