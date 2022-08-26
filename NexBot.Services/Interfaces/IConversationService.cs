@@ -8,7 +8,7 @@
 
     public interface IConversationService
     {
-        Task AddConversation(Activity activity);
+        Task AddConversation(IConversationUpdateActivity activity);
 
         Task<ConversationModel> GetConversationById(string conversationId);
 
@@ -18,11 +18,11 @@
 
         Task<bool> CheckIsBot(string conversationId);
 
-        Task AddConversationGroup(Activity activity);
+        Task AddConversationGroup(IConversationUpdateActivity activity);
 
         Task AddMembersToGroup(string groupConversationId, string userConversationIds);
 
-        Task<CommandResult> RemoveConversation(Activity activity);
+        Task<CommandResult> RemoveConversation(IConversationUpdateActivity activity);
 
         Task RemoveMembersOutGroup(string groupConversationId, string userConversationIds);
     }

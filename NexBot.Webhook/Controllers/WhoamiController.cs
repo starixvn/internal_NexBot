@@ -8,10 +8,6 @@
     [Route("/whoami.aspx")]
     public class WhoamiController : Controller
     {
-        public WhoamiController()
-        {
-        }
-
         public IActionResult Index()
         {
             var context = HttpContext;

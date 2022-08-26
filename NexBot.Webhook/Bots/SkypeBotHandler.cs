@@ -22,6 +22,9 @@ namespace NexBot.Bots
         protected readonly BotState conversationState;
         protected readonly IConversationService conversationService;
 
+        private const string channelSkypeId = "skype";
+        private const string greetingMessage = "Hello, I am {0}";
+
         public SkypeBotHandler(IMessageService messageService,
              IRequestService requestService,
              ConversationState conversationState,
@@ -37,26 +40,34 @@ namespace NexBot.Bots
             this.logProviderService = logProviderService;
         }
 
-        protected override async Task OnUnrecognizedActivityTypeAsync(ITurnContext turnContext, CancellationToken cancellationToken)
+        protected override async Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
-            logProviderService.WriteLogFileInfo("=======Type/Action/COnversationId=========");
-            logProviderService.WriteLogFileInfo(turnContext.Activity.Type);
-            logProviderService.WriteLogFileInfo(turnContext.Activity.Action);
-            logProviderService.WriteLogFileInfo(turnContext.Activity.Conversation.Id);
-            logProviderService.WriteLogFileInfo("=======End=============");
-
-            if (turnContext.Activity.Type == ActivityTypes.ContactRelationUpdate)
+            if (turnContext.Activity.ChannelId.Equals(channelSkypeId))
             {
-                if (turnContext.Activity.Action.Equals("add"))
+                if (turnContext.Activity.MembersAdded != null)
                 {
-                    await conversationService.AddConversation(turnContext.Activity);
-                    var message = $"Hello {turnContext.Activity.From.Name}. I am {turnContext.Activity.Recipient.Name}. If you have any question please contact admin.";
-                    await turnContext.SendActivityAsync(MessageFactory.Text(message, turnContext.Activity.Conversation.Id), cancellationToken);
+                    if (turnContext.Activity.MembersAdded.Any(m => m.Id == turnContext.Activity.Recipient?.Id))
+                    {
+                        logProviderService.WriteLogFileInfo("Add to group");
+                        await conversationService.AddConversation(turnContext.Activity);
+                        var message = $"Hello {turnContext.Activity.From.Name}. I am {turnContext.Activity.Recipient.Name}. If you have any question please contact admin.";
+                        await turnContext.SendActivityAsync(MessageFactory.Text(message, turnContext.Activity.Conversation.Id), cancellationToken);
+                    }
                 }
                 else
                 {
-                    await conversationService.RemoveConversation(turnContext.Activity);
+                    if (turnContext.Activity.MembersRemoved != null
+                    && turnContext.Activity.MembersRemoved.Any(m => m.Id == turnContext.Activity.Recipient?.Id))
+                    {
+                        logProviderService.WriteLogFileInfo("Remove from group");
+
+                        await conversationService.RemoveConversation(turnContext.Activity);
+                    }
                 }
+            }
+            else
+            {
+                await turnContext.SendActivityAsync(MessageFactory.Text(string.Format(greetingMessage, turnContext.Activity.Recipient.Name)), cancellationToken);
             }
         }
 

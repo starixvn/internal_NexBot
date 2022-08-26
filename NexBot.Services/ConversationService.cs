@@ -12,7 +12,7 @@
 
     public class ConversationService : BaseService, IConversationService
     {
-        public async Task AddConversation(Activity activity)
+        public async Task AddConversation(IConversationUpdateActivity activity)
         {
             var criteria = new InsertConversationCriteria
             {
@@ -70,7 +70,7 @@
             return conversations.ToList();
         }
 
-        public async Task AddConversationGroup(Activity activity)
+        public async Task AddConversationGroup(IConversationUpdateActivity activity)
         {
             var conversation = await GetConversationById(activity.Conversation.Id);
 
@@ -102,7 +102,7 @@
             await ExecuteNonQueryAsync(criteria);
         }
 
-        public async Task<CommandResult> RemoveConversation(Activity activity)
+        public async Task<CommandResult> RemoveConversation(IConversationUpdateActivity activity)
         {
             var criteria = new RemoveConversationByIdCriteria
             {
