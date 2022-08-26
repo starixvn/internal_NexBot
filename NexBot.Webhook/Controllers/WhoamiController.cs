@@ -3,22 +3,17 @@
     using System;
     using System.Text;
     using Microsoft.AspNetCore.Mvc;
-    using NexBot.Core.Services.Interfaces;
 
     [Route("/whoami")]
     [Route("/whoami.aspx")]
     public class WhoamiController : Controller
     {
-        private ILogProviderService logger;
-
-        public WhoamiController(ILogProviderService logger)
+        public WhoamiController()
         {
-            this.logger = logger;
         }
 
         public IActionResult Index()
         {
-            logger.WriteLogFileInfo("Write log success");
             var context = HttpContext;
             var content = new StringBuilder();
             content.Append($"Web name: {context.Request.Host.Host}{Environment.NewLine}"

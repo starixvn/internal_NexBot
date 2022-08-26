@@ -8,6 +8,7 @@ namespace NexBot.Bots
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Schema;
     using NexBot.Core;
+    using NexBot.Core.Services.Interfaces;
     using NexBot.Core.Utilities;
     using NexBot.Models.CategoryMessage;
     using NexBot.Services.Interfaces;
@@ -17,6 +18,7 @@ namespace NexBot.Bots
         private readonly IMessageService messageService;
         private readonly IRequestService requestService;
         private readonly IRegisterMessageService registerMessageService;
+        private readonly ILogProviderService logProviderService;
         protected readonly BotState conversationState;
         protected readonly IConversationService conversationService;
 
@@ -24,6 +26,7 @@ namespace NexBot.Bots
              IRequestService requestService,
              ConversationState conversationState,
              IRegisterMessageService registerMessageService,
+             ILogProviderService logProviderService,
              IConversationService conversationService)
         {
             this.messageService = messageService;
@@ -31,10 +34,17 @@ namespace NexBot.Bots
             this.registerMessageService = registerMessageService;
             this.conversationState = conversationState;
             this.conversationService = conversationService;
+            this.logProviderService = logProviderService;
         }
 
         protected override async Task OnUnrecognizedActivityTypeAsync(ITurnContext turnContext, CancellationToken cancellationToken)
         {
+            logProviderService.WriteLogFileInfo("=======Type/Action/COnversationId=========");
+            logProviderService.WriteLogFileInfo(turnContext.Activity.Type);
+            logProviderService.WriteLogFileInfo(turnContext.Activity.Action);
+            logProviderService.WriteLogFileInfo(turnContext.Activity.Conversation.Id);
+            logProviderService.WriteLogFileInfo("=======End=============");
+
             if (turnContext.Activity.Type == ActivityTypes.ContactRelationUpdate)
             {
                 if (turnContext.Activity.Action.Equals("add"))
