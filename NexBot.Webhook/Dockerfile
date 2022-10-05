@@ -27,5 +27,5 @@ RUN sed -i 's/DEFAULT@SECLEVEL=2/DEFAULT@SECLEVEL=1/g' /usr/lib/ssl/openssl.cnf
 RUN sed -i 's/MinProtocol = TLSv1.2/MinProtocol = TLSv1/g' /usr/lib/ssl/openssl.cnf
 
 COPY --from=builder /app .
-
+ENV TZ="Asia/Bangkok"
 ENTRYPOINT ["dotnet", "NexBot.dll"]
