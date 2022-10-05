@@ -56,7 +56,7 @@
                 using (var response = await httpClient.SendAsync(request))
                 {
                     var responseData = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<string>(responseData);
+                    return responseData;
                 }
             }
         }
