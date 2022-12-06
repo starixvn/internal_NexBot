@@ -7,6 +7,7 @@ namespace NexBot.Bots
     using System.Threading.Tasks;
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Schema;
+    using Newtonsoft.Json;
     using NexBot.Core;
     using NexBot.Core.Services.Interfaces;
     using NexBot.Core.Utilities;
@@ -44,6 +45,8 @@ namespace NexBot.Bots
         {
             if (turnContext.Activity.ChannelId.Equals(channelSkypeId))
             {
+                logProviderService.WriteLogFileInfo("OnConversationUpdateActivityAsync");
+
                 if (turnContext.Activity.MembersAdded != null)
                 {
                     if (turnContext.Activity.MembersAdded.Any(m => m.Id == turnContext.Activity.Recipient?.Id))
@@ -82,7 +85,8 @@ namespace NexBot.Bots
                 {
                     trimMessage = BotHelper.GetMessageInGroupByChannel(trimMessage, turnContext.Activity.ChannelId, turnContext.Activity.Recipient.Name);
                 }
-
+                logProviderService.WriteLogFileInfo($"OnMessageActivityAsync: {trimMessage}");
+                logProviderService.WriteLogFileInfo(JsonConvert.SerializeObject(turnContext.Activity.From));
                 eventCategories = await registerMessageService.GetAllCategoryMessage(turnContext.Activity.Conversation.Id);
                 if (trimMessage.StartsWith("Remove"))
                 {
@@ -103,6 +107,7 @@ namespace NexBot.Bots
                 }
                 else if (trimMessage.StartsWith("getid"))
                 {
+                    await conversationService.AddConversation(turnContext.Activity);
                     await turnContext.SendActivityAsync(MessageFactory.Text(turnContext.Activity.Conversation.Id, turnContext.Activity.Conversation.Id), cancellationToken);
                 }
                 else if (trimMessage.StartsWith("stop_remind_reachedworkingtime"))
@@ -135,6 +140,27 @@ namespace NexBot.Bots
             catch (Exception ex)
             {
                 await messageService.AddSystemLog(ex.Message);
+            }
+        }
+
+        protected override async Task OnEventActivityAsync(ITurnContext<IEventActivity> turnContext, CancellationToken cancellationToken)
+        {
+            if (turnContext.Activity.ChannelId.Equals(channelSkypeId))
+            {
+                logProviderService.WriteLogFileInfo("OnEventActivityAsync");
+                await conversationService.AddConversation(turnContext.Activity);
+            }
+        }
+
+        protected override async Task OnUnrecognizedActivityTypeAsync(ITurnContext turnContext, CancellationToken cancellationToken)
+        {
+            if (turnContext.Activity.ChannelId.Equals(channelSkypeId))
+            {
+                logProviderService.WriteLogFileInfo("OnUnrecognizedActivityTypeAsync");
+                await conversationService.AddConversation(turnContext.Activity);
+                var message = $"Hello {turnContext.Activity.Conversation.Name}. I am {turnContext.Activity.Recipient.Name}. If you have any question please contact admin.";
+                logProviderService.WriteLogFileInfo(JsonConvert.SerializeObject(turnContext.Activity.From));
+                await turnContext.SendActivityAsync(MessageFactory.Text(message, turnContext.Activity.Conversation.Id), cancellationToken);
             }
         }
     }

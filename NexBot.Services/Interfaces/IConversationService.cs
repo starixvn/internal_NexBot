@@ -8,7 +8,7 @@
 
     public interface IConversationService
     {
-        Task AddConversation(IConversationUpdateActivity activity);
+        Task AddConversation(IActivity activity);
 
         Task<ConversationModel> GetConversationById(string conversationId);
 

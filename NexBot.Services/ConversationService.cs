@@ -12,7 +12,7 @@
 
     public class ConversationService : BaseService, IConversationService
     {
-        public async Task AddConversation(IConversationUpdateActivity activity)
+        public async Task AddConversation(IActivity activity)
         {
             var criteria = new InsertConversationCriteria
             {
