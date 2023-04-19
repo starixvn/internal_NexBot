@@ -112,7 +112,8 @@ namespace NexBot.Bots
                 }
                 else if(trimMessage.StartsWith("cmdRegistVegetarianMeal"))
                 {
-                    await registrationMealService.RegistVegetarian(turnContext.Activity.Conversation.Id, trimMessage);
+                    var result = await registrationMealService.RegistVegetarian(turnContext.Activity.Conversation.Id, trimMessage);
+                    await turnContext.SendActivityAsync(MessageFactory.Text(result), cancellationToken);
                 }
                 else if (trimMessage.StartsWith("stop_remind_vegetarian_meal"))
                 {

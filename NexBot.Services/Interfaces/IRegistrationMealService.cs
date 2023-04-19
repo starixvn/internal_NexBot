@@ -4,6 +4,6 @@
 
     public interface IRegistrationMealService
     {
-        Task RegistVegetarian(string conversationId, string commandRequest);
+        Task<string> RegistVegetarian(string conversationId, string commandRequest);
     }
 }

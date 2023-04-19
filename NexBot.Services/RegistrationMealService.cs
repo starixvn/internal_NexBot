@@ -18,26 +18,39 @@
             this.fbmConnector = fbmConnector;
         }
 
-        public async Task RegistVegetarian(string conversationId, string commandRequest)
+        public async Task<string> RegistVegetarian(string conversationId, string commandRequest)
         {
             var slitCommandRequest = commandRequest.Split('_');
-            if (slitCommandRequest.Length == 5)
+            var result = string.Empty;
+            try
             {
-                int.TryParse(slitCommandRequest[1], out int empId);
-                int.TryParse(slitCommandRequest[2], out int companyId);
-                DateTime.TryParse(slitCommandRequest[3], out DateTime onDate);
-
-
-                var registVegetarianMeal = new RegistVegetarianMealMessage
+                if (slitCommandRequest.Length == 5)
                 {
-                    EmpId = empId,
-                    CompanyId = companyId,
-                    OnDate = onDate,
-                    CallBackUrl = slitCommandRequest[4]
-                };
+                    int.TryParse(slitCommandRequest[1], out int empId);
+                    int.TryParse(slitCommandRequest[2], out int companyId);
+                    DateTime.TryParse(slitCommandRequest[3], out DateTime onDate);
 
-                await fbmConnector.Send(registVegetarianMeal);
+
+                    var registVegetarianMeal = new RegistVegetarianMealMessage
+                    {
+                        EmpId = empId,
+                        CompanyId = companyId,
+                        OnDate = onDate,
+                        CallBackUrl = slitCommandRequest[4]
+                    };
+
+                    await fbmConnector.Send(registVegetarianMeal);
+
+                    result = "Đặt Cơm Chay thành công ngày: " + onDate.ToString("dd MMM, yyyy");
+                }
             }
+            catch(Exception)
+            {
+                result = "Đặt Cơm Chay thất bại! Vui lòng liên hệ HR.";
+            }
+
+
+            return result;
         }
     }
 }
