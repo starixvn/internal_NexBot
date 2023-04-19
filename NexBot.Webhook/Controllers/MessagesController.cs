@@ -2,9 +2,10 @@
 {
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
+    using NexBot.Models;
     using NexBot.Services.Interfaces;
 
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     public class MessagesController : Controller
     {
         private readonly IMessageService messageService;
@@ -26,6 +27,12 @@
         public async Task ResendErrorMessage()
         {
             await messageService.ReSendErrorMeesage();
+        }
+
+        [HttpPost]
+        public async Task RegistVegetarianMeal(RegistVegetarianMealMessage model)
+        {
+            await messageService.RegistVegetarianMealAsync(model);
         }
     }
 }

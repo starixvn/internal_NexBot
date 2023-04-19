@@ -29,6 +29,9 @@
         WarningNotFollowLateInEarlyOut = 8,
 
         [Description("Reminder Reached Working Hour")]
-        ReminderReachedWorkingHour = 9
+        ReminderReachedWorkingHour = 9,
+
+        [Description("Reminder regist Vegetarian Meal")]
+        ReminderVegetarianMeal = 10
     }
 }

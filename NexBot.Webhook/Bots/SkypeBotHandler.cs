@@ -18,16 +18,20 @@ namespace NexBot.Bots
     {
         private readonly IMessageService messageService;
         private readonly IRequestService requestService;
+        private readonly IRegistrationMealService registrationMealService;
         private readonly IRegisterMessageService registerMessageService;
         private readonly ILogProviderService logProviderService;
         protected readonly BotState conversationState;
         protected readonly IConversationService conversationService;
+
+        
 
         private const string channelSkypeId = "skype";
         private const string greetingMessage = "Hello, I am {0}";
 
         public SkypeBotHandler(IMessageService messageService,
              IRequestService requestService,
+             IRegistrationMealService registrationMealService,
              ConversationState conversationState,
              IRegisterMessageService registerMessageService,
              ILogProviderService logProviderService,
@@ -35,6 +39,7 @@ namespace NexBot.Bots
         {
             this.messageService = messageService;
             this.requestService = requestService;
+            this.registrationMealService = registrationMealService;
             this.registerMessageService = registerMessageService;
             this.conversationState = conversationState;
             this.conversationService = conversationService;
@@ -104,6 +109,26 @@ namespace NexBot.Bots
                 else if (trimMessage.StartsWith("cmdRejectRequest"))
                 {
                     await requestService.ProcessRequest(turnContext.Activity.Conversation.Id, trimMessage, "Reject");
+                }
+                else if(trimMessage.StartsWith("cmdRegistVegetarianMeal"))
+                {
+                    await registrationMealService.RegistVegetarian(turnContext.Activity.Conversation.Id, trimMessage);
+                }
+                else if (trimMessage.StartsWith("stop_remind_registVegetarianMeal"))
+                {
+                    var result = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderVegetarianMeal);
+                    if (result.IsSuccessful)
+                    {
+                        await turnContext.SendActivityAsync(MessageFactory.Text(result.Message, result.Message), cancellationToken);
+                    }
+                }
+                else if (trimMessage.StartsWith("start_remind_RegistVegetarianMeal"))
+                {
+                    var result = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderVegetarianMeal);
+                    if (result.IsSuccessful)
+                    {
+                        await turnContext.SendActivityAsync(MessageFactory.Text(result.Message, result.Message), cancellationToken);
+                    }
                 }
                 else if (trimMessage.StartsWith("getid"))
                 {

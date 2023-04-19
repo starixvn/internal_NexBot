@@ -9,6 +9,8 @@
 
         Task SendRequestAsync(SendRequestMessage requestMessage);
 
+        Task RegistVegetarianMealAsync(RegistVegetarianMealMessage message);
+
         Task AddSystemLog(string logContent);
 
         Task ReSendErrorMeesage();

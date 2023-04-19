@@ -54,7 +54,9 @@
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IHRMConnector, HrmConnector>();
+            services.AddScoped<IFBMConnector, FBMConnector>();
             services.AddScoped<IRequestService, RequestService>();
+            services.AddScoped<IRegistrationMealService, RegistrationMealService>();
             services.AddScoped<IRegisterMessageService, RegisterMessageService>();
             services.AddTransient<ILogProviderService, LogProviderService>();
 

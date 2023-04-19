@@ -139,6 +139,35 @@
             }
         }
 
+        public async Task RegistVegetarianMealAsync(RegistVegetarianMealMessage message)
+        {
+            var conversation = await conversationService.GetConversationById(message.ConversationId);
+            var conversationReference = GetConversationReference(conversation);
+            var activity = CreateMessageActivity(conversationReference);
+            if (!string.IsNullOrEmpty(message.Message))
+            {
+                activity.Text = message.Message;
+                var registVegetarianCommand = string.Format("{0}_{1}_{2}_{3}_{4}", "cmdRegistVegetarianMeal", message.EmpId, message.CompanyId, message.OnDate.ToString("yyyy-MM-dd"), message.CallBackUrl);
+                var cardActions = new List<CardAction>
+                    {
+                        new CardAction(ActionTypes.PostBack, "Đặt Cơm Chay", value: registVegetarianCommand)
+                    };
+                var heroCard = new HeroCard
+                {
+                    Buttons = cardActions
+                };
+
+                var attachment = heroCard.ToAttachment();
+                activity.Attachments = new List<Attachment>()
+                    {
+                        attachment
+                    };
+
+                await SendMessageAsync(conversationReference, (Activity)activity);
+                await AddMessageLog(activity);
+            }
+        }
+
         public async Task SendAdminAsync(string message)
         {
             var conversations = await conversationService.GetAdminConversation();
