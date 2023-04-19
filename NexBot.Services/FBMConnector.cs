@@ -6,23 +6,22 @@
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
+    using NexBot.Core.Models;
     using NexBot.Models;
     using NexBot.Services.Interfaces;
 
     public class FBMConnector : IFBMConnector
     {
         private readonly IHttpClientFactory httpClientFactory;
-        private readonly IConfiguration configuration;
 
-        public FBMConnector(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public FBMConnector(IHttpClientFactory httpClientFactory)
         {
-            this.configuration = configuration;
             this.httpClientFactory = httpClientFactory;
         }
 
-        public async Task<string> Send(RegistVegetarianMealMessage registVegetarianMeal)
+        public async Task<CommandResult> Send(RegistVegetarianMealMessage registVegetarianMeal)
         {
-            string result = string.Empty;
+            CommandResult commandResult;
             var baseUrl = registVegetarianMeal.CallBackUrl;
             var httpClient = httpClientFactory.CreateClient();
 
@@ -34,12 +33,21 @@
                 {
                     if (response.IsSuccessStatusCode)
                     {
-                        result = await response.Content.ReadAsStringAsync();
+                        var result = await response.Content.ReadAsStringAsync();
+                        commandResult = JsonConvert.DeserializeObject<CommandResult>(result);
+                    }
+                    else
+                    {
+                        commandResult = new CommandResult
+                        {
+                            Code = 1,
+                            Message = response.ReasonPhrase
+                        };
                     }
                 }
             }
 
-            return result;
+            return commandResult;
         }
     }
 }

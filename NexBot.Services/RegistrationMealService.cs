@@ -3,19 +3,23 @@
     using System;
     using System.Threading.Tasks;
     using NexBot.Core.Services;
+    using NexBot.Core.Services.Interfaces;
     using NexBot.Models;
     using NexBot.Services.Interfaces;
 
     public class RegistrationMealService : BaseService, IRegistrationMealService
     {
-        private readonly IConversationService conversationService;
-        private readonly IFBMConnector fbmConnector;
+        private const string successMessage = "Đặt Cơm Chay thành công ngày: ";
+        private const string failMessage = "Đặt Cơm Chay thất bại! Vui lòng liên hệ Admin.";
 
-        public RegistrationMealService(IConversationService conversationService,
-            IFBMConnector fbmConnector)
+        private readonly IFBMConnector fbmConnector;
+        private readonly ILogProviderService logProviderService;
+
+        public RegistrationMealService(IFBMConnector fbmConnector,
+            ILogProviderService logProviderService)
         {
-            this.conversationService = conversationService;
             this.fbmConnector = fbmConnector;
+            this.logProviderService = logProviderService;
         }
 
         public async Task<string> RegistVegetarian(string conversationId, string commandRequest)
@@ -39,14 +43,22 @@
                         CallBackUrl = slitCommandRequest[4]
                     };
 
-                    await fbmConnector.Send(registVegetarianMeal);
-
-                    result = "Đặt Cơm Chay thành công ngày: " + onDate.ToString("dd MMM, yyyy");
+                    var commandResult = await fbmConnector.Send(registVegetarianMeal);
+                    if (commandResult.IsSuccessful)
+                    {
+                        result = successMessage + onDate.ToString("dd MMM, yyyy");
+                    }
+                    else
+                    {
+                        logProviderService.WriteLogFileInfo(failMessage);
+                        result = failMessage;
+                    }
                 }
             }
-            catch(Exception)
+            catch (Exception exception)
             {
-                result = "Đặt Cơm Chay thất bại! Vui lòng liên hệ HR.";
+                logProviderService.WriteLogFileInfo(exception.ToString());
+                result = failMessage;
             }
 
 

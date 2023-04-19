@@ -17,7 +17,7 @@
 
         //[Authorize(Roles = "Bot")]
         [HttpPost]
-        [Route("Forward")]
+        //[Route("Forward")]
         public async Task Forward(string conversationId, string message)
         {
             await messageService.SendAsync(conversationId, message);
@@ -32,6 +32,8 @@
         [HttpPost]
         public async Task RegistVegetarianMeal(RegistVegetarianMealMessage model)
         {
+            ////var registVegetarianCommand = string.Format("{0}_{1}_{2}_{3}_{4}", "cmdRegistVegetarianMeal", model.EmpId, model.CompanyId, model.OnDate.ToString("yyyy-MM-dd"), model.CallBackUrl);
+            ////var result = await registrationMealService.RegistVegetarian(model.ConversationId, registVegetarianCommand);
             await messageService.RegistVegetarianMealAsync(model);
         }
     }
