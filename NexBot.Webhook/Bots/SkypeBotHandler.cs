@@ -114,7 +114,7 @@ namespace NexBot.Bots
                 {
                     await registrationMealService.RegistVegetarian(turnContext.Activity.Conversation.Id, trimMessage);
                 }
-                else if (trimMessage.StartsWith("stop_remind_registVegetarianMeal"))
+                else if (trimMessage.StartsWith("stop_remind_vegetarian_meal"))
                 {
                     var result = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderVegetarianMeal);
                     if (result.IsSuccessful)
@@ -122,7 +122,7 @@ namespace NexBot.Bots
                         await turnContext.SendActivityAsync(MessageFactory.Text(result.Message, result.Message), cancellationToken);
                     }
                 }
-                else if (trimMessage.StartsWith("start_remind_RegistVegetarianMeal"))
+                else if (trimMessage.StartsWith("start_remind_vegetarian_meal"))
                 {
                     var result = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderVegetarianMeal);
                     if (result.IsSuccessful)
