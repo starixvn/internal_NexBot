@@ -48,7 +48,7 @@
 
             services.AddHttpClient();
             services.AddControllers();
-
+            services.AddMvc().AddNewtonsoftJson();
             services.AddScoped<IBaseService, BaseService>();
             services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IMessageService, MessageService>();
