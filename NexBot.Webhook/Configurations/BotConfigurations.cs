@@ -1,6 +1,6 @@
 ﻿namespace NexBot.Configurations
 {
-    public class SkypeBotConfigurations
+    public class BotConfigurations
     {
         public string MicrosoftAppId { get; set; }
 

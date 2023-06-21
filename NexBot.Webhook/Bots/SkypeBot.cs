@@ -1,4 +1,4 @@
-namespace NexBot.Bots
+﻿namespace NexBot.Bots
 {
     using System;
     using System.Collections.Generic;
@@ -14,25 +14,20 @@ namespace NexBot.Bots
     using NexBot.Models.CategoryMessage;
     using NexBot.Services.Interfaces;
 
-    public class SkypeBotHandler : ActivityHandler
+    public class SkypeBot : ISkypeBot
     {
         private readonly IMessageService messageService;
         private readonly IRequestService requestService;
         private readonly IRegistrationMealService registrationMealService;
         private readonly IRegisterMessageService registerMessageService;
         private readonly ILogProviderService logProviderService;
-        protected readonly BotState conversationState;
         protected readonly IConversationService conversationService;
 
-        
-
         private const string channelSkypeId = "skype";
-        private const string greetingMessage = "Hello, I am {0}";
 
-        public SkypeBotHandler(IMessageService messageService,
+        public SkypeBot(IMessageService messageService,
              IRequestService requestService,
              IRegistrationMealService registrationMealService,
-             ConversationState conversationState,
              IRegisterMessageService registerMessageService,
              ILogProviderService logProviderService,
              IConversationService conversationService)
@@ -41,45 +36,35 @@ namespace NexBot.Bots
             this.requestService = requestService;
             this.registrationMealService = registrationMealService;
             this.registerMessageService = registerMessageService;
-            this.conversationState = conversationState;
             this.conversationService = conversationService;
             this.logProviderService = logProviderService;
         }
 
-        protected override async Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
+        public async Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
-            if (turnContext.Activity.ChannelId.Equals(channelSkypeId))
+            if (turnContext.Activity.MembersAdded != null)
             {
-                logProviderService.WriteLogFileInfo("OnConversationUpdateActivityAsync");
-
-                if (turnContext.Activity.MembersAdded != null)
+                if (turnContext.Activity.MembersAdded.Any(m => m.Id == turnContext.Activity.Recipient?.Id))
                 {
-                    if (turnContext.Activity.MembersAdded.Any(m => m.Id == turnContext.Activity.Recipient?.Id))
-                    {
-                        logProviderService.WriteLogFileInfo("Add to group");
-                        await conversationService.AddConversation(turnContext.Activity);
-                        var message = $"Hello {turnContext.Activity.From.Name}. I am {turnContext.Activity.Recipient.Name}. If you have any question please contact admin.";
-                        await turnContext.SendActivityAsync(MessageFactory.Text(message, turnContext.Activity.Conversation.Id), cancellationToken);
-                    }
-                }
-                else
-                {
-                    if (turnContext.Activity.MembersRemoved != null
-                    && turnContext.Activity.MembersRemoved.Any(m => m.Id == turnContext.Activity.Recipient?.Id))
-                    {
-                        logProviderService.WriteLogFileInfo("Remove from group");
-
-                        await conversationService.RemoveConversation(turnContext.Activity);
-                    }
+                    logProviderService.WriteLogFileInfo("Add to group");
+                    await conversationService.AddConversation(turnContext.Activity);
+                    var message = $"Hello {turnContext.Activity.From.Name}. I am {turnContext.Activity.Recipient.Name}. If you have any question please contact admin.";
+                    await turnContext.SendActivityAsync(MessageFactory.Text(message, turnContext.Activity.Conversation.Id), cancellationToken);
                 }
             }
             else
             {
-                await turnContext.SendActivityAsync(MessageFactory.Text(string.Format(greetingMessage, turnContext.Activity.Recipient.Name)), cancellationToken);
+                if (turnContext.Activity.MembersRemoved != null
+                && turnContext.Activity.MembersRemoved.Any(m => m.Id == turnContext.Activity.Recipient?.Id))
+                {
+                    logProviderService.WriteLogFileInfo("Remove from group");
+
+                    await conversationService.RemoveConversation(turnContext.Activity);
+                }
             }
         }
 
-        protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
+        public async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             try
             {
@@ -110,7 +95,7 @@ namespace NexBot.Bots
                 {
                     await requestService.ProcessRequest(turnContext.Activity.Conversation.Id, trimMessage, "Reject");
                 }
-                else if(trimMessage.StartsWith("cmdRegistVegetarianMeal"))
+                else if (trimMessage.StartsWith("cmdRegistVegetarianMeal"))
                 {
                     var result = await registrationMealService.RegistVegetarian(turnContext.Activity.Conversation.Id, trimMessage);
                     await turnContext.SendActivityAsync(MessageFactory.Text(result), cancellationToken);
@@ -169,7 +154,7 @@ namespace NexBot.Bots
             }
         }
 
-        protected override async Task OnEventActivityAsync(ITurnContext<IEventActivity> turnContext, CancellationToken cancellationToken)
+        public async Task OnEventActivityAsync(ITurnContext<IEventActivity> turnContext, CancellationToken cancellationToken)
         {
             if (turnContext.Activity.ChannelId.Equals(channelSkypeId))
             {
@@ -178,16 +163,13 @@ namespace NexBot.Bots
             }
         }
 
-        protected override async Task OnUnrecognizedActivityTypeAsync(ITurnContext turnContext, CancellationToken cancellationToken)
+        public async Task OnUnrecognizedActivityTypeAsync(ITurnContext turnContext, CancellationToken cancellationToken)
         {
-            if (turnContext.Activity.ChannelId.Equals(channelSkypeId))
-            {
-                logProviderService.WriteLogFileInfo("OnUnrecognizedActivityTypeAsync");
-                await conversationService.AddConversation(turnContext.Activity);
-                var message = $"Hello {turnContext.Activity.Conversation.Name}. I am {turnContext.Activity.Recipient.Name}. If you have any question please contact admin.";
-                logProviderService.WriteLogFileInfo(JsonConvert.SerializeObject(turnContext.Activity.From));
-                await turnContext.SendActivityAsync(MessageFactory.Text(message, turnContext.Activity.Conversation.Id), cancellationToken);
-            }
+            logProviderService.WriteLogFileInfo("OnUnrecognizedActivityTypeAsync");
+            await conversationService.AddConversation(turnContext.Activity);
+            var message = $"Hello {turnContext.Activity.Conversation.Name}. I am {turnContext.Activity.Recipient.Name}. If you have any question please contact admin.";
+            logProviderService.WriteLogFileInfo(JsonConvert.SerializeObject(turnContext.Activity.From));
+            await turnContext.SendActivityAsync(MessageFactory.Text(message, turnContext.Activity.Conversation.Id), cancellationToken);
         }
     }
 }

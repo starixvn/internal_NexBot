@@ -9,7 +9,7 @@
     {
         private readonly Dictionary<string, string> Credentials;
 
-        public CredentialProvider(SkypeBotConfigurations botConfig)
+        public CredentialProvider(BotConfigurations botConfig)
         {
             Credentials = new Dictionary<string, string> {
                 {

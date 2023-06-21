@@ -58,7 +58,9 @@
             services.AddScoped<IRequestService, RequestService>();
             services.AddScoped<IRegistrationMealService, RegistrationMealService>();
             services.AddScoped<IRegisterMessageService, RegisterMessageService>();
-            services.AddTransient<ILogProviderService, LogProviderService>();
+            services.AddSingleton<ILogProviderService, LogProviderService>();
+            services.AddScoped<ISkypeBot, SkypeBot>();
+            services.AddScoped<ITelegramBot, TelegramBot>();
 
             BotServiceDI(services);
         }
@@ -70,16 +72,16 @@
             services.AddSingleton<ConversationState>();
             services.AddSingleton<IStorage, MemoryStorage>();
 
-            services.AddTransient<IBot, SkypeBotHandler>();
+            services.AddTransient<IBot, BotHandler>();
             var appSettingsSection = Configuration.GetSection("SkypeBotConfigurations");
-            services.Configure<SkypeBotConfigurations>(appSettingsSection);
-            var skypeBotConfigurations = appSettingsSection.Get<SkypeBotConfigurations>();
-            services.Configure<SkypeBotConfigurations>(options => Configuration.GetSection("SkypeBotConfigurations").Bind(options));
+            services.Configure<BotConfigurations>(appSettingsSection);
+            var skypeBotConfigurations = appSettingsSection.Get<BotConfigurations>();
+            services.Configure<BotConfigurations>(options => Configuration.GetSection("SkypeBotConfigurations").Bind(options));
 
             var botFrameworkHttpAdapter = GetBotFrameworkHttpAdapter(skypeBotConfigurations);
             services.AddSingleton(botFrameworkHttpAdapter);
 
-            services.AddBot<SkypeBotHandler>(options =>
+            services.AddBot<BotHandler>(options =>
             {
                 options.CredentialProvider = new CredentialProvider(skypeBotConfigurations);
                 options.HttpClient = new HttpClient();
@@ -115,7 +117,7 @@
             });
         }
 
-        private static IBotFrameworkHttpAdapter GetBotFrameworkHttpAdapter(SkypeBotConfigurations botConfig)
+        private static IBotFrameworkHttpAdapter GetBotFrameworkHttpAdapter(BotConfigurations botConfig)
         {
             var credentialProvider = new CredentialProvider(botConfig);
             HttpClient httpClient = new();

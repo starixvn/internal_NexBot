@@ -7,5 +7,9 @@
         public const string RegisterEvents = "Register Events";
 
         public const string RemoveEvents = "Remove Events";
+
+        public const string SkypeChannel = "skype";
+
+        public const string TelegramChannel = "telegram";
     }
 }

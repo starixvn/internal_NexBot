@@ -39,7 +39,7 @@ namespace NexBot.Core.Utilities
 
             switch (channelId)
             {
-                case "skype":
+                case Constants.SkypeChannel:
                     if (sourceMessage.StartsWith("@") 
                         || sourceMessage.StartsWith(botName))
                     {
@@ -51,7 +51,7 @@ namespace NexBot.Core.Utilities
                         }
                     }
                     break;
-                case "telegram":
+                case Constants.TelegramChannel:
                     if (sourceMessage.StartsWith("/"))
                     {
                         var indexOfCommand = sourceMessage.IndexOf(' ');
