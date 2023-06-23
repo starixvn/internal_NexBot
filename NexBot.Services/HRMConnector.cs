@@ -30,7 +30,7 @@
             var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var url = new Uri($"{baseUrl}/Request/ProcessRequest?requestId={processRequest.RequestId}&command={processRequest.Command}&nickName={processRequest.NickName}");
+            var url = new Uri($"{baseUrl}/Request/ProcessRequest?requestId={processRequest.RequestId}&command={processRequest.Command}&nickName={processRequest.NickName}&processedBy={processRequest.ProcessedBy}");
 
             using (var request = new HttpRequestMessage(HttpMethod.Post, url))
             {
