@@ -9,17 +9,26 @@
     using NexBot.Criteria.Conversation;
     using NexBot.Models;
     using NexBot.Services.Interfaces;
+    using NexBot.Core;
 
     public class ConversationService : BaseService, IConversationService
     {
         public async Task AddConversation(IActivity activity)
         {
+            var firstName = string.Empty;
+            if (activity.ChannelId == Constants.TelegramChannel)
+            {
+                var channelData = activity.GetChannelData<TelegramData>();
+                firstName = channelData.message.from?.first_name;
+            }
+
             var criteria = new InsertConversationCriteria
             {
                 ConversationId = activity.Conversation.Id,
                 ChannelId = activity.ChannelId,
                 ServiceUrl = activity.ServiceUrl,
                 UserName = activity.From.Name,
+                FirstName = firstName,
                 IsGroup = activity.Conversation.IsGroup,
                 IsActive = true,
                 IsAdmin = false,
