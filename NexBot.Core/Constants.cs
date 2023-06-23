@@ -11,5 +11,9 @@
         public const string SkypeChannel = "skype";
 
         public const string TelegramChannel = "telegram";
+
+        public const string ApproveRequestCommand = "Approve";
+
+        public const string RejectRequestCommand = "Reject";
     }
 }

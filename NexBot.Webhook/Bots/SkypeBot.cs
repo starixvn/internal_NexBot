@@ -89,11 +89,13 @@
                 }
                 else if (trimMessage.StartsWith("cmdApprovedRequest") || trimMessage.StartsWith("cmdApproved"))
                 {
-                    await requestService.ProcessRequest(turnContext.Activity.Conversation.Id, trimMessage, "Approve");
+                    var result = await requestService.ProcessRequest(turnContext.Activity.Conversation.Id, trimMessage, Constants.ApproveRequestCommand);
+                    await turnContext.SendActivityAsync(MessageFactory.Text(result), cancellationToken);
                 }
                 else if (trimMessage.StartsWith("cmdRejectRequest") || trimMessage.StartsWith("cmdReject"))
                 {
-                    await requestService.ProcessRequest(turnContext.Activity.Conversation.Id, trimMessage, "Reject");
+                    var result = await requestService.ProcessRequest(turnContext.Activity.Conversation.Id, trimMessage, Constants.RejectRequestCommand);
+                    await turnContext.SendActivityAsync(MessageFactory.Text(result), cancellationToken);
                 }
                 else if (trimMessage.StartsWith("cmdRegMeal"))
                 {

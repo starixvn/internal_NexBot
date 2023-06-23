@@ -1,10 +1,11 @@
 ﻿namespace NexBot.Services.Interfaces
 {
     using System.Threading.Tasks;
+    using NexBot.Core.Models;
     using NexBot.Models;
 
     public interface IHRMConnector
     {
-        Task<string> Send(ProcessRequest processRequest);
+        Task<CommandResult> Send(ProcessRequest processRequest);
     }
 }

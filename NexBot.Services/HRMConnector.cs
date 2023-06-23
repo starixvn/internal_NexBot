@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
+    using NexBot.Core.Models;
     using NexBot.Models;
     using NexBot.Services.Interfaces;
 
@@ -20,9 +21,9 @@
             this.httpClientFactory = httpClientFactory;
         }
 
-        public async Task<string> Send(ProcessRequest processRequest)
+        public async Task<CommandResult> Send(ProcessRequest processRequest)
         {
-            string result = string.Empty;
+            CommandResult commandResult;
             var baseUrl = processRequest.CallBackUrl;
             var token = await GetTokenAsync(baseUrl);
 
@@ -37,12 +38,21 @@
                 {
                     if (response.IsSuccessStatusCode)
                     {
-                        result = await response.Content.ReadAsStringAsync();
+                        var result = await response.Content.ReadAsStringAsync();
+                        commandResult = JsonConvert.DeserializeObject<CommandResult>(result);
+                    }
+                    else
+                    {
+                        commandResult = new CommandResult
+                        {
+                            Code = 1,
+                            Message = response.ReasonPhrase
+                        };
                     }
                 }
             }
 
-            return result;
+            return commandResult;
         }
 
         private async Task<string> GetTokenAsync(string baseUrl)
