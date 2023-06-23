@@ -87,15 +87,15 @@
                         await turnContext.SendActivityAsync(MessageFactory.Text(result.Message, result.Message), cancellationToken);
                     }
                 }
-                else if (trimMessage.StartsWith("cmdApprovedRequest"))
+                else if (trimMessage.StartsWith("cmdApprovedRequest") || trimMessage.StartsWith("cmdApproved"))
                 {
                     await requestService.ProcessRequest(turnContext.Activity.Conversation.Id, trimMessage, "Approve");
                 }
-                else if (trimMessage.StartsWith("cmdRejectRequest"))
+                else if (trimMessage.StartsWith("cmdRejectRequest") || trimMessage.StartsWith("cmdReject"))
                 {
                     await requestService.ProcessRequest(turnContext.Activity.Conversation.Id, trimMessage, "Reject");
                 }
-                else if (trimMessage.StartsWith("cmdRegistVegetarianMeal"))
+                else if (trimMessage.StartsWith("cmdRegMeal"))
                 {
                     var result = await registrationMealService.RegistVegetarian(turnContext.Activity.Conversation.Id, trimMessage);
                     await turnContext.SendActivityAsync(MessageFactory.Text(result), cancellationToken);

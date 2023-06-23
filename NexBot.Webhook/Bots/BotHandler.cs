@@ -27,7 +27,6 @@ namespace NexBot.Bots
                 case Constants.SkypeChannel:
                     await skypeBot.OnConversationUpdateActivityAsync(turnContext, cancellationToken);
                     break;
-
                 default:
                     await turnContext.SendActivityAsync(MessageFactory.Text(string.Format(greetingMessage, turnContext.Activity.Recipient.Name)), cancellationToken);
                     break;

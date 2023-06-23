@@ -116,8 +116,8 @@
             if (!string.IsNullOrEmpty(requestMessage.Message))
             {
                 activity.Text = requestMessage.Message;
-                var approveCommand = string.Format("{0}_{1}_{2}", "cmdApprovedRequest", requestMessage.RequestId.ToString(), requestMessage.CallBackUrl);
-                var rejectCommand = string.Format("{0}_{1}_{2}", "cmdRejectRequest", requestMessage.RequestId.ToString(), requestMessage.CallBackUrl);
+                var approveCommand = string.Format("{0}_{1}_{2}", "cmdApproved", requestMessage.RequestId.ToString(), requestMessage.CallBackUrl);
+                var rejectCommand = string.Format("{0}_{1}_{2}", "cmdReject", requestMessage.RequestId.ToString(), requestMessage.CallBackUrl);
                 var cardActions = new List<CardAction>
                     {
                         new CardAction(ActionTypes.PostBack, "Approve", value: approveCommand),
@@ -147,7 +147,7 @@
             if (!string.IsNullOrEmpty(message.Message))
             {
                 activity.Text = message.Message;
-                var registVegetarianCommand = string.Format("{0}_{1}_{2}_{3}_{4}", "cmdRegistVegetarianMeal", message.EmpId, message.CompanyId, message.OnDate.ToString("yyyy-MM-dd"), message.CallBackUrl);
+                var registVegetarianCommand = string.Format("{0}_{1}_{2}_{3}_{4}", "cmdRegMeal", message.EmpId, message.CompanyId, message.OnDate.ToString("yyyy-MM-dd"), message.CallBackUrl);
                 var cardActions = new List<CardAction>
                     {
                         new CardAction(ActionTypes.PostBack, "Đặt Cơm Chay", value: registVegetarianCommand)

@@ -23,9 +23,6 @@
         private readonly ILogProviderService logProviderService;
         protected readonly IConversationService conversationService;
 
-        private const string channelSkypeId = "skype";
-        private const string greetingMessage = "Hello, I am {0}";
-
         public TelegramBot(IMessageService messageService,
              IRequestService requestService,
              IRegistrationMealService registrationMealService,
@@ -51,7 +48,7 @@
                 if (trimMessage.StartsWith("/start"))
                 {
                     await conversationService.AddConversation(turnContext.Activity);
-                    string msg = string.Format("Hi {0}, I am {1}", turnContext.Activity.From.Name, turnContext.Activity.Recipient.Name);
+                    string msg = string.Format("Hi {0}, I am {1}", turnContext.Activity.From.Name, turnContext.Activity.Recipient.Id);
                     await turnContext.SendActivityAsync(MessageFactory.Text(msg), cancellationToken);
                 }
 
@@ -76,15 +73,15 @@
                         await turnContext.SendActivityAsync(MessageFactory.Text(result.Message, result.Message), cancellationToken);
                     }
                 }
-                else if (trimMessage.StartsWith("cmdApprovedRequest"))
+                else if (trimMessage.StartsWith("cmdApproved"))
                 {
                     await requestService.ProcessRequest(turnContext.Activity.Conversation.Id, trimMessage, "Approve");
                 }
-                else if (trimMessage.StartsWith("cmdRejectRequest"))
+                else if (trimMessage.StartsWith("cmdReject"))
                 {
                     await requestService.ProcessRequest(turnContext.Activity.Conversation.Id, trimMessage, "Reject");
                 }
-                else if (trimMessage.StartsWith("cmdRegistVegetarianMeal"))
+                else if (trimMessage.StartsWith("cmdRegMeal"))
                 {
                     var result = await registrationMealService.RegistVegetarian(turnContext.Activity.Conversation.Id, trimMessage);
                     await turnContext.SendActivityAsync(MessageFactory.Text(result), cancellationToken);
