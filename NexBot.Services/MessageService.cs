@@ -116,8 +116,8 @@
             if (!string.IsNullOrEmpty(requestMessage.Message))
             {
                 activity.Text = requestMessage.Message;
-                var approveCommand = string.Format("{0}_{1}_{2}", "cmdApproved", requestMessage.RequestId.ToString(), requestMessage.CallBackUrl);
-                var rejectCommand = string.Format("{0}_{1}_{2}", "cmdReject", requestMessage.RequestId.ToString(), requestMessage.CallBackUrl);
+                var approveCommand = string.Format("{0}_{1}_{2}_{3}", "cmdApproved", requestMessage.RequestId, requestMessage.ProcessedBy, requestMessage.CallBackUrl);
+                var rejectCommand = string.Format("{0}_{1}_{2}_{3}", "cmdReject", requestMessage.RequestId, requestMessage.ProcessedBy, requestMessage.CallBackUrl);
                 var cardActions = new List<CardAction>
                     {
                         new CardAction(ActionTypes.PostBack, "Approve", value: approveCommand),

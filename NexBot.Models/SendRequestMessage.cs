@@ -6,6 +6,8 @@
 
         public long RequestId { get; set; }
 
+        public int ProcessedBy { get; set; }
+
         public string Message { get; set; }
 
         public string CallBackUrl { get; set; }

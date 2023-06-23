@@ -34,6 +34,20 @@
 
                 await hrmConnector.Send(processRequest);
             }
+            else if (slitCommandRequest.Length == 4)
+            {
+                long.TryParse(slitCommandRequest[1], out long requestId);
+                int.TryParse(slitCommandRequest[2], out int processedBy);
+                var processRequest = new ProcessRequest
+                {
+                    RequestId = requestId,
+                    ProcessedBy = processedBy,
+                    Command = command,
+                    CallBackUrl = slitCommandRequest[3]
+                };
+
+                await hrmConnector.Send(processRequest);
+            }
         }
     }
 }
