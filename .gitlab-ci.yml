@@ -1,4 +1,4 @@
 include:
-  - project: 'ci/repos-ci/nexus_nexcel_nexbot'
-    ref: master
-    file: 'gitlab-ci.yml'
+  - project: ci/core-cicd
+    ref: main
+    file: nexcel.gitlab-ci.yml
