@@ -1,12 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fanex.Data" Version="3.0.0-rc1" />
-    <PackageReference Include="Fanex.Data.Repository" Version="3.0.0-rc1" />
+    <PackageReference Include="Fanex.Data.Repository" Version="4.2.5.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NexBot.Core\NexBot.Core.csproj" />
   </ItemGroup>
 
 </Project>

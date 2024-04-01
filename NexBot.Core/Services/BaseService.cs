@@ -14,11 +14,11 @@
         private readonly IBaseRepository baseRepository;
 
         public BaseService(
-            IDynamicRepository dynamicRepository = null,
-            IBaseRepository baseRepository = null)
+            IDynamicRepository dynamicRepository,
+            IBaseRepository baseRepository)
         {
-            this.dynamicRepository = dynamicRepository ?? new DynamicRepository();
-            this.baseRepository = baseRepository ?? new BaseRepository();
+            this.dynamicRepository = dynamicRepository;
+            this.baseRepository = baseRepository;
         }
 
         public virtual async Task<IEnumerable<T>> GetDataAsync<T>(ICriteria criteria)
@@ -35,39 +35,39 @@
         {
             if (criteria != null && criteria.IsValid())
             {
-                return await dynamicRepository.GetAsync<T>(criteria).ConfigureAwait(false);
+                return await dynamicRepository.GetAsync<T>(criteria);
             }
 
-            return default(T);
+            return default;
         }
 
-        public virtual async Task<Tuple<IEnumerable<TFirst>, IEnumerable<TSecond>>> FetchMultipleAsync<TFirst, TSecond>(ICriteria criteria)
+        public virtual async Task<ValueTuple<IEnumerable<TFirst>, IEnumerable<TSecond>>> FetchMultipleAsync<TFirst, TSecond>(ICriteria criteria)
         {
             if (criteria != null && criteria.IsValid())
             {
                 return await dynamicRepository.FetchMultipleAsync<TFirst, TSecond>(criteria).ConfigureAwait(false);
             }
 
-            return new Tuple<IEnumerable<TFirst>, IEnumerable<TSecond>>(new List<TFirst>(), new List<TSecond>());
+            return new ValueTuple<IEnumerable<TFirst>, IEnumerable<TSecond>>(new List<TFirst>(), new List<TSecond>());
         }
 
-        public virtual async Task<Tuple<IEnumerable<TFirst>, IEnumerable<TSecond>, IEnumerable<TThird>>> FetchMultipleAsync<TFirst, TSecond, TThird>(ICriteria criteria)
+        public virtual async Task<ValueTuple<IEnumerable<TFirst>, IEnumerable<TSecond>, IEnumerable<TThird>>> FetchMultipleAsync<TFirst, TSecond, TThird>(ICriteria criteria)
         {
             if (criteria != null && criteria.IsValid())
             {
-                return await dynamicRepository.FetchMultipleAsync<TFirst, TSecond, TThird>(criteria).ConfigureAwait(false);
+                return await dynamicRepository.FetchMultipleAsync<TFirst, TSecond, TThird>(criteria);
             }
 
-            return new Tuple<IEnumerable<TFirst>, IEnumerable<TSecond>, IEnumerable<TThird>>(new List<TFirst>(), new List<TSecond>(), new List<TThird>());
+            return new ValueTuple<IEnumerable<TFirst>, IEnumerable<TSecond>, IEnumerable<TThird>>(new List<TFirst>(), new List<TSecond>(), new List<TThird>());
         }
 
-        public virtual async Task<CommandResult> ExecuteNonQueryAsync(ICriteria criteria)
+        public async Task<CommandResult> ExecuteNonQueryAsync(INonQueryCommand command)
         {
             var commandResult = new CommandResult();
 
-            if (criteria != null && criteria.IsValid())
+            if (command != null && command.IsValid())
             {
-                commandResult = await baseRepository.ExecuteNonQueryAsync(criteria).ConfigureAwait(false);
+                commandResult = await baseRepository.ExecuteNonQueryAsync(command);
             }
 
             return commandResult;

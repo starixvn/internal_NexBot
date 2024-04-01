@@ -2,105 +2,103 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
+    using System.Net;
     using System.Net.Http;
-    using Fanex.Data;
+    using Fanex.Caching;
+    using Fanex.Caching.Redis;
+    using Fanex.Data.Repository;
+    using Fanex.Data.SqlServer;
     using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.DataProtection;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Builder.Integration.AspNet.Core;
     using Microsoft.Bot.Connector.Authentication;
+    using Microsoft.Extensions.Caching.Memory;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
-    using Microsoft.Extensions.Logging;
     using NexBot.Bots;
-    using NexBot.Configurations;
-    using NexBot.Core.Services;
+    using NexBot.Bots.Interfaces;
+    using NexBot.Core.Repositories;
     using NexBot.Core.Services.Interfaces;
-    using NexBot.Services;
+    using NexBot.Core.Services;
+    using NexBot.Models;
     using NexBot.Services.Interfaces;
+    using NexBot.Services;
+    using StackExchange.Redis;
+    using Fanex.Logging;
+    using Fanex.Logging.Sentry;
+    using Sentry;
+    using NexBot.Core;
 
     public class Startup
     {
-        private readonly ILogger logger;
-
-        public Startup(IConfiguration configuration, ILogger<Startup> logger)
+        public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            this.logger = logger;
         }
 
         public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
-            Dictionary<string, string> connections = Configuration
-                .GetSection("ConnectionStrings")
-                .GetChildren()
-                .ToDictionary(connection => connection.Key, connection => connection.Value, StringComparer.OrdinalIgnoreCase);
+            LogManager
+               .SetDefaultLogCategory(Configuration.GetSection("Sentry:LogCategory").Value)
+               .Use(new List<ILogEngine>
+               {
+                    new SentryLogging(new SentryEngineOptions
+                    {
+                        Dsn = new Dsn(Configuration.GetSection("Sentry:Dsn").Value)
+                    })
+               });
 
-            DbSettingProviderManager
-               .StartNewSession()
-               .UseConnectionStrings(connections)
-               .UseDefaultDbSettingProvider("~/App_Data")
-               .Run();
+            services.AddFanexSql(Configuration);
 
-            services.AddHttpClient();
-            services.AddControllers();
-            services.AddMvc().AddNewtonsoftJson();
-            services.AddScoped<IBaseService, BaseService>();
-            services.AddScoped<IConversationService, ConversationService>();
-            services.AddScoped<IMessageService, MessageService>();
-            services.AddScoped<IAccountService, AccountService>();
-            services.AddScoped<IHRMConnector, HrmConnector>();
-            services.AddScoped<IFBMConnector, FBMConnector>();
-            services.AddScoped<IRequestService, RequestService>();
-            services.AddScoped<IRegistrationMealService, RegistrationMealService>();
-            services.AddScoped<IRegisterMessageService, RegisterMessageService>();
-            services.AddSingleton<ILogProviderService, LogProviderService>();
-            services.AddScoped<ISkypeBot, SkypeBot>();
-            services.AddScoped<ITelegramBot, TelegramBot>();
+            services.AddTransient<BotFrameworkAuthentication, ConfigurationBotFrameworkAuthentication>();
+            services.AddTransient<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
+            services.AddTransient<ServiceClientCredentialsFactory, MultiServiceClientCredentialsFactory>();
 
-            BotServiceDI(services);
-        }
+            services.AddTransient<ITeamsBot, TeamsBot>();
+            services.AddTransient<ISkypeBot, SkypeBot>();
+            services.AddTransient<ITelegramBot, TelegramBot>();
+            services.AddTransient<ICoreBot, CoreBot>();
+            services.AddTransient<IBot, BotFactory>();
 
-        private void BotServiceDI(IServiceCollection services)
-        {
-            services.AddTransient<ICredentialProvider, CredentialProvider>();
-            services.AddSingleton<UserState>();
-            services.AddSingleton<ConversationState>();
-            services.AddSingleton<IStorage, MemoryStorage>();
-
-            services.AddTransient<IBot, BotHandler>();
-            var appSettingsSection = Configuration.GetSection("SkypeBotConfigurations");
-            services.Configure<BotConfigurations>(appSettingsSection);
-            var skypeBotConfigurations = appSettingsSection.Get<BotConfigurations>();
-            services.Configure<BotConfigurations>(options => Configuration.GetSection("SkypeBotConfigurations").Bind(options));
-
-            var botFrameworkHttpAdapter = GetBotFrameworkHttpAdapter(skypeBotConfigurations);
-            services.AddSingleton(botFrameworkHttpAdapter);
-
-            services.AddBot<BotHandler>(options =>
+            services.AddScoped<Func<string, IChannelBot>>(serviceProvider => (channelType) =>
             {
-                options.CredentialProvider = new CredentialProvider(skypeBotConfigurations);
-                options.HttpClient = new HttpClient();
-                options.OnTurnError = (turnContext, exception) =>
+                switch (channelType)
                 {
-                    logger.LogError($"Exception caught : {exception.Message}");
-                    throw exception;
-                };
+                    case Constants.TeamsChannel:
+                        return serviceProvider.GetService<ITeamsBot>();
+
+                    case Constants.SkypeChannel:
+                        return serviceProvider.GetService<ISkypeBot>();
+
+                    case Constants.TelegramChannel:
+                        return serviceProvider.GetService<ITelegramBot>();
+
+                    default:
+                        return serviceProvider.GetService<ICoreBot>();
+                }
             });
+
+            RegisterCache(services, Configuration);
+            RegisterService(services, Configuration);
+
+            services.AddMvc().AddNewtonsoftJson();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
+                app.UseMiddleware<ErrorHandlingMiddleware>();
                 app.UseDeveloperExceptionPage();
             }
             else
             {
+                app.UseMiddleware<ErrorHandlingMiddleware>();
                 app.UseHsts();
             }
 
@@ -117,13 +115,53 @@
             });
         }
 
-        private static IBotFrameworkHttpAdapter GetBotFrameworkHttpAdapter(BotConfigurations botConfig)
+        private static void RegisterCache(IServiceCollection services, IConfiguration configuration)
         {
-            var credentialProvider = new CredentialProvider(botConfig);
-            HttpClient httpClient = new();
-            IBotFrameworkHttpAdapter botFrameworkHttpAdapter = new BotFrameworkHttpAdapter(credentialProvider, null, httpClient, null);
+            _ = bool.TryParse(configuration.GetSection("IsCacheDataInRedis")?.Value, out bool isCacheDataInRedis);
+            services.AddTransient<ICacheService, CacheService>();
+            services.AddSingleton<IMemoryCache, MemoryCache>();
+            if (isCacheDataInRedis)
+            {
+                var multiplexer = ConnectionMultiplexer.Connect(configuration.GetSection("Fanex.Caching.Redis:ConnectionString").Value);
+                services.AddDataProtection()
+                .SetApplicationName(configuration.GetSection("Fanex.Caching.Redis:ApplicationName").Value)
+                .PersistKeysToStackExchangeRedis(multiplexer, "Fanex.ChatBotBotService.Endpoint-Keys");
+                services.AddRedisCache(configuration.GetSection("Fanex.Caching.Redis"));
 
-            return botFrameworkHttpAdapter;
+                services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+            }
+            else
+            {
+                services.AddMemoryCache();
+            }
+        }
+
+        private static void RegisterService(IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddHttpClient();
+
+            var botConfigsSection = configuration.GetSection("BotConfigs");
+            var botConfigs = botConfigsSection.Get<IList<BotConfigs>>();
+            services.AddSingleton(botConfigs);
+            services.AddFanexSql(configuration);
+            services.AddSingleton<IBaseRepository, BaseRepository>();
+            services.AddSingleton<IDynamicRepository, DynamicRepository>();
+            services.AddSingleton<IBaseService, BaseService>();
+            services.AddSingleton<IConversationService, ConversationService>();
+            services.AddSingleton<IApplicationSettingService, ApplicationSettingService>();
+
+            services.AddSingleton<IMessageValidationService, MessageValidationService>();
+            services.AddSingleton<ILogger, Logger>();
+            services.AddSingleton<ILogProviderService, LogProviderService>();
+
+
+            services.AddScoped<IMessageService, MessageService>();
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IHRMConnector, HrmConnector>();
+            services.AddScoped<IFBMConnector, FBMConnector>();
+            services.AddScoped<IRequestService, RequestService>();
+            services.AddScoped<IRegistrationMealService, RegistrationMealService>();
+            services.AddScoped<IRegisterMessageService, RegisterMessageService>();
         }
     }
 }

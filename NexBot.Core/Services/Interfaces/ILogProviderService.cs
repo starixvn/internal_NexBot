@@ -1,7 +1,16 @@
 ﻿namespace NexBot.Core.Services.Interfaces
 {
+    using System.Threading.Tasks;
+    using System;
+
     public interface ILogProviderService
     {
-        void WriteLogFileInfo(string logMessage);
+        Task SentryErrorAsync(string errMsg, Exception exception = null);
+
+        Task SentryInfoAsync(string info);
+
+        void LogFileMessage(string message);
+
+        void LogFileError(Exception exception);
     }
 }

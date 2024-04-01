@@ -21,5 +21,7 @@
         public string ConversationBotId { get; set; }
 
         public string ConversationBotName { get; set; }
+
+        public string MicrosoftAppId { get; set; }
     }
 }

@@ -5,13 +5,20 @@
     using System.Threading.Tasks;
     using NexBot.Core;
     using NexBot.Core.Models;
-    using NexBot.Core.Services;
+    using NexBot.Core.Services.Interfaces;
     using NexBot.Criteria.RegisterMessage;
     using NexBot.Models.CategoryMessage;
     using NexBot.Services.Interfaces;
 
-    public class RegisterMessageService : BaseService, IRegisterMessageService
+    public class RegisterMessageService : IRegisterMessageService
     {
+        private readonly IBaseService baseService;
+
+        public RegisterMessageService(IBaseService baseService)
+        {
+            this.baseService = baseService;
+        }
+
         public async Task<string> GetCategoryMessages(string conversationId)
         {
             var listEvent = await GetAllCategoryMessage(conversationId);
@@ -38,52 +45,52 @@
 
         public async Task<CommandResult> RegisterEventMessage(string conversationId, int categoryId)
         {
-            var criteria = new InsertConversationRegisterCriteria
+            var criteria = new InsertConversationRegisterCommand
             {
                 ConversationId = conversationId,
                 CategoryId = categoryId
             };
 
-            var result = await ExecuteNonQueryAsync(criteria);
+            var result = await baseService.ExecuteNonQueryAsync(criteria);
 
             return result;
         }
 
         public async Task<CommandResult> RemoveRegisteredMessage(string conversationId, int categoryId)
         {
-            var criteria = new RemoveConversationRegisterCriteria
+            var criteria = new RemoveConversationRegisterCommand
             {
                 ConversationId = conversationId,
                 CategoryId = categoryId
             };
 
-            var result = await ExecuteNonQueryAsync(criteria);
+            var result = await baseService.ExecuteNonQueryAsync(criteria);
 
             return result;
         }
 
         public async Task<CommandResult> IgnoreEventMessage(string conversationId, int categoryId)
         {
-            var criteria = new IgnoreEventMessageCriteria
+            var criteria = new IgnoreEventMessageCommand
             {
                 ConversationId = conversationId,
                 CategoryId = categoryId
             };
 
-            var result = await ExecuteNonQueryAsync(criteria);
+            var result = await baseService.ExecuteNonQueryAsync(criteria);
 
             return result;
         }
 
         public async Task<CommandResult> RemoveIgnoredEventMessage(string conversationId, int categoryId)
         {
-            var criteria = new RemoveIgnoredEventMessageCriteria
+            var criteria = new RemoveIgnoredEventMessageCommand
             {
                 ConversationId = conversationId,
                 CategoryId = categoryId
             };
 
-            var result = await ExecuteNonQueryAsync(criteria);
+            var result = await baseService.ExecuteNonQueryAsync(criteria);
 
             return result;
         }
@@ -94,7 +101,9 @@
             {
                 ConversationId = conversationId
             };
-            return (await GetDataAsync<CategoryMessage>(criteria)).ToList();
+
+            var categoryMessage = (await baseService.GetDataAsync<CategoryMessage>(criteria)).ToList();
+            return categoryMessage;
         }
     }
 }

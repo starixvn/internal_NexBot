@@ -9,12 +9,13 @@
 
     public class BaseRepository : IBaseRepository
     {
-        public async Task<CommandResult> ExecuteNonQueryAsync(ICriteria criteria)
+        public async Task<CommandResult> ExecuteNonQueryAsync(INonQueryCommand command)
         {
-            using (var db = ObjectDbFactory.CreateInstance(criteria.GetSettingKey()))
+
+            using (var db = ObjectDbFactory.CreateInstance(command.GetSettingKey()))
             {
-                await db.ExecuteNonQueryAsync(criteria).ConfigureAwait(false);
-                CommandResult commandResult = GetCommandResult(criteria.GetSpParams());
+                await db.ExecuteNonQueryAsync(command);
+                CommandResult commandResult = GetCommandResult(db.GetOutputParams());
 
                 return commandResult;
             }

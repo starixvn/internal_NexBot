@@ -2,44 +2,47 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Bot.Builder.Integration;
-    using Microsoft.Bot.Connector.Authentication;
+    using AdaptiveCards.Templating;
+    using Microsoft.Bot.Builder.Integration.AspNet.Core;
     using Microsoft.Bot.Schema;
-    using Microsoft.Extensions.Configuration;
-    using NexBot.Core.Services;
+    using Newtonsoft.Json;
+    using NexBot.Core;
+    using NexBot.Core.Services.Interfaces;
     using NexBot.Core.Utilities;
     using NexBot.Criteria;
     using NexBot.Criteria.Message;
     using NexBot.Models;
+    using NexBot.Models.Request;
     using NexBot.Services.Interfaces;
 
-    public class MessageService : BaseService, IMessageService
+    public class MessageService : IMessageService
     {
-        private readonly IConfiguration configuration;
-        private readonly IAdapterIntegration adapter;
+        private readonly IBaseService baseService;
+        private readonly IBotFrameworkHttpAdapter adapter;
         private readonly IConversationService conversationService;
 
         public MessageService(
-            IAdapterIntegration adapter,
-            IConfiguration configuration,
+            IBaseService baseService,
+            IBotFrameworkHttpAdapter adapter,
             IConversationService conversationService)
         {
-            this.configuration = configuration;
+            this.baseService = baseService;
             this.adapter = adapter;
             this.conversationService = conversationService;
         }
 
         public async Task AddSystemLog(string logContent)
         {
-            var criteria = new InsertSystemLogCriteria
+            var criteria = new InsertSystemLogCommand
             {
                 LogContent = logContent
             };
 
-            await ExecuteNonQueryAsync(criteria);
+            await baseService.ExecuteNonQueryAsync(criteria);
         }
 
         public async Task ReSendErrorMeesage()
@@ -97,7 +100,7 @@
 
         private async Task AddErrorMessageLog(ConversationReference conversationReference, string message)
         {
-            var criteria = new InsertErrorMessageLogCriteria
+            var criteria = new InsertErrorMessageLogCommand
             {
                 ConversationId = conversationReference.Conversation.Id,
                 FromConversationId = conversationReference.Bot.Id,
@@ -105,65 +108,146 @@
                 MessageContent = BotHelper.GenerateMessage(message)
             };
 
-            await ExecuteNonQueryAsync(criteria);
+            await baseService.ExecuteNonQueryAsync(criteria);
         }
 
-        public async Task SendRequestAsync(SendRequestMessage requestMessage)
+        public async Task SendRequestAsync(RequestMessage requestMessage)
         {
             var conversation = await conversationService.GetConversationById(requestMessage.ConversationId);
             var conversationReference = GetConversationReference(conversation);
             var activity = CreateMessageActivity(conversationReference);
             if (!string.IsNullOrEmpty(requestMessage.Message))
             {
-                activity.Text = requestMessage.Message;
-                var approveCommand = string.Format("{0}_{1}_{2}_{3}", "cmdApproved", requestMessage.RequestId, requestMessage.ProcessedBy, requestMessage.CallBackUrl);
-                var rejectCommand = string.Format("{0}_{1}_{2}_{3}", "cmdReject", requestMessage.RequestId, requestMessage.ProcessedBy, requestMessage.CallBackUrl);
-                var cardActions = new List<CardAction>
-                    {
-                        new CardAction(ActionTypes.PostBack, "Approve", value: approveCommand),
-                        new CardAction(ActionTypes.PostBack, "Reject", value: rejectCommand)
-                    };
-                var heroCard = new HeroCard
+                Attachment attachment;
+                if (conversation.ChannelId.Equals(Constants.TeamsChannel))
                 {
-                    Buttons = cardActions
-                };
+                    attachment = GetAttachmentForRequestInTeams(requestMessage);
+                }
+                else
+                {
+                    activity.Text = requestMessage.Message;
+                    attachment = GetAttachmentForRequest(requestMessage);
+                }
 
-                var attachment = heroCard.ToAttachment();
-                activity.Attachments = new List<Attachment>()
-                    {
-                        attachment
-                    };
+                activity.Attachments.Add(attachment);
 
-                await SendMessageAsync(conversationReference, (Activity)activity);
+                await SendMessageAsync(conversationReference, activity);
                 await AddMessageLog(activity);
             }
         }
 
-        public async Task RegistVegetarianMealAsync(RegistVegetarianMealMessage message)
+        
+        ////private static Attachment CreateAdaptiveCardAttachment(string filePath)
+        ////{
+        ////    var adaptiveCardJson = File.ReadAllText(filePath);
+        ////    var adaptiveCardAttachment = new Attachment()
+        ////    {
+        ////        ContentType = "application/vnd.microsoft.card.adaptive",
+        ////        Content = JsonConvert.DeserializeObject(adaptiveCardJson),
+        ////    };
+        ////    return adaptiveCardAttachment;
+        ////}
+
+        private Attachment GetAttachmentForRequestInTeams(RequestMessage requestMessage)
         {
-            var conversation = await conversationService.GetConversationById(message.ConversationId);
+            string fileName;
+            if (requestMessage.RequestType.Equals("leave"))
+            {
+                fileName = requestMessage.IsReadOnly ? "LeaveRequestReadOnlyCard.json" : "LeaveRequestCard.json";
+            }
+            else
+            {
+                fileName = "CheckInOutRequestCard.json";
+            }
+
+            var filePath = Path.Combine(".", "Resources", fileName);
+            var templateJson = File.ReadAllText(filePath);
+            AdaptiveCardTemplate template = new AdaptiveCardTemplate(templateJson);
+            string cardJson = template.Expand(requestMessage);
+            var cardAttachment = new Attachment()
+            {
+                ContentType = "application/vnd.microsoft.card.adaptive",
+                Content = JsonConvert.DeserializeObject(cardJson),
+            };
+            return cardAttachment;
+        }
+
+        private Attachment GetAttachmentForRequest(RequestMessage requestMessage)
+        {
+            var approveCommand = string.Format("{0}_{1}_{2}_{3}", "cmdApproved", requestMessage.RequestId, requestMessage.ProcessedBy, requestMessage.CallBackUrl);
+            var rejectCommand = string.Format("{0}_{1}_{2}_{3}", "cmdReject", requestMessage.RequestId, requestMessage.ProcessedBy, requestMessage.CallBackUrl);
+            var cardActions = new List<CardAction>
+                    {
+                        new CardAction(ActionTypes.PostBack, title: "Approve", text: approveCommand, displayText: "Approve", value: approveCommand),
+                        new CardAction(ActionTypes.PostBack, title: "Reject", text: rejectCommand, displayText: "Reject", value: rejectCommand)
+                    };
+            var heroCard = new HeroCard
+            {
+                Buttons = cardActions
+            };
+
+            var attachment = heroCard.ToAttachment();
+            return attachment;
+        }
+
+        private Attachment GetAttachmentForRegistMealInTeams(RegistVegetarianMealMessage registVegetarianMessage)
+        {
+            var fileName = "RegistVegetarianMealCard.json"; 
+            var filePath = Path.Combine(".", "Resources", fileName);
+            var templateJson = File.ReadAllText(filePath);
+            AdaptiveCardTemplate template = new AdaptiveCardTemplate(templateJson);
+            string cardJson = template.Expand(registVegetarianMessage);
+
+            var cardAttachment = new Attachment()
+            {
+                ContentType = "application/vnd.microsoft.card.adaptive",
+                Content = JsonConvert.DeserializeObject(cardJson),
+            };
+            return cardAttachment;
+        }
+
+        private Attachment GetAttachmentForRegistMeal(RegistVegetarianMealMessage registVegetarianMessage)
+        {
+            var command = string.Format("{0}_{1}_{2}_{3}_{4}", 
+                "cmdRegMeal", 
+                registVegetarianMessage.EmpId, 
+                registVegetarianMessage.CompanyId, 
+                registVegetarianMessage.OnDate.ToString("yyyy-MM-dd"), 
+                registVegetarianMessage.CallBackUrl);
+
+            var cardActions = new List<CardAction>
+                    {
+                        new CardAction(ActionTypes.PostBack, "Đặt Cơm Chay", value: command)
+                    };
+            var heroCard = new HeroCard
+            {
+                Buttons = cardActions
+            };
+            var attachment = heroCard.ToAttachment();
+            return attachment;
+        }
+
+        public async Task RegistVegetarianMealAsync(RegistVegetarianMealMessage registVegetarianMessage)
+        {
+            var conversation = await conversationService.GetConversationById(registVegetarianMessage.ConversationId);
             var conversationReference = GetConversationReference(conversation);
             var activity = CreateMessageActivity(conversationReference);
-            if (!string.IsNullOrEmpty(message.Message))
+            if (!string.IsNullOrEmpty(registVegetarianMessage.Message))
             {
-                activity.Text = message.Message;
-                var registVegetarianCommand = string.Format("{0}_{1}_{2}_{3}_{4}", "cmdRegMeal", message.EmpId, message.CompanyId, message.OnDate.ToString("yyyy-MM-dd"), message.CallBackUrl);
-                var cardActions = new List<CardAction>
-                    {
-                        new CardAction(ActionTypes.PostBack, "Đặt Cơm Chay", value: registVegetarianCommand)
-                    };
-                var heroCard = new HeroCard
+                Attachment attachment;
+                if (conversation.ChannelId.Equals(Constants.TeamsChannel))
                 {
-                    Buttons = cardActions
-                };
+                    attachment = GetAttachmentForRegistMealInTeams(registVegetarianMessage);
+                }
+                else
+                {
+                    activity.Text = registVegetarianMessage.Message;
+                    attachment = GetAttachmentForRegistMeal(registVegetarianMessage);
+                }
 
-                var attachment = heroCard.ToAttachment();
-                activity.Attachments = new List<Attachment>()
-                    {
-                        attachment
-                    };
+                activity.Attachments.Add(attachment);
 
-                await SendMessageAsync(conversationReference, (Activity)activity);
+                await SendMessageAsync(conversationReference, activity);
                 await AddMessageLog(activity);
             }
         }
@@ -201,7 +285,7 @@
 
         private async Task AddMessageLog(IMessageActivity activity)
         {
-            var criteria = new InsertMessageLogCriteria
+            var criteria = new InsertMessageLogCommand
             {
                 ConversationId = activity.Conversation.Id,
                 FromConversationId = activity.From.Id,
@@ -209,14 +293,14 @@
                 MessageContent = BotHelper.GenerateMessage(activity.Text)
             };
 
-            await ExecuteNonQueryAsync(criteria);
+            await baseService.ExecuteNonQueryAsync(criteria);
         }
 
         private async Task<IList<Message>> GetMessageLog()
         {
             var criteria = new GetErrorMessageLogCriteria();
 
-            var messages = await GetDataAsync<Message>(criteria);
+            var messages = await baseService.GetDataAsync<Message>(criteria);
 
             return messages.ToList();
         }
@@ -225,14 +309,18 @@
         {
             try
             {
-                string appId = configuration.GetSection("SkypeBotConfigurations:MicrosoftAppId")?.Value;
-                await adapter.ContinueConversationAsync(appId, conversationReference,
-                        async (context, token) =>
-                        {
-                            AppCredentials.TrustServiceUrl(conversationReference.ServiceUrl);
-                            await context.SendActivityAsync(activity, token);
-                        },
-                        new CancellationToken());
+                var bots = await conversationService.GetBotAsync();
+                var bot = bots.FirstOrDefault(t => t.ChannelName == activity.ChannelId && t.BotName == activity.From.Name);
+
+                string appId = bot?.MicrosoftAppId;
+                await ((CloudAdapter)adapter).ContinueConversationAsync(appId, conversationReference,
+                    async (context, token) =>
+                    {
+                        await context.SendActivityAsync(activity, cancellationToken: token);
+                    },
+                    new CancellationToken());
+
+         
             }
             catch (Exception ex)
             {

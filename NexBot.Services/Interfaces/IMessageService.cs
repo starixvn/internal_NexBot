@@ -2,14 +2,15 @@
 {
     using System.Threading.Tasks;
     using NexBot.Models;
+    using NexBot.Models.Request;
 
     public interface IMessageService
     {
         Task SendAsync(string conversationId, string messageText);
 
-        Task SendRequestAsync(SendRequestMessage requestMessage);
+        Task SendRequestAsync(RequestMessage requestMessage);
 
-        Task RegistVegetarianMealAsync(RegistVegetarianMealMessage message);
+        Task RegistVegetarianMealAsync(RegistVegetarianMealMessage registVegetarianMessage);
 
         Task AddSystemLog(string logContent);
 

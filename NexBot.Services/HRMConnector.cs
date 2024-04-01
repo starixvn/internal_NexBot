@@ -7,7 +7,7 @@
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
     using NexBot.Core.Models;
-    using NexBot.Models;
+    using NexBot.Models.Request;
     using NexBot.Services.Interfaces;
 
     public class HrmConnector : IHRMConnector
@@ -30,7 +30,7 @@
             var httpClient = httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var url = new Uri($"{baseUrl}/Request/ProcessRequest?requestId={processRequest.RequestId}&command={processRequest.Command}&nickName={processRequest.NickName}&processedBy={processRequest.ProcessedBy}");
+            var url = new Uri($"{baseUrl}/Request/ProcessRequest?requestId={processRequest.RequestId}&command={processRequest.Command}&processedBy={processRequest.ProcessedBy}");
 
             using (var request = new HttpRequestMessage(HttpMethod.Post, url))
             {

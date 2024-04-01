@@ -3,18 +3,25 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NexBot.Core.Services;
+    using NexBot.Core.Services.Interfaces;
     using NexBot.Criteria.Conversation;
     using NexBot.Models;
     using NexBot.Services.Interfaces;
 
-    public class AccountService : BaseService, IAccountService
+    public class AccountService : IAccountService
     {
+        private readonly IBaseService baseService;
+
+        public AccountService(IBaseService baseService)
+        {
+            this.baseService = baseService;
+        }
+
         public async Task<IList<ConversationUser>> GetAllConversationUser()
         {
             var criteria = new GetAllConversationUserCriteria();
 
-            var conversationUsers = await GetDataAsync<ConversationUser>(criteria);
+            var conversationUsers = await baseService.GetDataAsync<ConversationUser>(criteria);
 
             return conversationUsers.ToList();
         }
@@ -26,7 +33,7 @@
                 MessageCategoryId = messageCategoryId
             };
 
-            var conversationUsers = await GetDataAsync<ConversationUser>(criteria);
+            var conversationUsers = await baseService.GetDataAsync<ConversationUser>(criteria);
 
             return conversationUsers.ToList();
         }
@@ -38,7 +45,7 @@
                 MessageCategoryId = messageCategoryId
             };
 
-            var conversationUsers = await GetDataAsync<ConversationUser>(criteria);
+            var conversationUsers = await baseService.GetDataAsync<ConversationUser>(criteria);
 
             return conversationUsers.ToList();
         }

@@ -20,7 +20,7 @@ namespace NexBot.Core.Utilities
         {
             var returnMessage = message;
 
-            if (message.StartsWith("@"))
+            if (message is not null && message.StartsWith('@'))
             {
                 var indexOfCommand = message.IndexOf(' ');
 
@@ -40,7 +40,7 @@ namespace NexBot.Core.Utilities
             switch (channelId)
             {
                 case Constants.SkypeChannel:
-                    if (sourceMessage.StartsWith("@") 
+                    if (sourceMessage.StartsWith('@') 
                         || sourceMessage.StartsWith(botName))
                     {
                         var indexOfCommand = sourceMessage.IndexOf(' ');
@@ -52,13 +52,24 @@ namespace NexBot.Core.Utilities
                     }
                     break;
                 case Constants.TelegramChannel:
-                    if (sourceMessage.StartsWith("/"))
+                    if (sourceMessage.StartsWith('/'))
                     {
                         var indexOfCommand = sourceMessage.IndexOf(' ');
 
                         if (indexOfCommand > 0)
                         {
                             returnMessage = sourceMessage.Remove(0, indexOfCommand).Trim();
+                        }
+                    }
+                    break;
+                case Constants.TeamsChannel:
+                    if (sourceMessage.StartsWith("<at>"))
+                    {
+                        var indexOfCommand = sourceMessage.IndexOf("</at>");
+
+                        if (indexOfCommand > 0)
+                        {
+                            returnMessage = sourceMessage.Remove(0, indexOfCommand + 5).Trim();
                         }
                     }
                     break;

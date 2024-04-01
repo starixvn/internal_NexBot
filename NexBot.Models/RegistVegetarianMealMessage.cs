@@ -14,6 +14,8 @@
 
         public string Message { get; set; }
 
+        public string MessageContent { get; set; }
+
         public string CallBackUrl { get; set; }
     }
 }

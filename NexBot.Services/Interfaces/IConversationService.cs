@@ -8,7 +8,9 @@
 
     public interface IConversationService
     {
-        Task AddConversation(IActivity activity);
+        Task AddConversationAsync(IActivity activity);
+
+        Task<CommandResult> RemoveConversationAsync(IActivity activity);
 
         Task<ConversationModel> GetConversationById(string conversationId);
 
@@ -16,14 +18,8 @@
 
         Task<IList<ConversationModel>> GetAdminConversation();
 
-        Task<bool> CheckIsBot(string conversationId);
+        Task<IEnumerable<ApplicationSetting>> GetApplicationSettingAsync();
 
-        Task AddConversationGroup(IConversationUpdateActivity activity);
-
-        Task AddMembersToGroup(string groupConversationId, string userConversationIds);
-
-        Task<CommandResult> RemoveConversation(IConversationUpdateActivity activity);
-
-        Task RemoveMembersOutGroup(string groupConversationId, string userConversationIds);
+        Task<IEnumerable<Bot>> GetBotAsync();
     }
 }

@@ -7,23 +7,24 @@
     using System.Threading.Tasks;
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Schema;
-    using Newtonsoft.Json;
+    using NexBot.Bots.Interfaces;
     using NexBot.Core;
+    using NexBot.Core.Models;
     using NexBot.Core.Services.Interfaces;
     using NexBot.Core.Utilities;
     using NexBot.Models.CategoryMessage;
     using NexBot.Services.Interfaces;
 
-    public class SkypeBot : ISkypeBot
+    public class SkypeBot : ActivityHandler, ISkypeBot
     {
+        private const string greetingMessage = "Hello, I am {0}";
+
         private readonly IMessageService messageService;
         private readonly IRequestService requestService;
         private readonly IRegistrationMealService registrationMealService;
         private readonly IRegisterMessageService registerMessageService;
         private readonly ILogProviderService logProviderService;
         protected readonly IConversationService conversationService;
-
-        private const string channelSkypeId = "skype";
 
         public SkypeBot(IMessageService messageService,
              IRequestService requestService,
@@ -40,16 +41,13 @@
             this.logProviderService = logProviderService;
         }
 
-        public async Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
+        protected override async Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
             if (turnContext.Activity.MembersAdded != null)
             {
                 if (turnContext.Activity.MembersAdded.Any(m => m.Id == turnContext.Activity.Recipient?.Id))
                 {
-                    logProviderService.WriteLogFileInfo("Add to group");
-                    await conversationService.AddConversation(turnContext.Activity);
-                    var message = $"Hello {turnContext.Activity.From.Name}. I am {turnContext.Activity.Recipient.Name}. If you have any question please contact admin.";
-                    await turnContext.SendActivityAsync(MessageFactory.Text(message, turnContext.Activity.Conversation.Id), cancellationToken);
+                    await conversationService.AddConversationAsync(turnContext.Activity);
                 }
             }
             else
@@ -57,44 +55,105 @@
                 if (turnContext.Activity.MembersRemoved != null
                 && turnContext.Activity.MembersRemoved.Any(m => m.Id == turnContext.Activity.Recipient?.Id))
                 {
-                    logProviderService.WriteLogFileInfo("Remove from group");
-
-                    await conversationService.RemoveConversation(turnContext.Activity);
+                    await conversationService.RemoveConversationAsync(turnContext.Activity);
                 }
             }
         }
 
-        public async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
+        protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
+        {
+            var message = turnContext.Activity.Text.Trim();
+            var botName = turnContext.Activity.Recipient.Name;
+            if (turnContext.Activity.Conversation.IsGroup == true)
+            {
+                message = BotHelper.GetMessageInGroupByChannel(message, turnContext.Activity.ChannelId, botName);
+            }
+
+            CommandResult commandResult;
+            switch (message)
+            {
+                case InteractedCommand.help:
+                    await turnContext.SendActivityAsync(MessageFactory.Text(string.Format(greetingMessage, botName)), cancellationToken);
+                    break;
+                case InteractedCommand.getid:
+                    await turnContext.SendActivityAsync(MessageFactory.Text(turnContext.Activity.Conversation.Id), cancellationToken);
+                    break;
+                case InteractedCommand.getbot:
+                    var botInfo = $"BotId: {turnContext.Activity.Recipient.Id}, BotName: {botName}";
+                    await turnContext.SendActivityAsync(MessageFactory.Text(botInfo), cancellationToken);
+                    break;
+                case InteractedCommand.stop_remind_vegetarian_meal:
+                    commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderVegetarianMeal);
+                    if (commandResult.IsSuccessful)
+                    {
+                        await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
+                    }
+                    break;
+                case InteractedCommand.start_remind_vegetarian_meal:
+                    commandResult = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderVegetarianMeal);
+                    if (commandResult.IsSuccessful)
+                    {
+                        await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
+                    }
+                    break;
+                case InteractedCommand.stop_remind_reachedworkingtime:
+                    commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderReachedWorkingHour);
+                    if (commandResult.IsSuccessful)
+                    {
+                        await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
+                    }
+                    break;
+                case InteractedCommand.start_remind_reachedworkingtime:
+                    commandResult = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderReachedWorkingHour);
+                    if (commandResult.IsSuccessful)
+                    {
+                        await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
+                    }
+                    break;
+
+                default:
+                    await HandlerOtherMessages(turnContext, cancellationToken);
+                    break;
+            }    
+        }
+
+        protected override async Task OnUnrecognizedActivityTypeAsync(ITurnContext turnContext, CancellationToken cancellationToken)
+        {
+            var botName = turnContext.Activity.Recipient.Name;
+            if (turnContext.Activity.Type == ActivityTypes.ContactRelationUpdate)
+            {
+                if (turnContext.Activity.Action == "add")
+                {
+                    await conversationService.AddConversationAsync(turnContext.Activity);
+                    await turnContext.SendActivityAsync(MessageFactory.Text(string.Format(greetingMessage, botName)), cancellationToken);
+                }
+                else if (turnContext.Activity.Action == "remove")
+                {
+                    await conversationService.RemoveConversationAsync(turnContext.Activity);
+                    await turnContext.SendActivityAsync(MessageFactory.Text("see you"), cancellationToken);
+                }
+            }
+        }
+
+        private async Task HandlerOtherMessages(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             try
             {
-                IList<CategoryMessage> eventCategories;
                 var trimMessage = turnContext.Activity.Text.Trim();
 
                 if (turnContext.Activity.Conversation.IsGroup == true)
                 {
                     trimMessage = BotHelper.GetMessageInGroupByChannel(trimMessage, turnContext.Activity.ChannelId, turnContext.Activity.Recipient.Name);
                 }
-                logProviderService.WriteLogFileInfo($"OnMessageActivityAsync: {trimMessage}");
-                logProviderService.WriteLogFileInfo(JsonConvert.SerializeObject(turnContext.Activity.From));
-                eventCategories = await registerMessageService.GetAllCategoryMessage(turnContext.Activity.Conversation.Id);
-                if (trimMessage.StartsWith("Remove"))
+
+                if (trimMessage.StartsWith("cmdApproved"))
                 {
-                    if (eventCategories.Any(t => t.RemoveCommand.Equals(trimMessage)))
-                    {
-                        var categoryId = eventCategories.FirstOrDefault(t => t.RemoveCommand.Equals(trimMessage)).CategoryId;
-                        var result = await registerMessageService.RemoveRegisteredMessage(turnContext.Activity.Conversation.Id, categoryId);
-                        await turnContext.SendActivityAsync(MessageFactory.Text(result.Message, result.Message), cancellationToken);
-                    }
-                }
-                else if (trimMessage.StartsWith("cmdApprovedRequest") || trimMessage.StartsWith("cmdApproved"))
-                {
-                    var result = await requestService.ProcessRequest(turnContext.Activity.Conversation.Id, trimMessage, Constants.ApproveRequestCommand);
+                    var result = await requestService.ProcessRequest(trimMessage, Constants.ApproveRequestCommand);
                     await turnContext.SendActivityAsync(MessageFactory.Text(result), cancellationToken);
                 }
-                else if (trimMessage.StartsWith("cmdRejectRequest") || trimMessage.StartsWith("cmdReject"))
+                else if (trimMessage.StartsWith("cmdReject"))
                 {
-                    var result = await requestService.ProcessRequest(turnContext.Activity.Conversation.Id, trimMessage, Constants.RejectRequestCommand);
+                    var result = await requestService.ProcessRequest(trimMessage, Constants.RejectRequestCommand);
                     await turnContext.SendActivityAsync(MessageFactory.Text(result), cancellationToken);
                 }
                 else if (trimMessage.StartsWith("cmdRegMeal"))
@@ -102,76 +161,35 @@
                     var result = await registrationMealService.RegistVegetarian(turnContext.Activity.Conversation.Id, trimMessage);
                     await turnContext.SendActivityAsync(MessageFactory.Text(result), cancellationToken);
                 }
-                else if (trimMessage.StartsWith("stop_remind_vegetarian_meal"))
-                {
-                    var result = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderVegetarianMeal);
-                    if (result.IsSuccessful)
-                    {
-                        await turnContext.SendActivityAsync(MessageFactory.Text(result.Message, result.Message), cancellationToken);
-                    }
-                }
-                else if (trimMessage.StartsWith("start_remind_vegetarian_meal"))
-                {
-                    var result = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderVegetarianMeal);
-                    if (result.IsSuccessful)
-                    {
-                        await turnContext.SendActivityAsync(MessageFactory.Text(result.Message, result.Message), cancellationToken);
-                    }
-                }
-                else if (trimMessage.StartsWith("getid"))
-                {
-                    await conversationService.AddConversation(turnContext.Activity);
-                    await turnContext.SendActivityAsync(MessageFactory.Text(turnContext.Activity.Conversation.Id, turnContext.Activity.Conversation.Id), cancellationToken);
-                }
-                else if (trimMessage.StartsWith("stop_remind_reachedworkingtime"))
-                {
-                    var result = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderReachedWorkingHour);
-                    if (result.IsSuccessful)
-                    {
-                        await turnContext.SendActivityAsync(MessageFactory.Text(result.Message, result.Message), cancellationToken);
-                    }
-                }
-                else if (trimMessage.StartsWith("start_remind_reachedworkingtime"))
-                {
-                    var result = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderReachedWorkingHour);
-                    if (result.IsSuccessful)
-                    {
-                        await turnContext.SendActivityAsync(MessageFactory.Text(result.Message, result.Message), cancellationToken);
-                    }
-                }
                 else
                 {
-                    if (eventCategories.Any(t => t.RegisterCommand.Equals(trimMessage)))
+                    IList<CategoryMessage> eventCategories;
+                    eventCategories = await registerMessageService.GetAllCategoryMessage(turnContext.Activity.Conversation.Id);
+                    if (trimMessage.StartsWith("Remove"))
                     {
-                        var categoryId = eventCategories.FirstOrDefault(t => t.RegisterCommand.Equals(trimMessage)).CategoryId;
-                        var result = await registerMessageService.RegisterEventMessage(turnContext.Activity.Conversation.Id, categoryId);
-
-                        await turnContext.SendActivityAsync(MessageFactory.Text(result.Message, result.Message), cancellationToken);
+                        var category = eventCategories.FirstOrDefault(t => t.RemoveCommand.Equals(trimMessage));
+                        if (category != null)
+                        {
+                            var result = await registerMessageService.RemoveRegisteredMessage(turnContext.Activity.Conversation.Id, category.CategoryId);
+                            await turnContext.SendActivityAsync(MessageFactory.Text(result.Message, result.Message), cancellationToken);
+                        }
                     }
+                    else if (eventCategories.Any(t => t.RegisterCommand.Equals(trimMessage)))
+                    {
+                        var category = eventCategories.FirstOrDefault(t => t.RegisterCommand.Equals(trimMessage));
+                        if (category != null)
+                        {
+                            var result = await registerMessageService.RegisterEventMessage(turnContext.Activity.Conversation.Id, category.CategoryId);
+                            await turnContext.SendActivityAsync(MessageFactory.Text(result.Message, result.Message), cancellationToken);
+                        }
+                    }         
                 }
             }
             catch (Exception ex)
             {
+                await logProviderService.SentryErrorAsync(ex.Message, ex);
                 await messageService.AddSystemLog(ex.Message);
             }
-        }
-
-        public async Task OnEventActivityAsync(ITurnContext<IEventActivity> turnContext, CancellationToken cancellationToken)
-        {
-            if (turnContext.Activity.ChannelId.Equals(channelSkypeId))
-            {
-                logProviderService.WriteLogFileInfo("OnEventActivityAsync");
-                await conversationService.AddConversation(turnContext.Activity);
-            }
-        }
-
-        public async Task OnUnrecognizedActivityTypeAsync(ITurnContext turnContext, CancellationToken cancellationToken)
-        {
-            logProviderService.WriteLogFileInfo("OnUnrecognizedActivityTypeAsync");
-            await conversationService.AddConversation(turnContext.Activity);
-            var message = $"Hello {turnContext.Activity.Conversation.Name}. I am {turnContext.Activity.Recipient.Name}. If you have any question please contact admin.";
-            logProviderService.WriteLogFileInfo(JsonConvert.SerializeObject(turnContext.Activity.From));
-            await turnContext.SendActivityAsync(MessageFactory.Text(message, turnContext.Activity.Conversation.Id), cancellationToken);
         }
     }
 }

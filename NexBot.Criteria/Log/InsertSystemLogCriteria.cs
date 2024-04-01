@@ -1,8 +1,8 @@
 ﻿namespace NexBot.Criteria
 {
-    using Fanex.Data.Repository;
+    using NexBot.Core.Models;
 
-    public class InsertSystemLogCriteria : CriteriaBase
+    public class InsertSystemLogCommand : BaseCommand
     {
         public string LogContent { get; set; }
 

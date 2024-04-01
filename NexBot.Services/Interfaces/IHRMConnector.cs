@@ -2,7 +2,7 @@
 {
     using System.Threading.Tasks;
     using NexBot.Core.Models;
-    using NexBot.Models;
+    using NexBot.Models.Request;
 
     public interface IHRMConnector
     {

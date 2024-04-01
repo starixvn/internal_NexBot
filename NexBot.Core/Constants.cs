@@ -12,6 +12,8 @@
 
         public const string TelegramChannel = "telegram";
 
+        public const string TeamsChannel = "msteams";
+
         public const string ApproveRequestCommand = "Approve";
 
         public const string RejectRequestCommand = "Reject";

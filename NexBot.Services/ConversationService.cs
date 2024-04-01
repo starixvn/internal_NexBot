@@ -4,16 +4,25 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Bot.Schema;
+    using NexBot.Core;
     using NexBot.Core.Models;
-    using NexBot.Core.Services;
+    using NexBot.Core.Services.Interfaces;
     using NexBot.Criteria.Conversation;
     using NexBot.Models;
     using NexBot.Services.Interfaces;
-    using NexBot.Core;
 
-    public class ConversationService : BaseService, IConversationService
+    public class ConversationService : IConversationService
     {
-        public async Task AddConversation(IActivity activity)
+        private readonly IList<BotConfigs> botConfigs;
+        private readonly IBaseService baseService;
+
+        public ConversationService(IList<BotConfigs> botConfigs, IBaseService baseService)
+        {
+            this.botConfigs = botConfigs;
+            this.baseService = baseService;
+        }
+
+        public async Task AddConversationAsync(IActivity activity)
         {
             var firstName = string.Empty;
             if (activity.ChannelId == Constants.TelegramChannel)
@@ -22,7 +31,7 @@
                 firstName = channelData.message.from?.first_name;
             }
 
-            var criteria = new InsertConversationCriteria
+            var criteria = new InsertConversationCommand
             {
                 ConversationId = activity.Conversation.Id,
                 ChannelId = activity.ChannelId,
@@ -36,7 +45,16 @@
                 ConversationBotName = activity.Recipient.Name
             };
 
-            await ExecuteNonQueryAsync(criteria);
+            await baseService.ExecuteNonQueryAsync(criteria);
+        }
+
+        public async Task<CommandResult> RemoveConversationAsync(IActivity activity)
+        {
+            var criteria = new RemoveConversationByIdCommand
+            {
+                ConversationId = activity.Conversation.Id
+            };
+            return await baseService.ExecuteNonQueryAsync(criteria);
         }
 
         public async Task<ConversationModel> GetConversationById(string conversationId)
@@ -46,7 +64,7 @@
                 ConversationId = conversationId
             };
 
-            var conversation = await GetDataEntityAsync<ConversationModel>(criteria);
+            var conversation = await baseService.GetDataEntityAsync<ConversationModel>(criteria);
 
             return conversation;
         }
@@ -58,7 +76,7 @@
                 ConversationId = conversationId
             };
 
-            var conversation = await GetDataEntityAsync<ConversationModel>(criteria);
+            var conversation = await baseService.GetDataEntityAsync<ConversationModel>(criteria);
 
             return conversation;
         }
@@ -74,69 +92,46 @@
         {
             var criteria = new GetAdminConversationCriteria();
 
-            var conversations = await GetDataAsync<ConversationModel>(criteria);
+            var conversations = await baseService.GetDataAsync<ConversationModel>(criteria);
 
             return conversations.ToList();
         }
 
-        public async Task AddConversationGroup(IConversationUpdateActivity activity)
+        public async Task<IEnumerable<ApplicationSetting>> GetApplicationSettingAsync()
         {
-            var conversation = await GetConversationById(activity.Conversation.Id);
+            var applicationSettings = botConfigs.Select(t =>
+                new ApplicationSetting
+                {
+                    AppId = t.AppId,
+                    MicrosoftAppId = t.MicrosoftAppId,
+                    MicrosoftAppPassword = t.MicrosoftAppPassword,
+                    MicrosoftAppTenantId = t.MicrosoftAppTenantId
+                });
 
-            if (conversation == null)
+            return await Task.FromResult(applicationSettings);
+        }
+
+        public async Task<IEnumerable<Bot>> GetBotAsync()
+        {
+            var bots = new List<Bot>();
+            foreach (var botConfig in botConfigs)
             {
-                await AddConversation(activity);
+                foreach (var channel in botConfig.Channels)
+                {
+                    bots.Add(new Bot
+                    {
+                        AppId = botConfig.AppId,
+                        MicrosoftAppId = botConfig.MicrosoftAppId,
+                        ChannelId = channel.ChannelId,
+                        BotName = channel.BotName,
+                        ConversationId = channel.BotId,
+                        ChannelName = channel.ChannelName,
+                        ServiceUrl = channel.ServiceUrl
+                    });
+                }
             }
-        }
 
-        public async Task AddMembersToGroup(string groupConversationId, string userConversationIds)
-        {
-            var criteria = new InsertUsersIntoGroupConversationCriteria
-            {
-                GroupConversationId = groupConversationId,
-                UserConversationIds = userConversationIds
-            };
-
-            await ExecuteNonQueryAsync(criteria);
-        }
-
-        public async Task RemoveMembersOutGroup(string groupConversationId, string userConversationIds)
-        {
-            var criteria = new RemoveUsersOutGroupConversationCriteria
-            {
-                GroupConversationId = groupConversationId,
-                UserConversationIds = userConversationIds
-            };
-
-            await ExecuteNonQueryAsync(criteria);
-        }
-
-        public async Task<CommandResult> RemoveConversation(IConversationUpdateActivity activity)
-        {
-            var criteria = new RemoveConversationByIdCriteria
-            {
-                ConversationId = activity.Conversation.Id
-            };
-            return await ExecuteNonQueryAsync(criteria);
-        }
-
-        private async Task InsertMemberConversation(ChannelAccount account)
-        {
-            var criteria = new InsertConversationByChannelAccountCriteria
-            {
-                ConversationId = account.Id,
-                UserName = account.Name
-            };
-
-            await ExecuteNonQueryAsync(criteria);
-        }
-
-        public async Task InsertGroupMembersInfo(IList<ChannelAccount> members)
-        {
-            foreach (var member in members)
-            {
-                await InsertMemberConversation(member);
-            }
+            return await Task.FromResult(bots);
         }
     }
 }

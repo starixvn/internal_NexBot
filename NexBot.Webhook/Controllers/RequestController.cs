@@ -2,7 +2,7 @@
 {
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
-    using NexBot.Models;
+    using NexBot.Models.Request;
     using NexBot.Services.Interfaces;
 
     [Route("api/[controller]")]
@@ -15,12 +15,11 @@
             this.messageService = messageService;
         }
 
-        //[Authorize(Roles = "Bot")]
         [HttpPost]
-        [Route("Approve")]
-        public async Task ApproveRequest(SendRequestMessage processRequest)
+        [Route("Process")]
+        public async Task ProcessCheckInOut(RequestMessage processRequest)
         {
-            await messageService.AddSystemLog("Approve request");
+            processRequest.AvatarUrl = processRequest.AvatarUrl.Replace("https://localhost:44312", "https://hrm.nexdev.net");
             await messageService.SendRequestAsync(processRequest);
         }
     }
