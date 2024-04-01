@@ -10,7 +10,7 @@
     <Setting Key="ConversationUser_GetAll" SpName="ConversationUser_GetAll" DbName="NexBot"></Setting>
     <Setting Key="Conversation_GetIgnoredAccountByMessageCategory" SpName="Conversation_GetIgnoredAccountByMessageCategory" DbName="NexBot"></Setting>
     <Setting Key="Conversation_GetRegisteredConversationByMessageCategory" SpName="Conversation_GetRegisteredConversationByMessageCategory" DbName="NexBot"></Setting>
-    
+
   </Function>
   <Function Name="GroupConversation">
     <Setting Key="GroupUserConversation_InsertMulti" SpName="GroupUserConversation_InsertMulti" DbName="NexBot"></Setting>
