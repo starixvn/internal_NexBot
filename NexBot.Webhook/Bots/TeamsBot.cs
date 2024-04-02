@@ -178,18 +178,8 @@
         private async Task AddConversationAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
             var activity = turnContext.Activity;
-            var members = new List<TeamsChannelAccount>();
-            string continuationToken = null;
-
-            do
-            {
-                // Gets a paginated list of members of one-on-one, group, or team conversation.
-                var currentPage = await TeamsInfo.GetPagedMembersAsync(turnContext, 100, continuationToken, cancellationToken);
-                continuationToken = currentPage.ContinuationToken;
-                members.AddRange(currentPage.Members);
-            }
-            while (continuationToken != null);
-            string email = turnContext.Activity.Conversation.IsGroup == false ? members.FirstOrDefault()?.Email : string.Empty;
+            var info = await TeamsInfo.GetMemberAsync(turnContext, activity.From.Id, cancellationToken);
+            string email = activity.Conversation.IsGroup is null || activity.Conversation.IsGroup == false ? info.Email : string.Empty;
 
             var command = new InsertConversationCommand
             {
