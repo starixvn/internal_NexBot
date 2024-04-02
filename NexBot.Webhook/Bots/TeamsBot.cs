@@ -6,13 +6,16 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Bot.Builder;
+    using Microsoft.Bot.Builder.Teams;
     using Microsoft.Bot.Schema;
+    using Microsoft.Bot.Schema.Teams;
     using Newtonsoft.Json;
     using NexBot.Bots.Interfaces;
     using NexBot.Core;
     using NexBot.Core.Models;
     using NexBot.Core.Services.Interfaces;
     using NexBot.Core.Utilities;
+    using NexBot.Criteria.Conversation;
     using NexBot.Models;
     using NexBot.Models.CategoryMessage;
     using NexBot.Models.Request;
@@ -50,7 +53,7 @@
             {
                 if (turnContext.Activity.MembersAdded.Any(m => m.Id == turnContext.Activity.Recipient?.Id))
                 {
-                    await conversationService.AddConversationAsync(turnContext.Activity);
+                    await AddConversationAsync(turnContext, cancellationToken);
                 }
             }
             else
@@ -64,7 +67,7 @@
         }
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
-        {
+        { 
             if (turnContext.Activity.Text is not null)
             {
                 var message = turnContext.Activity.Text?.Trim();
@@ -170,6 +173,38 @@
                 }
 
             }
+        }
+
+        private async Task AddConversationAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
+        {
+            var activity = turnContext.Activity;
+            var members = new List<TeamsChannelAccount>();
+            string continuationToken = null;
+
+            do
+            {
+                // Gets a paginated list of members of one-on-one, group, or team conversation.
+                var currentPage = await TeamsInfo.GetPagedMembersAsync(turnContext, 100, continuationToken, cancellationToken);
+                continuationToken = currentPage.ContinuationToken;
+                members.AddRange(currentPage.Members);
+            }
+            while (continuationToken != null);
+            string email = turnContext.Activity.Conversation.IsGroup == false ? members.FirstOrDefault()?.Email : string.Empty;
+
+            var command = new InsertConversationCommand
+            {
+                ConversationId = activity.Conversation.Id,
+                ChannelId = activity.ChannelId,
+                ServiceUrl = activity.ServiceUrl,
+                UserName = email,
+                IsGroup = activity.Conversation.IsGroup,
+                IsActive = true,
+                IsAdmin = false,
+                ConversationBotId = activity.Recipient.Id,
+                ConversationBotName = activity.Recipient.Name
+            };
+
+            await conversationService.AddConversationAsync(command);
         }
 
         private async Task HandleSubmitProcessRequest(ITurnContext<IMessageActivity> turnContext, AdaptiveSubmit submitData)

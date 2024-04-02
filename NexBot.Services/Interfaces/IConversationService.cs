@@ -4,11 +4,14 @@
     using System.Threading.Tasks;
     using Microsoft.Bot.Schema;
     using NexBot.Core.Models;
+    using NexBot.Criteria.Conversation;
     using NexBot.Models;
 
     public interface IConversationService
     {
         Task AddConversationAsync(IActivity activity);
+
+        Task AddConversationAsync(InsertConversationCommand command);
 
         Task<CommandResult> RemoveConversationAsync(IActivity activity);
 

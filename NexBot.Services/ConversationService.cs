@@ -48,6 +48,11 @@
             await baseService.ExecuteNonQueryAsync(criteria);
         }
 
+        public async Task AddConversationAsync(InsertConversationCommand command)
+        {
+            await baseService.ExecuteNonQueryAsync(command);
+        }
+
         public async Task<CommandResult> RemoveConversationAsync(IActivity activity)
         {
             var criteria = new RemoveConversationByIdCommand
