@@ -1,16 +1,16 @@
 ﻿namespace NexBot
 {
-    using Microsoft.AspNetCore.Http;
-    using System.Threading.Tasks;
     using System;
-    using Fanex.Logging;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Http;
+    using NexBot.Core.Services.Interfaces;
 
     public class ErrorHandlingMiddleware
     {
         private readonly RequestDelegate next;
-        private readonly ILogger logger;
+        private readonly ILogProviderService logger;
 
-        public ErrorHandlingMiddleware(RequestDelegate next, ILogger logger)
+        public ErrorHandlingMiddleware(RequestDelegate next, ILogProviderService logger)
         {
             this.next = next;
             this.logger = logger;
@@ -24,13 +24,14 @@
             }
             catch (Exception ex)
             {
+                logger.LogFileError(ex);
                 await HandleException(context, ex);
             }
         }
 
         private async Task HandleException(HttpContext context, Exception exception)
         {
-            await logger.ErrorAsync(exception.ToString());
+            await logger.SentryErrorAsync(exception.ToString(), exception);
 
             var method = context.Request.Method.ToLowerInvariant();
             var requestedWith = context.Request.Headers["X-Requested-With"];
