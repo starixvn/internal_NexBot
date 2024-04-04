@@ -67,20 +67,26 @@
       "type": "Action.Submit",
       "title": "Approve",
       "data": {
-        "RequestId": "${RequestId}",
-        "Command": "Approve",
-        "CallBackUrl": "${CallBackUrl}",
-        "ProcessedBy": "${ProcessedBy}"
+        "Type": 1,
+        "ResponseData": {
+          "RequestId": "${RequestId}",
+          "Command": "Approve",
+          "CallBackUrl": "${CallBackUrl}",
+          "ProcessedBy": "${ProcessedBy}"
+        }
       }
     },
     {
       "type": "Action.Submit",
       "title": "Reject",
       "data": {
-        "RequestId": "${RequestId}",
-        "Command": "Reject",
-        "CallBackUrl": "${CallBackUrl}",
-        "ProcessedBy": "${ProcessedBy}"
+        "Type": 1,
+        "ResponseData": {
+          "RequestId": "${RequestId}",
+          "Command": "Approve",
+          "CallBackUrl": "${CallBackUrl}",
+          "ProcessedBy": "${ProcessedBy}"
+        }
       }
     }
   ],
