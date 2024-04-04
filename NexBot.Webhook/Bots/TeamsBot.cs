@@ -13,6 +13,7 @@
     using NexBot.Bots.Interfaces;
     using NexBot.Core;
     using NexBot.Core.Models;
+    using NexBot.Core.Services;
     using NexBot.Core.Services.Interfaces;
     using NexBot.Core.Utilities;
     using NexBot.Criteria.Conversation;
@@ -164,6 +165,7 @@
         {
             if (turnContext.Activity.Value != null)
             {
+                logProviderService.LogFileMessage(turnContext.Activity.Value.ToString());
                 var submitData = JsonConvert.DeserializeObject<AdaptiveSubmit>(turnContext.Activity.Value.ToString());
 
                 switch (submitData.Type)
