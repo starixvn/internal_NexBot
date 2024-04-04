@@ -3,12 +3,12 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Builder.Teams;
     using Microsoft.Bot.Schema;
-    using Microsoft.Bot.Schema.Teams;
     using Newtonsoft.Json;
     using NexBot.Bots.Interfaces;
     using NexBot.Core;
@@ -21,7 +21,7 @@
     using NexBot.Models.Request;
     using NexBot.Services.Interfaces;
 
-    public class TeamsBot : ActivityHandler, ITeamsBot
+    public class TeamsBot : TeamsActivityHandler, ITeamsBot
     {
         private const string greetingMessage = "Hello, I am {0}";
 
@@ -67,7 +67,7 @@
         }
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
-        { 
+        {
             if (turnContext.Activity.Text is not null)
             {
                 var message = turnContext.Activity.Text?.Trim();
@@ -81,18 +81,24 @@
                 switch (message)
                 {
                     case InteractedCommand.help:
-                        await turnContext.SendActivityAsync(MessageFactory.Text(string.Format(greetingMessage, botName)), cancellationToken);
+                        var msg = MessageFactory.Text(MessageConstants.HelpCommand(botName, turnContext.Activity.Conversation.IsGroup == true));
+                        msg.TextFormat = "markdown";
+                        await turnContext.SendActivityAsync(msg, cancellationToken);
                         break;
+
                     case InteractedCommand.getid:
                         await turnContext.SendActivityAsync(MessageFactory.Text(turnContext.Activity.Conversation.Id), cancellationToken);
                         break;
+
                     case InteractedCommand.getbot:
                         var botInfo = $"BotId: {turnContext.Activity.Recipient.Id}, BotName: {botName}";
                         await turnContext.SendActivityAsync(MessageFactory.Text(botInfo), cancellationToken);
                         break;
+
                     case InteractedCommand.regist:
                         await conversationService.AddConversationAsync(turnContext.Activity);
                         break;
+
                     case InteractedCommand.stop_remind_vegetarian_meal:
                         commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderVegetarianMeal);
                         if (commandResult.IsSuccessful)
@@ -100,6 +106,7 @@
                             await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
                         }
                         break;
+
                     case InteractedCommand.start_remind_vegetarian_meal:
                         commandResult = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderVegetarianMeal);
                         if (commandResult.IsSuccessful)
@@ -107,6 +114,7 @@
                             await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
                         }
                         break;
+
                     case InteractedCommand.stop_remind_reachedworkingtime:
                         commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderReachedWorkingHour);
                         if (commandResult.IsSuccessful)
@@ -114,6 +122,7 @@
                             await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
                         }
                         break;
+
                     case InteractedCommand.start_remind_reachedworkingtime:
                         commandResult = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderReachedWorkingHour);
                         if (commandResult.IsSuccessful)
@@ -121,6 +130,7 @@
                             await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
                         }
                         break;
+
                     default:
                         await HandlerOtherMessages(turnContext, cancellationToken);
                         break;
@@ -130,7 +140,6 @@
             {
                 await HandlerSubmitData(turnContext);
             }
-               
         }
 
         protected override async Task OnUnrecognizedActivityTypeAsync(ITurnContext turnContext, CancellationToken cancellationToken)
@@ -162,16 +171,18 @@
                     case (int)SubmitAction.ProcessRequest:
                         await HandleSubmitProcessRequest(turnContext, submitData);
                         break;
+
                     case (int)SubmitAction.RegistrationMeal:
                         await HandleSubmitRegistVegetarian(turnContext, submitData);
                         break;
+
                     case (int)SubmitAction.StopRemindRegistrationMeal:
                         await HandleSubmitStopRemindRegistrationMeal(turnContext);
                         break;
+
                     default:
                         break;
                 }
-
             }
         }
 
@@ -179,7 +190,8 @@
         {
             var activity = turnContext.Activity;
             var info = await TeamsInfo.GetMemberAsync(turnContext, activity.From.Id, cancellationToken);
-            string email = activity.Conversation.IsGroup is null || activity.Conversation.IsGroup == false ? info.Email : string.Empty;
+            var isGroup = activity.Conversation.IsGroup == true;
+            string email = !isGroup ? info.Email : string.Empty;
 
             var command = new InsertConversationCommand
             {
@@ -195,6 +207,17 @@
             };
 
             await conversationService.AddConversationAsync(command);
+
+            if (!isGroup)
+            {
+                string botName = activity.Recipient.Name;
+                var msg = new StringBuilder($"Hi {info.Name}");
+                msg.AppendLine();
+                msg.AppendLine(MessageConstants.HelpCommand(botName, false));
+                var msgActivity = MessageFactory.Text(msg.ToString());
+                msgActivity.TextFormat = "markdown";
+                await turnContext.SendActivityAsync(msgActivity, cancellationToken);
+            }
         }
 
         private async Task HandleSubmitProcessRequest(ITurnContext<IMessageActivity> turnContext, AdaptiveSubmit submitData)
