@@ -10,26 +10,19 @@
     using NexBot.Models.CategoryMessage;
     using NexBot.Services.Interfaces;
 
-    public class RegisterMessageService : IRegisterMessageService
+    public class RegisterMessageService(IBaseService baseService) : IRegisterMessageService
     {
-        private readonly IBaseService baseService;
-
-        public RegisterMessageService(IBaseService baseService)
-        {
-            this.baseService = baseService;
-        }
-
         public async Task<string> GetCategoryMessages(string conversationId)
         {
             var listEvent = await GetAllCategoryMessage(conversationId);
             var message = string.Empty;
-            if (listEvent.Count() > 0)
+            if (listEvent.Count > 0)
             {
                 var count = 1;
                 message += $"List category messages: {Constants.NewLine}";
                 foreach (var item in listEvent)
                 {
-                    message += $"{count}. **Name: ** {item.Name}; **ID: ** {item.CategoryId}; **Registered: ** {item.IsRegistered.ToString()} {Constants.NewLine}";
+                    message += $"{count}. **Name: ** {item.Name}; **ID: ** {item.CategoryId}; **Registered: ** {item.IsRegistered} {Constants.NewLine}";
                     count++;
                 }
                 message += $"To register an event to receive message, please tag me with command `register_message [EventId]` {Constants.NewLine}";

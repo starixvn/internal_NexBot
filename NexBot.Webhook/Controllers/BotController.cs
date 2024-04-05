@@ -7,21 +7,12 @@ namespace NexBot.Controllers
 
     [Route("api/messages")]
     [ApiController]
-    public class BotController : ControllerBase
+    public class BotController(IBotFrameworkHttpAdapter adapter, IBot bot) : ControllerBase
     {
-        private readonly IBotFrameworkHttpAdapter Adapter;
-        private readonly IBot Bot;
-
-        public BotController(IBotFrameworkHttpAdapter adapter, IBot bot)
-        {
-            Adapter = adapter;
-            Bot = bot;
-        }
-
         [HttpPost, HttpGet]
         public async Task PostAsync()
         {
-            await Adapter.ProcessAsync(Request, Response, Bot);
+            await adapter.ProcessAsync(Request, Response, bot);
         }
     }
 }

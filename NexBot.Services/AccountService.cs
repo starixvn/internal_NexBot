@@ -8,15 +8,8 @@
     using NexBot.Models;
     using NexBot.Services.Interfaces;
 
-    public class AccountService : IAccountService
+    public class AccountService(IBaseService baseService) : IAccountService
     {
-        private readonly IBaseService baseService;
-
-        public AccountService(IBaseService baseService)
-        {
-            this.baseService = baseService;
-        }
-
         public async Task<IList<ConversationUser>> GetAllConversationUser()
         {
             var criteria = new GetAllConversationUserCriteria();

@@ -10,17 +10,8 @@
     using NexBot.Models.Request;
     using NexBot.Services.Interfaces;
 
-    public class HrmConnector : IHRMConnector
+    public class HrmConnector(IHttpClientFactory httpClientFactory, IConfiguration configuration) : IHRMConnector
     {
-        private readonly IHttpClientFactory httpClientFactory;
-        private readonly IConfiguration configuration;
-
-        public HrmConnector(IHttpClientFactory httpClientFactory, IConfiguration configuration)
-        {
-            this.configuration = configuration;
-            this.httpClientFactory = httpClientFactory;
-        }
-
         public async Task<CommandResult> Send(ProcessRequest processRequest)
         {
             CommandResult commandResult;

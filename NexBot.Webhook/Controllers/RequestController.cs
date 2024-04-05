@@ -6,20 +6,12 @@
     using NexBot.Services.Interfaces;
 
     [Route("api/[controller]")]
-    public class RequestController : Controller
+    public class RequestController(IMessageService messageService) : Controller
     {
-        private readonly IMessageService messageService;
-
-        public RequestController(IMessageService messageService)
-        {
-            this.messageService = messageService;
-        }
-
         [HttpPost]
         [Route("Process")]
         public async Task ProcessCheckInOut(RequestMessage processRequest)
         {
-            processRequest.AvatarUrl = processRequest.AvatarUrl.Replace("https://localhost:44312", "https://hrm.nexdev.net");
             await messageService.SendRequestAsync(processRequest);
         }
     }

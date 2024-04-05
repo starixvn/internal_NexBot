@@ -13,7 +13,6 @@
     using NexBot.Bots.Interfaces;
     using NexBot.Core;
     using NexBot.Core.Models;
-    using NexBot.Core.Services;
     using NexBot.Core.Services.Interfaces;
     using NexBot.Core.Utilities;
     using NexBot.Criteria.Conversation;
@@ -22,32 +21,22 @@
     using NexBot.Models.Request;
     using NexBot.Services.Interfaces;
 
-    public class TeamsBot : TeamsActivityHandler, ITeamsBot
+    public class TeamsBot(IMessageService messageService,
+         IRequestService requestService,
+         IRegistrationMealService registrationMealService,
+         IRegisterMessageService registerMessageService,
+         ILogProviderService logProviderService,
+         IConversationService conversationService) : TeamsActivityHandler, ITeamsBot
     {
         private const string greetingMessage = "Hello, I am {0}";
         private const string defaultReplyMessage = "Not supported command, type **help** to view available supported commands. Thanks & have a nice day";
 
-        private readonly IMessageService messageService;
-        private readonly IRequestService requestService;
-        private readonly IRegistrationMealService registrationMealService;
-        private readonly IRegisterMessageService registerMessageService;
-        private readonly ILogProviderService logProviderService;
-        protected readonly IConversationService conversationService;
-
-        public TeamsBot(IMessageService messageService,
-             IRequestService requestService,
-             IRegistrationMealService registrationMealService,
-             IRegisterMessageService registerMessageService,
-             ILogProviderService logProviderService,
-             IConversationService conversationService)
-        {
-            this.messageService = messageService;
-            this.requestService = requestService;
-            this.registrationMealService = registrationMealService;
-            this.registerMessageService = registerMessageService;
-            this.conversationService = conversationService;
-            this.logProviderService = logProviderService;
-        }
+        private readonly IMessageService messageService = messageService;
+        private readonly IRequestService requestService = requestService;
+        private readonly IRegistrationMealService registrationMealService = registrationMealService;
+        private readonly IRegisterMessageService registerMessageService = registerMessageService;
+        private readonly ILogProviderService logProviderService = logProviderService;
+        private readonly IConversationService conversationService = conversationService;
 
         protected override async Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {

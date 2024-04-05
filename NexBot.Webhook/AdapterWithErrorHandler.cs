@@ -1,16 +1,17 @@
 ﻿namespace NexBot
 {
-    using Microsoft.Bot.Builder.Integration.AspNet.Core;
-    using Microsoft.Bot.Builder;
-    using Microsoft.Bot.Connector.Authentication;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.Bot.Schema;
     using System;
+    using Microsoft.Bot.Builder;
+    using Microsoft.Bot.Builder.Integration.AspNet.Core;
     using Microsoft.Bot.Builder.TraceExtensions;
+    using Microsoft.Bot.Connector.Authentication;
+    using Microsoft.Bot.Schema;
+    using Microsoft.Extensions.Logging;
+    using NexBot.Core.Services.Interfaces;
 
     public class AdapterWithErrorHandler : CloudAdapter
     {
-        public AdapterWithErrorHandler(BotFrameworkAuthentication auth, ILogger<IBotFrameworkHttpAdapter> logger, ConversationState conversationState = default)
+        public AdapterWithErrorHandler(BotFrameworkAuthentication auth, ILogger<IBotFrameworkHttpAdapter> logger, ILogProviderService logService, ConversationState conversationState = default)
             : base(auth, logger)
         {
             OnTurnError = async (turnContext, exception) =>
@@ -19,15 +20,11 @@
                 // NOTE: In production environment, you should consider logging this to
                 // Azure Application Insights. Visit https://aka.ms/bottelemetry to see how
                 // to add telemetry capture to your bot.
-                logger.LogError(exception, $"[OnTurnError] unhandled error : {exception.Message}");
+                logService.SentryErrorAsync($"[OnTurnError] unhandled error : {exception.Message}", exception).RunSynchronously();
 
                 // Send a message to the user
-                var errorMessageText = "The bot encountered an error or bug.";
+                var errorMessageText = "The bot encountered an error or bug. To continue to run this bot, please fix the bot source code.";
                 var errorMessage = MessageFactory.Text(errorMessageText, errorMessageText, InputHints.IgnoringInput);
-                await turnContext.SendActivityAsync(errorMessage);
-
-                errorMessageText = "To continue to run this bot, please fix the bot source code.";
-                errorMessage = MessageFactory.Text(errorMessageText, errorMessageText, InputHints.ExpectingInput);
                 await turnContext.SendActivityAsync(errorMessage);
 
                 if (conversationState != null)
@@ -41,7 +38,7 @@
                     }
                     catch (Exception e)
                     {
-                        logger.LogError(e, $"Exception caught on attempting to Delete ConversationState : {e.Message}");
+                        logService.SentryErrorAsync($"Exception caught on attempting to Delete ConversationState : {e.Message}", e).RunSynchronously();
                     }
                 }
 

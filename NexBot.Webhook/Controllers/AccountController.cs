@@ -5,15 +5,8 @@
     using NexBot.Services.Interfaces;
 
     [Route("api/[controller]")]
-    public class AccountController : Controller
+    public class AccountController(IAccountService accountService) : Controller
     {
-        private readonly IAccountService accountService;
-
-        public AccountController(IAccountService accountService)
-        {
-            this.accountService = accountService;
-        }
-
         //[Authorize(Roles = "Bot")]
         [Route("Index")]
         public async Task<JsonResult> Get()

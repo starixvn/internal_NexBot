@@ -11,7 +11,6 @@
     {
         public async Task<CommandResult> ExecuteNonQueryAsync(INonQueryCommand command)
         {
-
             using (var db = ObjectDbFactory.CreateInstance(command.GetSettingKey()))
             {
                 await db.ExecuteNonQueryAsync(command);
@@ -21,7 +20,7 @@
             }
         }
 
-        private CommandResult GetCommandResult(Hashtable hash)
+        private static CommandResult GetCommandResult(Hashtable hash)
         {
             var errCode = hash["errcode"];
             var errMsg = hash["errmsg"];

@@ -1,16 +1,16 @@
 ﻿namespace NexBot
 {
-    using Microsoft.Bot.Connector.Authentication;
-    using Microsoft.Rest;
-    using System.Collections.Generic;
-    using System.Net.Http;
-    using System.Threading.Tasks;
-    using System.Threading;
     using System;
+    using System.Collections.Generic;
     using System.Linq;
-    using NexBot.Services.Interfaces;
+    using System.Net.Http;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.Bot.Connector.Authentication;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Rest;
     using NexBot.Models;
+    using NexBot.Services.Interfaces;
 
     internal enum MicrosoftAppType
     {
@@ -23,7 +23,7 @@
 
     public class MultiServiceClientCredentialsFactory : ServiceClientCredentialsFactory
     {
-        private readonly List<ServiceClientCredentialsFactory> _inners = new List<ServiceClientCredentialsFactory>();
+        private readonly List<ServiceClientCredentialsFactory> _inners = [];
 
         public MultiServiceClientCredentialsFactory(IApplicationSettingService applicationSettingService, HttpClient httpClient = null, ILogger logger = null)
         {
@@ -35,7 +35,10 @@
             }
         }
 
-        private ServiceClientCredentialsFactory GetServiceClientCredentialsFactory(ApplicationSetting applicationSetting, HttpClient httpClient = null, ILogger logger = null)
+        private static ServiceClientCredentialsFactory GetServiceClientCredentialsFactory(
+            ApplicationSetting applicationSetting,
+            HttpClient httpClient = null,
+            ILogger logger = null)
         {
             var appType = applicationSetting.MicrosoftAppType;
             var appId = applicationSetting.MicrosoftAppId;
@@ -96,19 +99,16 @@
 
         public override Task<bool> IsAuthenticationDisabledAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult(_inners.Any());
+            return Task.FromResult(_inners.Count > 0);
         }
 
         public override Task<ServiceClientCredentials> CreateCredentialsAsync(
             string appId, string audience, string loginEndpoint, bool validateAuthority, CancellationToken cancellationToken)
         {
             var _inner = _inners.SingleOrDefault(t => t.IsValidAppIdAsync(appId, cancellationToken).Result);
-            if (_inner == null)
-            {
-                throw new ArgumentException($"{MicrosoftAppCredentials.MicrosoftAppIdKey} is invalid in configuration.");
-            }
-
-            return _inner.CreateCredentialsAsync(
+            return _inner == null
+                ? throw new ArgumentException($"{MicrosoftAppCredentials.MicrosoftAppIdKey} is invalid in configuration.")
+                : _inner.CreateCredentialsAsync(
                 appId, audience, loginEndpoint, validateAuthority, cancellationToken);
         }
     }

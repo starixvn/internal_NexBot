@@ -2,12 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Net;
-    using System.Net.Http;
     using Fanex.Caching;
     using Fanex.Caching.Redis;
     using Fanex.Data.Repository;
     using Fanex.Data.SqlServer;
+    using Fanex.Logging;
+    using Fanex.Logging.Sentry;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.DataProtection;
     using Microsoft.AspNetCore.Hosting;
@@ -20,38 +20,30 @@
     using Microsoft.Extensions.Hosting;
     using NexBot.Bots;
     using NexBot.Bots.Interfaces;
-    using NexBot.Core.Repositories;
-    using NexBot.Core.Services.Interfaces;
-    using NexBot.Core.Services;
-    using NexBot.Models;
-    using NexBot.Services.Interfaces;
-    using NexBot.Services;
-    using StackExchange.Redis;
-    using Fanex.Logging;
-    using Fanex.Logging.Sentry;
-    using Sentry;
     using NexBot.Core;
+    using NexBot.Core.Repositories;
+    using NexBot.Core.Services;
+    using NexBot.Core.Services.Interfaces;
+    using NexBot.Models;
+    using NexBot.Services;
+    using NexBot.Services.Interfaces;
+    using Sentry;
+    using StackExchange.Redis;
 
-    public class Startup
+    public class Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
-        public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; } = configuration;
 
         public void ConfigureServices(IServiceCollection services)
         {
             LogManager
                .SetDefaultLogCategory(Configuration.GetSection("Sentry:LogCategory").Value)
-               .Use(new List<ILogEngine>
-               {
+               .Use([
                     new SentryLogging(new SentryEngineOptions
                     {
                         Dsn = new Dsn(Configuration.GetSection("Sentry:Dsn").Value)
                     })
-               });
+               ]);
 
             services.AddFanexSql(Configuration);
 
@@ -67,20 +59,13 @@
 
             services.AddScoped<Func<string, IChannelBot>>(serviceProvider => (channelType) =>
             {
-                switch (channelType)
+                return channelType switch
                 {
-                    case Constants.TeamsChannel:
-                        return serviceProvider.GetService<ITeamsBot>();
-
-                    case Constants.SkypeChannel:
-                        return serviceProvider.GetService<ISkypeBot>();
-
-                    case Constants.TelegramChannel:
-                        return serviceProvider.GetService<ITelegramBot>();
-
-                    default:
-                        return serviceProvider.GetService<ICoreBot>();
-                }
+                    Constants.TeamsChannel => serviceProvider.GetService<ITeamsBot>(),
+                    Constants.SkypeChannel => serviceProvider.GetService<ISkypeBot>(),
+                    Constants.TelegramChannel => serviceProvider.GetService<ITelegramBot>(),
+                    _ => serviceProvider.GetService<ICoreBot>(),
+                };
             });
 
             RegisterCache(services, Configuration);
@@ -153,7 +138,6 @@
             services.AddSingleton<IMessageValidationService, MessageValidationService>();
             services.AddSingleton<ILogger, Logger>();
             services.AddSingleton<ILogProviderService, LogProviderService>();
-
 
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IAccountService, AccountService>();

@@ -11,17 +11,8 @@
     using NexBot.Models;
     using NexBot.Services.Interfaces;
 
-    public class ConversationService : IConversationService
+    public class ConversationService(IList<BotConfigs> botConfigs, IBaseService baseService) : IConversationService
     {
-        private readonly IList<BotConfigs> botConfigs;
-        private readonly IBaseService baseService;
-
-        public ConversationService(IList<BotConfigs> botConfigs, IBaseService baseService)
-        {
-            this.botConfigs = botConfigs;
-            this.baseService = baseService;
-        }
-
         public async Task AddConversationAsync(IActivity activity)
         {
             var firstName = string.Empty;

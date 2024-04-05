@@ -6,20 +6,12 @@
     using NexBot.Models;
     using NexBot.Services.Interfaces;
 
-    public class RegistrationMealService : IRegistrationMealService
+    public class RegistrationMealService(
+        IFBMConnector fbmConnector,
+        ILogProviderService logProviderService) : IRegistrationMealService
     {
         private const string successMessage = "Đặt Cơm Chay thành công ngày: ";
         private const string failMessage = "Đặt Cơm Chay thất bại! Vui lòng liên hệ Admin.";
-        private readonly IFBMConnector fbmConnector;
-        private readonly ILogProviderService logProviderService;
-
-        public RegistrationMealService(
-            IFBMConnector fbmConnector,
-            ILogProviderService logProviderService)
-        {
-            this.fbmConnector = fbmConnector;
-            this.logProviderService = logProviderService;
-        }
 
         public async Task<string> RegistVegetarian(string conversationId, string commandRequest)
         {
@@ -29,10 +21,9 @@
             {
                 if (slitCommandRequest.Length == 5)
                 {
-                    int.TryParse(slitCommandRequest[1], out int empId);
-                    int.TryParse(slitCommandRequest[2], out int companyId);
-                    DateTime.TryParse(slitCommandRequest[3], out DateTime onDate);
-
+                    _ = int.TryParse(slitCommandRequest[1], out int empId);
+                    _ = int.TryParse(slitCommandRequest[2], out int companyId);
+                    _ = DateTime.TryParse(slitCommandRequest[3], out DateTime onDate);
 
                     var registVegetarianMeal = new RegistVegetarianMealMessage
                     {
@@ -50,7 +41,6 @@
                 await logProviderService.SentryErrorAsync(exception.Message, exception);
                 result = failMessage;
             }
-
 
             return result;
         }
@@ -76,7 +66,6 @@
                 await logProviderService.SentryErrorAsync(exception.Message, exception);
                 result = failMessage;
             }
-
 
             return result;
         }

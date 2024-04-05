@@ -19,22 +19,12 @@
     using NexBot.Models.Request;
     using NexBot.Services.Interfaces;
 
-    public class MessageService : IMessageService
+    public class MessageService(
+        IBaseService baseService,
+        IBotFrameworkHttpAdapter adapter,
+        IConversationService conversationService,
+        ILogProviderService logProviderService) : IMessageService
     {
-        private readonly IBaseService baseService;
-        private readonly IBotFrameworkHttpAdapter adapter;
-        private readonly IConversationService conversationService;
-
-        public MessageService(
-            IBaseService baseService,
-            IBotFrameworkHttpAdapter adapter,
-            IConversationService conversationService)
-        {
-            this.baseService = baseService;
-            this.adapter = adapter;
-            this.conversationService = conversationService;
-        }
-
         public async Task AddSystemLog(string logContent)
         {
             var criteria = new InsertSystemLogCommand
@@ -77,15 +67,24 @@
 
         public async Task SendAsync(string conversationId, string messageText)
         {
-            var conversationModel = await conversationService.GetConversationById(conversationId);
-            var conversationInfo = GetConversationReference(conversationModel);
-            var activity = CreateMessageActivity(conversationInfo);
-            activity.Text = messageText;
-            await SendMessageAsync(conversationInfo, activity);
-            await AddMessageLog(activity);
+            logProviderService.LogFileMessage($"============= SendAsync: ConversationID: {conversationId}. Text = {messageText}==================");
+            try
+            {
+                var conversationModel = await conversationService.GetConversationById(conversationId);
+                var conversationInfo = GetConversationReference(conversationModel);
+                var activity = CreateMessageActivity(conversationInfo);
+                activity.Text = messageText;
+                await SendMessageAsync(conversationInfo, activity);
+                await AddMessageLog(activity);
+            }
+            catch (Exception ex)
+            {
+                await logProviderService.SentryErrorAsync($"ConversationID: {conversationId}. Text = {messageText}", ex);
+                throw;
+            }
         }
 
-        private ConversationReference GetConversationReference(ConversationModel conversationModel)
+        private static ConversationReference GetConversationReference(ConversationModel conversationModel)
         {
             var coversation = new ConversationReference
             {
@@ -113,30 +112,37 @@
 
         public async Task SendRequestAsync(RequestMessage requestMessage)
         {
-            var conversation = await conversationService.GetConversationById(requestMessage.ConversationId);
-            var conversationReference = GetConversationReference(conversation);
-            var activity = CreateMessageActivity(conversationReference);
-            if (!string.IsNullOrEmpty(requestMessage.Message))
+            logProviderService.LogFileMessage(JsonConvert.SerializeObject(requestMessage));
+            try
             {
-                Attachment attachment;
-                if (conversation.ChannelId.Equals(Constants.TeamsChannel))
+                var conversation = await conversationService.GetConversationById(requestMessage.ConversationId);
+                var conversationReference = GetConversationReference(conversation);
+                var activity = CreateMessageActivity(conversationReference);
+                if (!string.IsNullOrEmpty(requestMessage.Message))
                 {
-                    attachment = GetAttachmentForRequestInTeams(requestMessage);
-                }
-                else
-                {
-                    activity.Text = requestMessage.Message;
-                    attachment = GetAttachmentForRequest(requestMessage);
-                }
+                    Attachment attachment;
+                    if (conversation.ChannelId.Equals(Constants.TeamsChannel))
+                    {
+                        attachment = GetAttachmentForRequestInTeams(requestMessage);
+                    }
+                    else
+                    {
+                        activity.Text = requestMessage.Message;
+                        attachment = GetAttachmentForRequest(requestMessage);
+                    }
 
-                activity.Attachments.Add(attachment);
+                    activity.Attachments.Add(attachment);
 
-                await SendMessageAsync(conversationReference, activity);
-                await AddMessageLog(activity);
+                    await SendMessageAsync(conversationReference, activity);
+                    await AddMessageLog(activity);
+                }
+            }
+            catch (Exception ex)
+            {
+                await logProviderService.SentryErrorAsync(JsonConvert.SerializeObject(requestMessage), ex);
             }
         }
 
-        
         ////private static Attachment CreateAdaptiveCardAttachment(string filePath)
         ////{
         ////    var adaptiveCardJson = File.ReadAllText(filePath);
@@ -148,7 +154,7 @@
         ////    return adaptiveCardAttachment;
         ////}
 
-        private Attachment GetAttachmentForRequestInTeams(RequestMessage requestMessage)
+        private static Attachment GetAttachmentForRequestInTeams(RequestMessage requestMessage)
         {
             string fileName;
             if (requestMessage.RequestType.Equals("leave"))
@@ -162,7 +168,7 @@
 
             var filePath = Path.Combine(".", "Resources", fileName);
             var templateJson = File.ReadAllText(filePath);
-            AdaptiveCardTemplate template = new AdaptiveCardTemplate(templateJson);
+            AdaptiveCardTemplate template = new(templateJson);
             string cardJson = template.Expand(requestMessage);
             var cardAttachment = new Attachment()
             {
@@ -172,14 +178,14 @@
             return cardAttachment;
         }
 
-        private Attachment GetAttachmentForRequest(RequestMessage requestMessage)
+        private static Attachment GetAttachmentForRequest(RequestMessage requestMessage)
         {
             var approveCommand = string.Format("{0}_{1}_{2}_{3}", "cmdApproved", requestMessage.RequestId, requestMessage.ProcessedBy, requestMessage.CallBackUrl);
             var rejectCommand = string.Format("{0}_{1}_{2}_{3}", "cmdReject", requestMessage.RequestId, requestMessage.ProcessedBy, requestMessage.CallBackUrl);
             var cardActions = new List<CardAction>
                     {
-                        new CardAction(ActionTypes.PostBack, title: "Approve", text: approveCommand, displayText: "Approve", value: approveCommand),
-                        new CardAction(ActionTypes.PostBack, title: "Reject", text: rejectCommand, displayText: "Reject", value: rejectCommand)
+                        new(ActionTypes.PostBack, title: "Approve", text: approveCommand, displayText: "Approve", value: approveCommand),
+                        new(ActionTypes.PostBack, title: "Reject", text: rejectCommand, displayText: "Reject", value: rejectCommand)
                     };
             var heroCard = new HeroCard
             {
@@ -190,12 +196,12 @@
             return attachment;
         }
 
-        private Attachment GetAttachmentForRegistMealInTeams(RegistVegetarianMealMessage registVegetarianMessage)
+        private static Attachment GetAttachmentForRegistMealInTeams(RegistVegetarianMealMessage registVegetarianMessage)
         {
-            var fileName = "RegistVegetarianMealCard.json"; 
+            var fileName = "RegistVegetarianMealCard.json";
             var filePath = Path.Combine(".", "Resources", fileName);
             var templateJson = File.ReadAllText(filePath);
-            AdaptiveCardTemplate template = new AdaptiveCardTemplate(templateJson);
+            AdaptiveCardTemplate template = new(templateJson);
             string cardJson = template.Expand(registVegetarianMessage);
 
             var cardAttachment = new Attachment()
@@ -206,18 +212,18 @@
             return cardAttachment;
         }
 
-        private Attachment GetAttachmentForRegistMeal(RegistVegetarianMealMessage registVegetarianMessage)
+        private static Attachment GetAttachmentForRegistMeal(RegistVegetarianMealMessage registVegetarianMessage)
         {
-            var command = string.Format("{0}_{1}_{2}_{3}_{4}", 
-                "cmdRegMeal", 
-                registVegetarianMessage.EmpId, 
-                registVegetarianMessage.CompanyId, 
-                registVegetarianMessage.OnDate.ToString("yyyy-MM-dd"), 
+            var command = string.Format("{0}_{1}_{2}_{3}_{4}",
+                "cmdRegMeal",
+                registVegetarianMessage.EmpId,
+                registVegetarianMessage.CompanyId,
+                registVegetarianMessage.OnDate.ToString("yyyy-MM-dd"),
                 registVegetarianMessage.CallBackUrl);
 
             var cardActions = new List<CardAction>
                     {
-                        new CardAction(ActionTypes.PostBack, "Đặt Cơm Chay", value: command)
+                        new(ActionTypes.PostBack, "Đặt Cơm Chay", value: command)
                     };
             var heroCard = new HeroCard
             {
@@ -319,8 +325,6 @@
                         await context.SendActivityAsync(activity, cancellationToken: token);
                     },
                     new CancellationToken());
-
-         
             }
             catch (Exception ex)
             {

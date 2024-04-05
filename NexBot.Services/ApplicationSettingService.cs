@@ -5,14 +5,9 @@
     using NexBot.Models;
     using NexBot.Services.Interfaces;
 
-    public class ApplicationSettingService : IApplicationSettingService
+    public class ApplicationSettingService(IList<BotConfigs> botConfigs) : IApplicationSettingService
     {
-        private readonly IList<BotConfigs> botConfigs;
-
-        public ApplicationSettingService(IList<BotConfigs> botConfigs)
-        {
-            this.botConfigs = botConfigs;
-        }
+        private readonly IList<BotConfigs> botConfigs = botConfigs;
 
         public async Task<IEnumerable<ApplicationSetting>> GetApplicationSettingAsync()
         {

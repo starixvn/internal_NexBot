@@ -7,30 +7,21 @@
     using NexBot.Models.Request;
     using NexBot.Services.Interfaces;
 
-    public class RequestService : IRequestService
+    public class RequestService(IHRMConnector hrmConnector,
+        ILogProviderService logProviderService) : IRequestService
     {
         private const string successMessage = "Request #{0} has been {1} successfully!";
         private const string failMessage = "Request #{0} has been {1} unsuccessfully! Please contact Admin for detail";
 
-        private readonly IHRMConnector hrmConnector;
-        private readonly ILogProviderService logProviderService;
-
-        public RequestService(IHRMConnector hrmConnector,
-            ILogProviderService logProviderService)
-        {
-            this.hrmConnector = hrmConnector;
-            this.logProviderService = logProviderService;
-        }
-
         public async Task<string> ProcessRequest(string commandRequest, string command)
         {
             var slitCommandRequest = commandRequest.Split('_');
-            long.TryParse(slitCommandRequest[1], out long requestId);
+            _ = long.TryParse(slitCommandRequest[1], out long requestId);
 
             var result = string.Empty;
             try
             {
-                int.TryParse(slitCommandRequest[2], out int processedBy);
+                _ = int.TryParse(slitCommandRequest[2], out int processedBy);
                 var processRequest = new ProcessRequest
                 {
                     RequestId = requestId,
@@ -68,9 +59,7 @@
             return result;
         }
 
-        private string GetCommandText(string command)
-        {
-            return command.Equals(Constants.ApproveRequestCommand, StringComparison.CurrentCultureIgnoreCase) ? "approved" : "rejected"; 
-        }
+        private static string GetCommandText(string command)
+            => command.Equals(Constants.ApproveRequestCommand, StringComparison.CurrentCultureIgnoreCase) ? "approved" : "rejected";
     }
 }

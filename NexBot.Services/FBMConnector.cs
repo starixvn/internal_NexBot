@@ -8,15 +8,8 @@
     using NexBot.Models;
     using NexBot.Services.Interfaces;
 
-    public class FBMConnector : IFBMConnector
+    public class FBMConnector(IHttpClientFactory httpClientFactory) : IFBMConnector
     {
-        private readonly IHttpClientFactory httpClientFactory;
-
-        public FBMConnector(IHttpClientFactory httpClientFactory)
-        {
-            this.httpClientFactory = httpClientFactory;
-        }
-
         public async Task<CommandResult> Send(RegistVegetarianMealMessage registVegetarianMeal)
         {
             CommandResult commandResult;

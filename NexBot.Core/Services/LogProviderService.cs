@@ -1,20 +1,14 @@
 ﻿namespace NexBot.Core.Services
 {
-    using System.Threading.Tasks;
     using System;
+    using System.Threading.Tasks;
     using NexBot.Core.Services.Interfaces;
     using NLog;
     using NLog.Web;
 
-    public class LogProviderService : ILogProviderService
+    public class LogProviderService(Fanex.Logging.ILogger logger) : ILogProviderService
     {
-        private readonly Fanex.Logging.ILogger logger;
         private readonly Logger nlog = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
-
-        public LogProviderService(Fanex.Logging.ILogger logger)
-        {
-            this.logger = logger;
-        }
 
         public void LogFileError(Exception exception)
         {

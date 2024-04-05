@@ -6,15 +6,8 @@
     using NexBot.Services.Interfaces;
 
     [Route("api/[controller]/[action]")]
-    public class MessagesController : Controller
+    public class MessagesController(IMessageService messageService) : Controller
     {
-        private readonly IMessageService messageService;
-
-        public MessagesController(IMessageService messageService)
-        {
-            this.messageService = messageService;
-        }
-
         [HttpPost]
         public async Task Forward(string conversationId, string message)
         {
