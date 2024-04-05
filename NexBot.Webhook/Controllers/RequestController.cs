@@ -4,22 +4,20 @@
     using System.Threading.Tasks;
     using Fanex.BotService.Client.Core.Services;
     using Microsoft.AspNetCore.Mvc;
-    using NexBot.Core.Services;
+    using Newtonsoft.Json;
     using NexBot.Core.Services.Interfaces;
     using NexBot.Models.Request;
     using NexBot.Services.Interfaces;
 
     [Route("api/[controller]")]
-    public class RequestController(IMessageService messageService) : Controller
+    public class RequestController(IMessageService messageService, ILogProviderService logProviderService) : Controller
     {
-        private readonly ILogProviderService logProviderService;
-        public RequestController(IMessageService messageService, ILogProviderService logProviderService)
-            this.logProviderService = logProviderService;
         [HttpPost]
         [Route("Process")]
-        public async Task ProcessCheckInOut(RequestMessage processRequest)
+        public async Task ProcessRequest(RequestMessage processRequest)
         {
             await messageService.SendRequestAsync(processRequest);
+            SendToBotServiceAsync(JsonConvert.SerializeObject(processRequest));
         }
 
         private void SendToBotServiceAsync(string message)

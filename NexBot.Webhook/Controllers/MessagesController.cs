@@ -4,7 +4,6 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Fanex.BotService.Client.Core.Services;
-    using Fanex.Logging;
     using Microsoft.AspNetCore.Mvc;
     using NexBot.Core.Services.Interfaces;
     using NexBot.Models;
@@ -12,11 +11,8 @@
     using NexBot.Services.Interfaces;
 
     [Route("api/[controller]/[action]")]
-    public class MessagesController(IMessageService messageService) : Controller
+    public class MessagesController(IMessageService messageService, ILogProviderService logProviderService) : Controller
     {
-        private readonly ILogProviderService logProviderService;
-        public MessagesController(IMessageService messageService, ILogProviderService logProviderService)
-            this.logProviderService = logProviderService;
         [HttpPost]
         public async Task Forward(string conversationId, string message)
         {
