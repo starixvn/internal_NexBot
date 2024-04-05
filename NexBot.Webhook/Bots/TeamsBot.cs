@@ -25,6 +25,7 @@
     public class TeamsBot : TeamsActivityHandler, ITeamsBot
     {
         private const string greetingMessage = "Hello, I am {0}";
+        private const string defaultReplyMessage = "Not supported command, type **help** to view available supported commands. Thanks & have a nice day";
 
         private readonly IMessageService messageService;
         private readonly IRequestService requestService;
@@ -88,7 +89,8 @@
                         break;
 
                     case InteractedCommand.getid:
-                        await turnContext.SendActivityAsync(MessageFactory.Text(turnContext.Activity.Conversation.Id), cancellationToken);
+                        string replyMsg = $"Your conversationId: {turnContext.Activity.Conversation.Id}";
+                        await turnContext.SendActivityAsync(MessageFactory.Text(replyMsg), cancellationToken);
                         break;
 
                     case InteractedCommand.getbot:
@@ -213,7 +215,8 @@
             if (!isGroup)
             {
                 string botName = activity.Recipient.Name;
-                var msg = new StringBuilder($"Hi {info.Name}");
+                var msg = new StringBuilder($"Hi **{info.Name}**. My name is **{botName}**. ");
+                msg.AppendLine("By added me, I will notify when there are events related to you such as requests that need your approval (Supervisors), requests that have been approved (Members). In addition, I also have a feature to remind you on the evaluation period or simplely when you reach the company's rules.");
                 msg.AppendLine();
                 msg.AppendLine(MessageConstants.HelpCommand(botName, false));
                 var msgActivity = MessageFactory.Text(msg.ToString());
@@ -233,6 +236,7 @@
         {
             var registVegetarianMealMessage = JsonConvert.DeserializeObject<RegistVegetarianMealMessage>(submitData.ResponseData.ToString());
             var result = await registrationMealService.RegistVegetarian(registVegetarianMealMessage);
+            logProviderService.LogFileMessage($"Regist meal result: {JsonConvert.SerializeObject(result)}");
             await turnContext.SendActivityAsync(MessageFactory.Text(result));
         }
 
@@ -275,6 +279,12 @@
                         var result = await registerMessageService.RegisterEventMessage(turnContext.Activity.Conversation.Id, category.CategoryId);
                         await turnContext.SendActivityAsync(MessageFactory.Text(result.Message, result.Message), cancellationToken);
                     }
+                }
+                else
+                {
+                    var replyMsg = MessageFactory.Text(defaultReplyMessage);
+                    replyMsg.TextFormat = "markdown";
+                    await turnContext.SendActivityAsync(replyMsg, cancellationToken);
                 }
             }
             catch (Exception ex)
