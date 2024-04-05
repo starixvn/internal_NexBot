@@ -29,6 +29,7 @@
     using NexBot.Services.Interfaces;
     using Sentry;
     using StackExchange.Redis;
+    using Fanex.BotService.Client.AspNetCore;
 
     public class Startup(IConfiguration configuration)
     {
@@ -70,6 +71,8 @@
 
             RegisterCache(services, Configuration);
             RegisterService(services, Configuration);
+
+            services.RegisterBotClient(Configuration);
 
             services.AddMvc().AddNewtonsoftJson();
         }
