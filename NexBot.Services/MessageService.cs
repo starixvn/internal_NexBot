@@ -127,6 +127,11 @@
                     }
                     else
                     {
+                        if (requestMessage.IsReadOnly)
+                        {
+                            return;
+                        }
+
                         activity.Text = requestMessage.Message;
                         attachment = GetAttachmentForRequest(requestMessage);
                     }
@@ -142,17 +147,6 @@
                 await logProviderService.SentryErrorAsync(JsonConvert.SerializeObject(requestMessage), ex);
             }
         }
-
-        ////private static Attachment CreateAdaptiveCardAttachment(string filePath)
-        ////{
-        ////    var adaptiveCardJson = File.ReadAllText(filePath);
-        ////    var adaptiveCardAttachment = new Attachment()
-        ////    {
-        ////        ContentType = "application/vnd.microsoft.card.adaptive",
-        ////        Content = JsonConvert.DeserializeObject(adaptiveCardJson),
-        ////    };
-        ////    return adaptiveCardAttachment;
-        ////}
 
         private static Attachment GetAttachmentForRequestInTeams(RequestMessage requestMessage)
         {
