@@ -136,6 +136,7 @@
 
         protected override async Task OnUnrecognizedActivityTypeAsync(ITurnContext turnContext, CancellationToken cancellationToken)
         {
+            logProviderService.LogFileMessage($"OnUnrecognizedActivityTypeAsync  -- Conversation Bot ID: {turnContext.Activity.Recipient.Id}. Conversation ID: {turnContext.Activity.From.Id}");
             var botName = turnContext.Activity.Recipient.Name;
             if (turnContext.Activity.Type == ActivityTypes.ContactRelationUpdate)
             {
