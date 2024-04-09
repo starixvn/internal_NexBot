@@ -30,13 +30,7 @@
     {
         private const string greetingMessage = "Hello, I am {0}";
         private const string defaultReplyMessage = "Not supported command, type **help** to view available supported commands. Thanks & have a nice day";
-
-        private readonly IMessageService messageService = messageService;
-        private readonly IRequestService requestService = requestService;
-        private readonly IRegistrationMealService registrationMealService = registrationMealService;
-        private readonly IRegisterMessageService registerMessageService = registerMessageService;
-        private readonly ILogProviderService logProviderService = logProviderService;
-        private readonly IConversationService conversationService = conversationService;
+        private const string botNameIgnoreMsg = "Terra-Bot";
 
         protected override async Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -59,79 +53,90 @@
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            if (turnContext.Activity.Text is not null)
+            var botName = turnContext.Activity.Recipient?.Name ?? string.Empty;
+            var message = turnContext.Activity.Text?.Trim() ?? string.Empty;
+            if (turnContext.Activity.Conversation.IsGroup == true)
             {
-                var message = turnContext.Activity.Text?.Trim();
-                var botName = turnContext.Activity.Recipient?.Name;
-                if (turnContext.Activity.Conversation.IsGroup == true)
+                message = BotHelper.GetMessageInGroupByChannel(message, turnContext.Activity.ChannelId, botName);
+            }
+
+            if (botName.Equals(botNameIgnoreMsg))
+            {
+                if (message.Equals(InteractedCommand.getid, StringComparison.OrdinalIgnoreCase))
                 {
-                    message = BotHelper.GetMessageInGroupByChannel(message, turnContext.Activity.ChannelId, botName);
-                }
-
-                CommandResult commandResult;
-                switch (message)
-                {
-                    case InteractedCommand.help:
-                        var msg = MessageFactory.Text(MessageConstants.HelpCommand(botName, turnContext.Activity.Conversation.IsGroup == true));
-                        msg.TextFormat = "markdown";
-                        await turnContext.SendActivityAsync(msg, cancellationToken);
-                        break;
-
-                    case InteractedCommand.getid:
-                        string replyMsg = $"Your conversationId: {turnContext.Activity.Conversation.Id}";
-                        await turnContext.SendActivityAsync(MessageFactory.Text(replyMsg), cancellationToken);
-                        break;
-
-                    case InteractedCommand.getbot:
-                        var botInfo = $"BotId: {turnContext.Activity.Recipient.Id}, BotName: {botName}";
-                        await turnContext.SendActivityAsync(MessageFactory.Text(botInfo), cancellationToken);
-                        break;
-
-                    case InteractedCommand.regist:
-                        await conversationService.AddConversationAsync(turnContext.Activity);
-                        break;
-
-                    case InteractedCommand.stop_remind_vegetarian_meal:
-                        commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderVegetarianMeal);
-                        if (commandResult.IsSuccessful)
-                        {
-                            await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
-                        }
-                        break;
-
-                    case InteractedCommand.start_remind_vegetarian_meal:
-                        commandResult = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderVegetarianMeal);
-                        if (commandResult.IsSuccessful)
-                        {
-                            await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
-                        }
-                        break;
-
-                    case InteractedCommand.stop_remind_reachedworkingtime:
-                        commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderReachedWorkingHour);
-                        if (commandResult.IsSuccessful)
-                        {
-                            await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
-                        }
-                        break;
-
-                    case InteractedCommand.start_remind_reachedworkingtime:
-                        commandResult = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderReachedWorkingHour);
-                        if (commandResult.IsSuccessful)
-                        {
-                            await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
-                        }
-                        break;
-
-                    default:
-                        await HandlerOtherMessages(turnContext, cancellationToken);
-                        break;
+                    await turnContext.SendActivityAsync(MessageFactory.Text(turnContext.Activity.Recipient.Id), cancellationToken);
                 }
             }
             else
             {
-                await HandlerSubmitData(turnContext);
+                if (!string.IsNullOrEmpty(turnContext.Activity.Text))
+                {
+                    CommandResult commandResult;
+                    switch (message)
+                    {
+                        case InteractedCommand.help:
+                            var msg = MessageFactory.Text(MessageConstants.HelpCommand(botName, turnContext.Activity.Conversation.IsGroup == true));
+                            msg.TextFormat = "markdown";
+                            await turnContext.SendActivityAsync(msg, cancellationToken);
+                            break;
+
+                        case InteractedCommand.getid:
+                            string replyMsg = $"Your conversationId: {turnContext.Activity.Conversation.Id}";
+                            await turnContext.SendActivityAsync(MessageFactory.Text(replyMsg), cancellationToken);
+                            break;
+
+                        case InteractedCommand.getbot:
+                            var botInfo = $"BotId: {turnContext.Activity.Recipient.Id}, BotName: {botName}";
+                            await turnContext.SendActivityAsync(MessageFactory.Text(botInfo), cancellationToken);
+                            break;
+
+                        case InteractedCommand.regist:
+                            await conversationService.AddConversationAsync(turnContext.Activity);
+                            break;
+
+                        case InteractedCommand.stop_remind_vegetarian_meal:
+                            commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderVegetarianMeal);
+                            if (commandResult.IsSuccessful)
+                            {
+                                await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
+                            }
+                            break;
+
+                        case InteractedCommand.start_remind_vegetarian_meal:
+                            commandResult = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderVegetarianMeal);
+                            if (commandResult.IsSuccessful)
+                            {
+                                await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
+                            }
+                            break;
+
+                        case InteractedCommand.stop_remind_reachedworkingtime:
+                            commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderReachedWorkingHour);
+                            if (commandResult.IsSuccessful)
+                            {
+                                await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
+                            }
+                            break;
+
+                        case InteractedCommand.start_remind_reachedworkingtime:
+                            commandResult = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderReachedWorkingHour);
+                            if (commandResult.IsSuccessful)
+                            {
+                                await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
+                            }
+                            break;
+
+                        default:
+                            await HandlerOtherMessages(turnContext, cancellationToken);
+                            break;
+                    }
+                }
+                else
+                {
+                    await HandlerSubmitData(turnContext);
+                }
             }
+            
         }
 
         protected override async Task OnUnrecognizedActivityTypeAsync(ITurnContext turnContext, CancellationToken cancellationToken)
@@ -201,10 +206,11 @@
             };
 
             await conversationService.AddConversationAsync(command);
+            string botName = activity.Recipient.Name;
 
-            if (!isGroup)
+            if (!isGroup && !botName.Equals(botNameIgnoreMsg))
             {
-                string botName = activity.Recipient.Name;
+                
                 var msg = new StringBuilder($"Hi **{info.Name}**. My name is **{botName}**. ");
                 msg.AppendLine("By added me, I will notify when there are events related to you such as requests that need your approval (Supervisors), requests that have been approved (Members). In addition, I also have a feature to remind you on the evaluation period or simplely when you reach the company's rules.");
                 msg.AppendLine();
