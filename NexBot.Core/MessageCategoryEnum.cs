@@ -32,6 +32,9 @@
         ReminderReachedWorkingHour = 9,
 
         [Description("Reminder regist Vegetarian Meal")]
-        ReminderVegetarianMeal = 10
+        ReminderVegetarianMeal = 10,
+
+        [Description("Notify when employee checked out")]
+        NotifyCheckOut = 11
     }
 }

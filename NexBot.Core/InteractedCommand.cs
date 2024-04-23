@@ -18,5 +18,8 @@
 
         public const string start_remind_reachedworkingtime = "start_remind_reachedworkingtime";
 
+        public const string start_notify_checkout = "start_notify_checkout";
+
+        public const string stop_notify_checkout = "stop_notify_checkout";
     }
 }

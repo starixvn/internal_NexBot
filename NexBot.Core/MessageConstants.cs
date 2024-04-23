@@ -20,6 +20,8 @@ namespace NexBot.Core
                 strBuilder.AppendLine("- **start_remind_vegetarian_meal** => Start receive message remind register vegatarian meal.");
                 strBuilder.AppendLine("- **stop_remind_reachedworkingtime** => Stop receive message remind you are reached the working hours on the day.");
                 strBuilder.AppendLine("- **start_remind_reachedworkingtime** => Start receive message remind you are reached the working hours on the day.");
+                strBuilder.AppendLine("- **start_notify_checkout** => Start receive message notify you after check out.");
+                strBuilder.AppendLine("- **stop_notify_checkout** => Stop receive message notify you after check out.");
             }
 
             return strBuilder.ToString();

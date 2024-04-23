@@ -126,6 +126,22 @@
                             }
                             break;
 
+                    case InteractedCommand.stop_notify_checkout:
+                        commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.NotifyCheckOut);
+                        if (commandResult.IsSuccessful)
+                        {
+                            await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
+                        }
+                        break;
+
+                    case InteractedCommand.start_notify_checkout:
+                        commandResult = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.NotifyCheckOut);
+                        if (commandResult.IsSuccessful)
+                        {
+                            await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
+                        }
+                        break;
+
                         default:
                             await HandlerOtherMessages(turnContext, cancellationToken);
                             break;

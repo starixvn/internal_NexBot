@@ -75,13 +75,16 @@
                 case InteractedCommand.help:
                     await turnContext.SendActivityAsync(MessageFactory.Text(string.Format(greetingMessage, botName)), cancellationToken);
                     break;
+
                 case InteractedCommand.getid:
                     await turnContext.SendActivityAsync(MessageFactory.Text(turnContext.Activity.Conversation.Id), cancellationToken);
                     break;
+
                 case InteractedCommand.getbot:
                     var botInfo = $"BotId: {turnContext.Activity.Recipient.Id}, BotName: {botName}";
                     await turnContext.SendActivityAsync(MessageFactory.Text(botInfo), cancellationToken);
                     break;
+
                 case InteractedCommand.stop_remind_vegetarian_meal:
                     commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderVegetarianMeal);
                     if (commandResult.IsSuccessful)
@@ -89,6 +92,7 @@
                         await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
                     }
                     break;
+
                 case InteractedCommand.start_remind_vegetarian_meal:
                     commandResult = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderVegetarianMeal);
                     if (commandResult.IsSuccessful)
@@ -96,6 +100,7 @@
                         await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
                     }
                     break;
+
                 case InteractedCommand.stop_remind_reachedworkingtime:
                     commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderReachedWorkingHour);
                     if (commandResult.IsSuccessful)
@@ -103,8 +108,25 @@
                         await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
                     }
                     break;
+
                 case InteractedCommand.start_remind_reachedworkingtime:
                     commandResult = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.ReminderReachedWorkingHour);
+                    if (commandResult.IsSuccessful)
+                    {
+                        await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
+                    }
+                    break;
+
+                case InteractedCommand.stop_notify_checkout:
+                    commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.NotifyCheckOut);
+                    if (commandResult.IsSuccessful)
+                    {
+                        await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
+                    }
+                    break;
+
+                case InteractedCommand.start_notify_checkout:
+                    commandResult = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.NotifyCheckOut);
                     if (commandResult.IsSuccessful)
                     {
                         await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
@@ -114,7 +136,7 @@
                 default:
                     await HandlerOtherMessages(turnContext, cancellationToken);
                     break;
-            }    
+            }
         }
 
         protected override async Task OnUnrecognizedActivityTypeAsync(ITurnContext turnContext, CancellationToken cancellationToken)
@@ -182,7 +204,7 @@
                             var result = await registerMessageService.RegisterEventMessage(turnContext.Activity.Conversation.Id, category.CategoryId);
                             await turnContext.SendActivityAsync(MessageFactory.Text(result.Message, result.Message), cancellationToken);
                         }
-                    }         
+                    }
                 }
             }
             catch (Exception ex)
