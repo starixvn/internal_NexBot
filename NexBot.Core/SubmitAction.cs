@@ -6,6 +6,8 @@
 
         RegistrationMeal = 2,
 
-        StopRemindRegistrationMeal = 3
+        StopRemindRegistrationMeal = 3,
+
+        StopCheckOutNotification = 4
     }
 }

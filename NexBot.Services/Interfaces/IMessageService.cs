@@ -15,5 +15,7 @@
         Task AddSystemLog(string logContent);
 
         Task ReSendErrorMeesage();
+
+        Task CheckoutNotificationAsync(string conversationId, string messageContent);
     }
 }

@@ -118,7 +118,9 @@
                     commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.NotifyCheckOut);
                     if (commandResult.IsSuccessful)
                     {
-                        await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
+                        var msg = "Ignored checkout notification successfully! ✅";
+                        var activity = MessageFactory.Text(msg, msg);
+                        await turnContext.SendActivityAsync(activity, cancellationToken);
                     }
                     break;
 
@@ -126,7 +128,8 @@
                     commandResult = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.NotifyCheckOut);
                     if (commandResult.IsSuccessful)
                     {
-                        await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
+                        var msgResponse = "Resgiter receive checkout notification successfully! ✅";
+                        await turnContext.SendActivityAsync(MessageFactory.Text(msgResponse, msgResponse), cancellationToken);
                     }
                     break;
 

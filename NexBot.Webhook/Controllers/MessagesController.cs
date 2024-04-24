@@ -1,13 +1,11 @@
 ﻿namespace NexBot.Controllers
 {
     using System;
-    using System.Threading;
     using System.Threading.Tasks;
     using Fanex.BotService.Client.Core.Services;
     using Microsoft.AspNetCore.Mvc;
     using NexBot.Core.Services.Interfaces;
     using NexBot.Models;
-    using NexBot.Services;
     using NexBot.Services.Interfaces;
 
     [Route("api/[controller]/[action]")]
@@ -31,6 +29,12 @@
             await messageService.RegistVegetarianMealAsync(model);
         }
 
+        [HttpPost]
+        public async Task CheckoutNotification(string conversationId, string messageContent)
+        {
+            await messageService.CheckoutNotificationAsync(conversationId, messageContent);
+        }
+
         private void SendToBotServiceAsync(string message)
         {
             Task.Factory.StartNew(async () =>
@@ -45,7 +49,6 @@
                     logProviderService.LogFileError(exception);
                 }
             });
-
         }
     }
 }

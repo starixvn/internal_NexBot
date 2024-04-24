@@ -126,21 +126,18 @@
                             }
                             break;
 
-                    case InteractedCommand.stop_notify_checkout:
-                        commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.NotifyCheckOut);
-                        if (commandResult.IsSuccessful)
-                        {
-                            await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
-                        }
-                        break;
+                        case InteractedCommand.stop_notify_checkout:
+                            await HandleSubmitStopCheckOutNotification(turnContext);
+                            break;
 
-                    case InteractedCommand.start_notify_checkout:
-                        commandResult = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.NotifyCheckOut);
-                        if (commandResult.IsSuccessful)
-                        {
-                            await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message, commandResult.Message), cancellationToken);
-                        }
-                        break;
+                        case InteractedCommand.start_notify_checkout:
+                            commandResult = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.NotifyCheckOut);
+                            if (commandResult.IsSuccessful)
+                            {
+                                var msgResponse = "Resgiter receive checkout notification successfully! ✅";
+                                await turnContext.SendActivityAsync(MessageFactory.Text(msgResponse, msgResponse), cancellationToken);
+                            }
+                            break;
 
                         default:
                             await HandlerOtherMessages(turnContext, cancellationToken);
@@ -152,7 +149,6 @@
                     await HandlerSubmitData(turnContext);
                 }
             }
-            
         }
 
         protected override async Task OnUnrecognizedActivityTypeAsync(ITurnContext turnContext, CancellationToken cancellationToken)
@@ -195,9 +191,24 @@
                         await HandleSubmitStopRemindRegistrationMeal(turnContext);
                         break;
 
+                    case (int)SubmitAction.StopCheckOutNotification:
+                        await HandleSubmitStopCheckOutNotification(turnContext);
+                        break;
+
                     default:
                         break;
                 }
+            }
+        }
+
+        private async Task HandleSubmitStopCheckOutNotification(ITurnContext<IMessageActivity> turnContext)
+        {
+            var commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.NotifyCheckOut);
+            if (commandResult.IsSuccessful)
+            {
+                var msg = "Ignored checkout notification successfully! Type _help_ to get more information";
+                var activity = MessageFactory.Text(msg, msg);
+                await turnContext.SendActivityAsync(activity);
             }
         }
 
@@ -226,7 +237,6 @@
 
             if (!isGroup && !botName.Equals(botNameIgnoreMsg))
             {
-                
                 var msg = new StringBuilder($"Hi **{info.Name}**. My name is **{botName}**. ");
                 msg.AppendLine("By added me, I will notify when there are events related to you such as requests that need your approval (Supervisors), requests that have been approved (Members). In addition, I also have a feature to remind you on the evaluation period or simplely when you reach the company's rules.");
                 msg.AppendLine();
