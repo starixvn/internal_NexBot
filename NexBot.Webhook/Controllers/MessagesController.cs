@@ -26,9 +26,9 @@
         }
 
         [HttpPost]
-        public async Task CheckoutNotification(string conversationId, string messageContent)
+        public async Task CheckoutNotification(CheckoutRecord record)
         {
-            await messageService.CheckoutNotificationAsync(conversationId, messageContent);
+            await messageService.CheckoutNotificationAsync(record);
         }
     }
 }

@@ -13,9 +13,28 @@
         },
         {
             "type": "TextBlock",
-            "text": "${MessageContent}",
+            "text": "Dear ${NickName}",
             "size": "Medium",
             "wrap": true
+        },
+        {
+            "type": "TextBlock",
+            "text": "This is a message to inform you just have a \"checkout\" record for today working on HRM system as bellow:",
+            "size": "Medium",
+            "wrap": true
+        },
+        {
+            "type": "FactSet",
+            "facts": [
+                {
+                    "title": "- Checkout time:",
+                    "value": "${CheckoutTime}"
+                },
+                {
+                    "title": "- Working hours:",
+                    "value": "${TotalHours}"
+                }
+            ]
         }
     ],
     "actions": [

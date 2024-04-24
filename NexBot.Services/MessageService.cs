@@ -333,20 +333,20 @@
             }
         }
 
-        public async Task CheckoutNotificationAsync(string conversationId, string messageContent)
+        public async Task CheckoutNotificationAsync(CheckoutRecord record)
         {
-            var conversation = await conversationService.GetConversationById(conversationId);
-            var conversationReference = GetConversationReference(conversation);
-            var activity = CreateMessageActivity(conversationReference);
-            if (!string.IsNullOrEmpty(messageContent))
+            if (record is not null)
             {
+                var conversation = await conversationService.GetConversationById(record.ConversationId);
+                var conversationReference = GetConversationReference(conversation);
+                var activity = CreateMessageActivity(conversationReference);
                 if (!conversation.ChannelId.Equals(Constants.TeamsChannel))
                 {
-                    activity.Text = messageContent;
+                    activity.Text = record.MessageContent;
                 }
                 else
                 {
-                    Attachment attachment = GetCheckoutNotificationAttachmentTeamChannel(messageContent);
+                    Attachment attachment = GetCheckoutNotificationAttachmentTeamChannel(record);
                     activity.Attachments.Add(attachment);
                 }
 
@@ -355,11 +355,11 @@
             }
         }
 
-        private static Attachment GetCheckoutNotificationAttachmentTeamChannel(string messageContent)
+        private static Attachment GetCheckoutNotificationAttachmentTeamChannel(CheckoutRecord record)
         {
             var templateJson = File.ReadAllText(Path.Combine(".", "Resources", "NotifyCheckoutCard.json"));
             AdaptiveCardTemplate template = new(templateJson);
-            string cardJson = template.Expand(new { MessageContent = messageContent });
+            string cardJson = template.Expand(record);
 
             var cardAttachment = new Attachment()
             {

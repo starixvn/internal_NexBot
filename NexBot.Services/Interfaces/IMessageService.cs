@@ -16,6 +16,6 @@
 
         Task ReSendErrorMeesage();
 
-        Task CheckoutNotificationAsync(string conversationId, string messageContent);
+        Task CheckoutNotificationAsync(CheckoutRecord record);
     }
 }
