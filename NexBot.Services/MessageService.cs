@@ -71,11 +71,14 @@
             try
             {
                 var conversationModel = await conversationService.GetConversationById(conversationId);
-                var conversationInfo = GetConversationReference(conversationModel);
-                var activity = CreateMessageActivity(conversationInfo);
-                activity.Text = messageText;
-                await SendMessageAsync(conversationInfo, activity);
-                await AddMessageLog(activity);
+                if (conversationModel is not null)
+                {
+                    var conversationInfo = GetConversationReference(conversationModel);
+                    var activity = CreateMessageActivity(conversationInfo);
+                    activity.Text = messageText;
+                    await SendMessageAsync(conversationInfo, activity);
+                    await AddMessageLog(activity);
+                }
             }
             catch (Exception ex)
             {
