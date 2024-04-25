@@ -28,7 +28,10 @@
         [HttpPost]
         public async Task CheckoutNotification(CheckoutRecord record)
         {
-            await messageService.CheckoutNotificationAsync(record);
+            if (record is not null)
+            {
+                await messageService.CheckoutNotificationAsync(record);
+            }
         }
     }
 }

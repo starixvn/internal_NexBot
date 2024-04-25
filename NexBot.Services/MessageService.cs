@@ -335,9 +335,9 @@
 
         public async Task CheckoutNotificationAsync(CheckoutRecord record)
         {
-            if (record is not null)
+            var conversation = await conversationService.GetConversationById(record.ConversationId);
+            if (conversation is not null)
             {
-                var conversation = await conversationService.GetConversationById(record.ConversationId);
                 var conversationReference = GetConversationReference(conversation);
                 var activity = CreateMessageActivity(conversationReference);
                 if (!conversation.ChannelId.Equals(Constants.TeamsChannel))

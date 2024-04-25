@@ -1,15 +1,52 @@
 {
     "type": "AdaptiveCard",
     "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-    "version": "1.6",
+    "version": "1.5",
     "body": [
         {
-            "type": "TextBlock",
-            "text": "✅ Checkout Successfully! ",
-            "wrap": true,
-            "style": "heading",
-            "size": "large",
-            "color": "good"
+            "type": "ColumnSet",
+            "bleed": true,
+            "columns": [
+                {
+                    "type": "Column",
+                    "width": "360px",
+                    "verticalContentAlignment": "center",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "text": "✅ Checkout Successfully! ",
+                            "weight": "bolder",
+                            "wrap": false,
+                            "style": "heading",
+                            "size": "Large"
+                        }
+                    ]
+                },
+                {
+                    "type": "Column",
+                    "width": "40px",
+                    "rtl": true,
+                    "items": [
+                        {
+                            "type": "ActionSet",
+                            "actions": [
+                                {
+                                    "type": "Action.Submit",
+                                    "title": "Stop receive checkout notification",
+                                    "mode": "secondary",
+                                    "style": "positive",
+                                    "data": {
+                                        "Type": 4,
+                                        "ResponseData": {}
+                                    }
+                                }
+                            ],
+                            "spacing": "none",
+                            "separator": false
+                        }
+                    ]
+                }
+            ]
         },
         {
             "type": "TextBlock",
@@ -19,35 +56,63 @@
         },
         {
             "type": "TextBlock",
-            "text": "This is a message to inform you just have a \"checkout\" record for today working on HRM system as bellow:",
+            "text": "This is a message to inform you that you just have a \"checkout\" record for today working on the HRM system as below:",
+
             "size": "Medium",
             "wrap": true
         },
         {
-            "type": "FactSet",
-            "facts": [
+            "type": "ColumnSet",
+            "bleed": true,
+            "columns": [
                 {
-                    "title": "- Checkout time:",
-                    "value": "${CheckoutTime}"
+                    "type": "Column",
+                    "width": "2px"
                 },
                 {
-                    "title": "- Working hours:",
-                    "value": "${TotalHours}"
+                    "type": "Column",
+                    "width": "162px",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "text": "⏰ Checkout time:",
+                            "size": "Medium",
+                            "wrap": true,
+                            "weight": "bolder",
+                            "fontType": "default"
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": "⌚ Total working hours:",
+                            "size": "Medium",
+                            "wrap": true,
+                            "weight": "bolder",
+                            "fontType": "default"
+                        }
+                    ]
+                },
+                {
+                    "type": "Column",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "text": "${CheckoutTime}",
+                            "size": "medium",
+                            "wrap": true,
+                            "weight": "bolder",
+                            "color": "good"
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": "${TotalHours}",
+                            "size": "medium",
+                            "wrap": true,
+                            "weight": "bolder",
+                            "color": "good"
+                        }
+                    ]
                 }
             ]
-        }
-    ],
-    "actions": [
-        {
-            "type": "Action.Submit",
-            "title": "Stop receive checkout notification",
-            "mode": "secondary",
-            "style": "destructive",
-            "data": {
-                "Type": 4,
-                "ResponseData": {
-                }
-            }
         }
     ]
 }
