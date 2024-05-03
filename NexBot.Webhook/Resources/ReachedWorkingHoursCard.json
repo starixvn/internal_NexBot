@@ -1,0 +1,84 @@
+{
+    "type": "AdaptiveCard",
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.5",
+    "body": [
+        {
+            "type": "ColumnSet",
+            "bleed": true,
+            "columns": [
+                {
+                    "type": "Column",
+                    "width": "360px",
+                    "verticalContentAlignment": "center",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "text": "⏰ Reached working hours",
+                            "weight": "bolder",
+                            "wrap": false,
+                            "style": "heading",
+                            "size": "Large",
+                            "color": "warning"
+                        }
+                    ]
+                },
+                {
+                    "type": "Column",
+                    "width": "40px",
+                    "rtl": true,
+                    "items": [
+                        {
+                            "type": "ActionSet",
+                            "actions": [
+                                {
+                                    "type": "Action.Submit",
+                                    "title": "Stop receive reached working hours notification",
+                                    "mode": "secondary",
+                                    "style": "positive",
+                                    "data": {
+                                        "Type": 5,
+                                        "ResponseData": {}
+                                    }
+                                }
+                            ],
+                            "spacing": "none",
+                            "separator": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "RichTextBlock",
+            "inlines": [
+                "Dear ",
+                {
+                    "type": "TextRun",
+                    "text": "${NickName}",
+                    "weight": "bolder"
+                }
+            ]
+        },
+        {
+            "type": "RichTextBlock",
+            "inlines": [
+                "You have just reached ",
+                {
+                    "type": "TextRun",
+                    "text": "${WorkingHours}",
+                    "weight": "bolder"
+                },
+                " working hours for today. Please don't forget to ",
+                {
+                    "type": "TextRun",
+                    "text": "➥checkout",
+                    "color": "good",
+                    "size": "large",
+                    "weight": "bolder"
+                },
+                " before leaving the office."
+            ]
+        }
+    ]
+}
