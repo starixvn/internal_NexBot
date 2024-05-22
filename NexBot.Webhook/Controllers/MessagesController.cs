@@ -33,5 +33,14 @@
                 await messageService.CheckoutNotificationAsync(record);
             }
         }
+
+        [HttpPost]
+        public async Task ReachedWorkingHoursNotification(ReachedWorkingHours reachedWorkingHours)
+        {
+            if (reachedWorkingHours is not null)
+            {
+                await messageService.ReachedWorkingHoursAsync(reachedWorkingHours);
+            }
+        }
     }
 }

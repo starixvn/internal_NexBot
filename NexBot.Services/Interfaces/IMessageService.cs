@@ -17,5 +17,7 @@
         Task ReSendErrorMeesage();
 
         Task CheckoutNotificationAsync(CheckoutRecord record);
+
+        Task ReachedWorkingHoursAsync(ReachedWorkingHours reachedWorkingHours);
     }
 }

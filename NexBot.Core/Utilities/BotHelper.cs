@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
-
-namespace NexBot.Core.Utilities
+﻿namespace NexBot.Core.Utilities
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public static class BotHelper
     {
         public static IList<string> MainEvents
@@ -40,7 +42,7 @@ namespace NexBot.Core.Utilities
             switch (channelId)
             {
                 case Constants.SkypeChannel:
-                    if (sourceMessage.StartsWith('@') 
+                    if (sourceMessage.StartsWith('@')
                         || sourceMessage.StartsWith(botName))
                     {
                         var indexOfCommand = sourceMessage.IndexOf(' ');
@@ -51,6 +53,7 @@ namespace NexBot.Core.Utilities
                         }
                     }
                     break;
+
                 case Constants.TelegramChannel:
                     if (sourceMessage.StartsWith('/'))
                     {
@@ -62,6 +65,7 @@ namespace NexBot.Core.Utilities
                         }
                     }
                     break;
+
                 case Constants.TeamsChannel:
                     if (sourceMessage.StartsWith("<at>"))
                     {
@@ -73,12 +77,28 @@ namespace NexBot.Core.Utilities
                         }
                     }
                     break;
+
                 default:
                     returnMessage = sourceMessage;
                     break;
             }
 
             return returnMessage;
+        }
+
+        public static string Description(this Enum value)
+        {
+            var field = value.GetType().GetField(value.ToString());
+            var attributes = field.GetCustomAttributes(false);
+
+            dynamic displayAttribute = null;
+
+            if (attributes.Any())
+            {
+                displayAttribute = attributes.ElementAt(0);
+            }
+
+            return displayAttribute?.Description ?? string.Empty;
         }
     }
 }

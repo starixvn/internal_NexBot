@@ -195,9 +195,24 @@
                         await HandleSubmitStopCheckOutNotification(turnContext);
                         break;
 
+                    case (int)SubmitAction.StopReachedWorkingHoursNotification:
+                        await HandleStopReceiveNotificationByType(turnContext, MessageCategoryEnum.ReminderReachedWorkingHour, SubmitAction.StopReachedWorkingHoursNotification);
+                        break;
+
                     default:
                         break;
                 }
+            }
+        }
+
+        private async Task HandleStopReceiveNotificationByType(ITurnContext<IMessageActivity> turnContext, MessageCategoryEnum messageCategory, SubmitAction submitAction)
+        {
+            var commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)messageCategory);
+            if (commandResult.IsSuccessful)
+            {
+                var msg = $"Ignored message category _{submitAction.Description}_ successfully! Type _help_ to get more information";
+                var activity = MessageFactory.Text(msg, msg);
+                await turnContext.SendActivityAsync(activity);
             }
         }
 

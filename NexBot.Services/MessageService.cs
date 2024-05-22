@@ -17,6 +17,7 @@
     using NexBot.Criteria.Message;
     using NexBot.Models;
     using NexBot.Models.Request;
+    using NexBot.Services.Helpers;
     using NexBot.Services.Interfaces;
 
     public class MessageService(
@@ -346,7 +347,9 @@
                 }
                 else
                 {
-                    Attachment attachment = GetCheckoutNotificationAttachmentTeamChannel(record);
+                    Attachment attachment = AdaptiveCardHelper.GenerateAdaptiveCardTeamsChannel(
+                        Path.Combine(".", "Resources", "NotifyCheckoutCard.json"),
+                        record);
                     activity.Attachments.Add(attachment);
                 }
 
@@ -355,19 +358,28 @@
             }
         }
 
-        private static Attachment GetCheckoutNotificationAttachmentTeamChannel(CheckoutRecord record)
+        public async Task ReachedWorkingHoursAsync(ReachedWorkingHours reachedWorkingHours)
         {
-            var templateJson = File.ReadAllText(Path.Combine(".", "Resources", "NotifyCheckoutCard.json"));
-            AdaptiveCardTemplate template = new(templateJson);
-            string cardJson = template.Expand(record);
-
-            var cardAttachment = new Attachment()
+            var conversation = await conversationService.GetConversationById(reachedWorkingHours.ConversationId);
+            if (conversation is not null)
             {
-                ContentType = "application/vnd.microsoft.card.adaptive",
-                Content = JsonConvert.DeserializeObject(cardJson),
-            };
+                var conversationReference = GetConversationReference(conversation);
+                var activity = CreateMessageActivity(conversationReference);
+                if (!conversation.ChannelId.Equals(Constants.TeamsChannel))
+                {
+                    activity.Text = reachedWorkingHours.MessageContent;
+                }
+                else
+                {
+                    Attachment attachment = AdaptiveCardHelper.GenerateAdaptiveCardTeamsChannel(
+                        Path.Combine(".", "Resources", "ReachedWorkingHoursCard.json"),
+                        reachedWorkingHours);
+                    activity.Attachments.Add(attachment);
+                }
 
-            return cardAttachment;
+                await SendMessageAsync(conversationReference, activity);
+                await AddMessageLog(activity);
+            }
         }
     }
 }

@@ -1,13 +1,19 @@
-﻿namespace NexBot.Core
+﻿using System.ComponentModel;
+
+namespace NexBot.Core
 {
     public enum SubmitAction
     {
         ProcessRequest = 1,
-
         RegistrationMeal = 2,
 
+        [Description("Remind Registration Meal")]
         StopRemindRegistrationMeal = 3,
 
-        StopCheckOutNotification = 4
+        [Description("Checkout Notification")]
+        StopCheckOutNotification = 4,
+
+        [Description("Reached Working Hours")]
+        StopReachedWorkingHoursNotification = 5
     }
 }

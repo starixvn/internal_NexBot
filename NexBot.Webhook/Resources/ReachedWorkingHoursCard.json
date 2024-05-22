@@ -18,8 +18,7 @@
                             "weight": "bolder",
                             "wrap": false,
                             "style": "heading",
-                            "size": "Large",
-                            "color": "warning"
+                            "size": "Large"
                         }
                     ]
                 },
@@ -55,7 +54,7 @@
                 "Dear ",
                 {
                     "type": "TextRun",
-                    "text": "${NickName}",
+                    "text": "${Nickname}",
                     "weight": "bolder"
                 }
             ]
@@ -69,12 +68,12 @@
                     "text": "${WorkingHours}",
                     "weight": "bolder"
                 },
-                " working hours for today. Please don't forget to ",
+                " working hours today. Organize your work and relax after a productivity working day. Remember to ",
                 {
                     "type": "TextRun",
-                    "text": "➥checkout",
+                    "text": "✔CHECKOUT",
                     "color": "good",
-                    "size": "large",
+                    "size": "medium",
                     "weight": "bolder"
                 },
                 " before leaving the office."
