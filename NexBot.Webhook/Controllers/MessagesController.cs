@@ -2,11 +2,13 @@
 {
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
+    using Newtonsoft.Json;
+    using NexBot.Core.Services.Interfaces;
     using NexBot.Models;
     using NexBot.Services.Interfaces;
 
     [Route("api/[controller]/[action]")]
-    public class MessagesController(IMessageService messageService) : Controller
+    public class MessagesController(IMessageService messageService, ILogProviderService logService) : Controller
     {
         [HttpPost]
         public async Task Forward(string conversationId, string message)
@@ -28,18 +30,32 @@
         [HttpPost]
         public async Task CheckoutNotification(CheckoutRecord record)
         {
-            if (record is not null)
+            try
             {
-                await messageService.CheckoutNotificationAsync(record);
+                if (record is not null)
+                {
+                    await messageService.CheckoutNotificationAsync(record);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                await logService.SentryErrorAsync(JsonConvert.SerializeObject(record));
             }
         }
 
         [HttpPost]
         public async Task ReachedWorkingHoursNotification(ReachedWorkingHours reachedWorkingHours)
         {
-            if (reachedWorkingHours is not null)
+            try
             {
-                await messageService.ReachedWorkingHoursAsync(reachedWorkingHours);
+                if (reachedWorkingHours is not null)
+                {
+                    await messageService.ReachedWorkingHoursAsync(reachedWorkingHours);
+                }
+            }
+            catch (System.Exception)
+            {
+                await logService.SentryErrorAsync(JsonConvert.SerializeObject(reachedWorkingHours));
             }
         }
     }
