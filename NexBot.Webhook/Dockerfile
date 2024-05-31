@@ -15,9 +15,11 @@ dotnet restore "NexBot.Webhook/NexBot.csproj"
 COPY . .
 
 WORKDIR "/src/NexBot.Webhook"
+RUN sed -i 's/DEFAULT@SECLEVEL=2/DEFAULT@SECLEVEL=1/g' /etc/ssl/openssl.cnf
 
 RUN --mount=type=cache,target=/root/.nuget/packages \
 dotnet publish -r linux-x64 --self-contained false -o /app
+
 
 FROM hub.nexdev.net/base/dotnet/core/aspnet:8.0-alpine AS base
 

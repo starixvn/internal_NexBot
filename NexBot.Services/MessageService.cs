@@ -72,7 +72,11 @@
             try
             {
                 var conversationModel = await conversationService.GetConversationById(conversationId);
-                if (conversationModel is not null)
+                if (conversationModel is null)
+                {
+                    logProviderService.LogFileMessage($"============= ConversationID: {conversationId}. does not existed ==================");
+                }
+                else
                 {
                     var conversationInfo = GetConversationReference(conversationModel);
                     var activity = CreateMessageActivity(conversationInfo);
@@ -84,7 +88,6 @@
             catch (Exception ex)
             {
                 await logProviderService.SentryErrorAsync($"ConversationID: {conversationId}. Text = {messageText}", ex);
-                throw;
             }
         }
 
