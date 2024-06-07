@@ -334,7 +334,6 @@
                 await SendAdminAsync(
                     $"Error happen in client with ConversationId: {conversationReference.Conversation.Id} & Message: {activity.AsMessageActivity().Text}\n\n" +
                     $"Exception: {ex.Message}");
-                throw ex;
             }
         }
 

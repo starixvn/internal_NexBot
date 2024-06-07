@@ -1,6 +1,7 @@
 ﻿namespace NexBot
 {
     using System;
+    using System.Linq;
     using Microsoft.Bot.Builder;
     using Microsoft.Bot.Builder.Integration.AspNet.Core;
     using Microsoft.Bot.Connector.Authentication;
@@ -30,6 +31,14 @@
                     $"To: {turnContext.Activity.Recipient?.Id}, name: {turnContext.Activity.Recipient?.Name}"
                     , exception);
 
+                if (turnContext.Activity is not null &&
+                turnContext.Activity.ChannelId.Equals("msteams") &&
+                turnContext.Activity.Attachments is not null &&
+                turnContext.Activity.Attachments.Any())
+                {
+                    var adaptiveCard = turnContext.Activity.Attachments.FirstOrDefault();
+                    await logService.SentryErrorAsync(JsonConvert.SerializeObject(adaptiveCard));
+                }
                 // Send a message to the user
                 //var errorMessageText = "The bot encountered an error or bug. To continue to run this bot, please fix the bot source code.";
                 //var errorMessage = MessageFactory.Text(errorMessageText, errorMessageText, InputHints.IgnoringInput);
@@ -48,7 +57,7 @@
                         await logService.SentryErrorAsync($"Exception caught on attempting to Delete ConversationState : {e.Message}", e);
                     }
                 }
-
+                throw exception;
                 // Send a trace activity, which will be displayed in the Bot Framework Emulator
                 //await turnContext.TraceActivityAsync("OnTurnError Trace", exception.Message, "https://www.botframework.com/schemas/error", "TurnError");
             };
