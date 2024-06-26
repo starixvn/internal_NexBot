@@ -19,5 +19,7 @@
         Task CheckoutNotificationAsync(CheckoutRecord record);
 
         Task ReachedWorkingHoursAsync(ReachedWorkingHours reachedWorkingHours);
+
+        Task RemindApproveMultiplePendingRequests(PendingRequest request);
     }
 }

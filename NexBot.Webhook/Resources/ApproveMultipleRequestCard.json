@@ -1,0 +1,233 @@
+﻿{
+    "type": "AdaptiveCard",
+    "body": [
+        {
+            "type": "RichTextBlock",
+            "inlines": [
+                "Dear ",
+                {
+                    "type": "TextRun",
+                    "color": "good",
+                    "text": "${ApproverNickname}",
+                    "weight": "bolder"
+                }
+            ]
+        },
+        {
+            "type": "RichTextBlock",
+            "inlines": [
+                "This is a message to inform you that you have ",
+                {
+                    "type": "TextRun",
+                    "text": "${TotalRequest} request(s)",
+                    "weight": "bolder"
+                },
+                " need approved as following:"
+            ]
+        },
+        {
+            "type": "Table",
+            "firstRowAsHeader": true,
+            "columns": [
+                {
+                    "width": 1.2
+                },
+                {
+                    "width": 1.2
+                },
+                {
+                    "width": 3
+                }
+            ],
+            "rows": [
+                {
+                    "type": "TableRow",
+                    "cells": [
+                        {
+                            "type": "TableCell",
+                            "verticalContentAlignment": "center",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "English Name",
+                                    "wrap": true,
+                                    "weight": "Bolder",
+                                    "horizontalAlignment": "center"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "TableCell",
+                            "verticalContentAlignment": "center",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "Request",
+                                    "wrap": true,
+                                    "weight": "Bolder",
+                                    "horizontalAlignment": "center"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "TableCell",
+                            "verticalContentAlignment": "center",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "Details",
+                                    "wrap": true,
+                                    "weight": "Bolder",
+                                    "horizontalAlignment": "center"
+                                }
+                            ]
+                        }
+                    ],
+                    "style": "accent"
+                },
+                {
+                    "$data": "${Requests}",
+                    "type": "TableRow",
+                    "cells": [
+                        {
+                            "type": "TableCell",
+                            "verticalContentAlignment": "center",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "${Nickname}",
+                                    "wrap": true,
+                                    "weight": "Bolder",
+                                    "horizontalAlignment": "center"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "TableCell",
+                            "verticalContentAlignment": "center",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "${RequestType}",
+                                    "wrap": true,
+                                    "weight": "Bolder",
+                                    "horizontalAlignment": "center"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "TableCell",
+                            "verticalContentAlignment": "center",
+                            "$when": "${RequestType == 'Check Out' || RequestType == 'Check In'}",
+                            "items": [
+                                {
+                                    "type": "RichTextBlock",
+                                    "inlines": [
+                                        {
+                                            "type": "TextRun",
+                                            "text": "- Date: "
+                                        },
+                                        {
+                                            "type": "TextRun",
+                                            "text": "${DateDetails} ",
+                                            "color": "good",
+                                            "weight": "bolder"
+                                        },
+                                        {
+                                            "type": "TextRun",
+                                            "text": "- ${FromDate} ",
+                                            "weight": "bolder"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "TableCell",
+                            "verticalContentAlignment": "center",
+                            "$when": "${RequestType != 'Check Out' && RequestType != 'Check In'}",
+                            "items": [
+                                {
+                                    "type": "RichTextBlock",
+                                    "inlines": [
+                                        {
+                                            "type": "TextRun",
+                                            "text": "- Date: "
+                                        },
+                                        {
+                                            "type": "TextRun",
+                                            "text": "${DateDetails}",
+                                            "weight": "bolder"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "RichTextBlock",
+                                    "inlines": [
+                                        {
+                                            "type": "TextRun",
+                                            "text": "- Total days: "
+                                        },
+                                        {
+                                            "type": "TextRun",
+                                            "text": "${TotalDays}",
+                                            "weight": "bolder"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "RichTextBlock",
+                                    "inlines": [
+                                        {
+                                            "type": "TextRun",
+                                            "text": "- Remark: "
+                                        },
+                                        {
+                                            "type": "TextRun",
+                                            "text": "${Remark}",
+                                            "weight": "bolder"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                       
+                    ]
+                }
+            ]
+        }
+
+    ],
+    "actions": [
+        {
+            "type": "Action.Submit",
+            "style": "positive",
+            "title": "✅ Approve All",
+            "data": {
+                "Type": 1,
+                "ResponseData": {
+                    "RequestId": "${RequestIds}",
+                    "Command": "Approve",
+                    "CallBackUrl": "${CallBackUrl}",
+                    "ProcessedBy": "${ApproverId}"
+                }
+            }
+        },
+        {
+            "type": "Action.Submit",
+            "style": "destructive",
+            "title": "❌ Reject All",
+            "data": {
+                "Type": 1,
+                "ResponseData": {
+                    "RequestId": "${RequestIds}",
+                    "Command": "Reject",
+                    "CallBackUrl": "${CallBackUrl}",
+                    "ProcessedBy": "${ApproverId}"
+                }
+            }
+        }
+    ],
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.6"
+}

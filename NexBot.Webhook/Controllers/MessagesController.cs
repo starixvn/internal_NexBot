@@ -1,10 +1,12 @@
 ﻿namespace NexBot.Controllers
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
     using NexBot.Core.Services.Interfaces;
     using NexBot.Models;
+    using NexBot.Models.Request;
     using NexBot.Services.Interfaces;
 
     [Route("api/[controller]/[action]")]
@@ -30,32 +32,28 @@
         [HttpPost]
         public async Task CheckoutNotification(CheckoutRecord record)
         {
-            try
+            if (record is not null)
             {
-                if (record is not null)
-                {
-                    await messageService.CheckoutNotificationAsync(record);
-                }
-            }
-            catch (System.Exception ex)
-            {
-                await logService.SentryErrorAsync(JsonConvert.SerializeObject(record));
+                await messageService.CheckoutNotificationAsync(record);
             }
         }
 
         [HttpPost]
         public async Task ReachedWorkingHoursNotification(ReachedWorkingHours reachedWorkingHours)
         {
-            try
+            if (reachedWorkingHours is not null)
             {
-                if (reachedWorkingHours is not null)
-                {
-                    await messageService.ReachedWorkingHoursAsync(reachedWorkingHours);
-                }
+                await messageService.ReachedWorkingHoursAsync(reachedWorkingHours);
             }
-            catch (System.Exception)
+        }
+
+        [HttpPost]
+        public async Task RemindApproveMultipleRequest(PendingRequest request)
+        {
+            if (request is not null)
             {
-                await logService.SentryErrorAsync(JsonConvert.SerializeObject(reachedWorkingHours));
+                request.Requests = JsonConvert.DeserializeObject<IEnumerable<MemberRequest>>(request.StringRequests);
+                await messageService.RemindApproveMultiplePendingRequests(request);
             }
         }
     }

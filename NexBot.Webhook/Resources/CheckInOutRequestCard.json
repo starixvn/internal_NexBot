@@ -1,95 +1,95 @@
 {
-  "type": "AdaptiveCard",
-  "body": [
+    "type": "AdaptiveCard",
+    "body": [
 
-    {
-      "type": "ColumnSet",
-      "columns": [
         {
-          "type": "Column",
-          "items": [
-            {
-              "type": "Image",
-              "style": "Person",
-              "url": "${AvatarUrl}",
-              "altText": "${Nick}",
-              "size": "Small"
-            }
-          ],
-          "width": "auto"
+            "type": "ColumnSet",
+            "columns": [
+                {
+                    "type": "Column",
+                    "items": [
+                        {
+                            "type": "Image",
+                            "style": "Person",
+                            "url": "${AvatarUrl}",
+                            "altText": "${Nick}",
+                            "size": "Small"
+                        }
+                    ],
+                    "width": "auto"
+                },
+                {
+                    "type": "Column",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "weight": "Bolder",
+                            "text": "${Nick}",
+                            "wrap": true
+                        },
+                        {
+                            "type": "TextBlock",
+                            "spacing": "None",
+                            "text": "${CreatedDate}",
+                            "isSubtle": true,
+                            "wrap": true
+                        }
+                    ],
+                    "width": "stretch"
+                }
+            ]
         },
         {
-          "type": "Column",
-          "items": [
-            {
-              "type": "TextBlock",
-              "weight": "Bolder",
-              "text": "${Nick}",
-              "wrap": true
-            },
-            {
-              "type": "TextBlock",
-              "spacing": "None",
-              "text": "${CreatedDate}",
-              "isSubtle": true,
-              "wrap": true
-            }
-          ],
-          "width": "stretch"
+            "type": "TextBlock",
+            "text": "Dear ${Supervisor}, This is to inform you about your member, ${Nick} (${FullName}) had a ${RequestType} request (#${RequestId}):",
+            "wrap": true
+        },
+        {
+            "type": "FactSet",
+            "facts": [
+                {
+                    "title": "- Date:",
+                    "value": "${RequestDate}"
+                },
+                {
+                    "title": "- Shift:",
+                    "value": "${Shift}"
+                },
+                {
+                    "title": "- Time:",
+                    "value": "${Time}"
+                }
+            ]
         }
-      ]
-    },
-    {
-      "type": "TextBlock",
-      "text": "Dear ${Supervisor}, This is to inform you about your member, ${Nick} (${FullName}) had a ${RequestType} request (#${RequestId}):",
-      "wrap": true
-    },
-    {
-      "type": "FactSet",
-      "facts": [
-        {
-          "title": "- Date:",
-          "value": "${RequestDate}"
-        },
-        {
-          "title": "- Shift:",
-          "value": "${Shift}"
-        },
-        {
-          "title": "- Time:",
-          "value": "${Time}"
-        }
-      ]
-    }
-  ],
-    "actions": [
-      {
-        "type": "Action.Submit",
-        "title": "Approve",
-        "data": {
-            "Type": 1,
-            "ResponseData": {
-              "RequestId": "${RequestId}",
-              "Command": "Approve",
-              "CallBackUrl": "${CallBackUrl}",
-              "ProcessedBy": "${ProcessedBy}"
-            }
-          }
-        },
-      {
-        "type": "Action.Submit",
-        "title": "Reject",
-        "data": {
-          "Type": 1,
-          "ResponseData": {
-            "RequestId": "${RequestId}",
-            "Command": "Reject",
-            "CallBackUrl": "${CallBackUrl}",
-            "ProcessedBy": "${ProcessedBy}"
-          }
-        }
-      }
     ],
-  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-  "version": "1.6"
+    "actions": [
+        {
+            "type": "Action.Submit",
+            "title": "Approve",
+            "data": {
+                "Type": 1,
+                "ResponseData": {
+                    "RequestId": "${RequestId}",
+                    "Command": "Approve",
+                    "CallBackUrl": "${CallBackUrl}",
+                    "ProcessedBy": "${ProcessedBy}"
+                }
+            }
+        },
+        {
+            "type": "Action.Submit",
+            "title": "Reject",
+            "data": {
+                "Type": 1,
+                "ResponseData": {
+                    "RequestId": "${RequestId}",
+                    "Command": "Reject",
+                    "CallBackUrl": "${CallBackUrl}",
+                    "ProcessedBy": "${ProcessedBy}"
+                }
+            }
+        }
+    ],
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.6"
 }

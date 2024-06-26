@@ -1,52 +1,52 @@
 {
-  "type": "AdaptiveCard",
-  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-  "version": "1.6",
-  "body": [
-    {
-      "type": "TextBlock",
-      "text": "🥦🥬 Đặt cơm chay 🥦🥬",
-      "wrap": true,
-      "style": "heading"
-    },
-    {
-      "type": "TextBlock",
-      "text": "${MessageContent}",
-      "size": "Medium",
-      "wrap": true
-    },
-    {
-      "type": "TextBlock",
-      "text": "Nếu bạn không muốn nhận loại thông báo này trong tương lai vui lòng click vào nút [Dừng thông báo về sau]",
-      "size": "Small",
-      "wrap": true
-    }
-  ],
-  "actions": [
-    {
-      "type": "Action.Submit",
-      "title": "Đặt Cơm Chay",
-      "role": "Button",
-      "data": {
-        "Type": 2,
-        "ResponseData": {
-          "EmpId": "${EmpId}",
-          "CompanyId": "${CompanyId}",
-          "CallBackUrl": "${CallBackUrl}",
-          "OnDate": "${OnDate}"
+    "type": "AdaptiveCard",
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.6",
+    "body": [
+        {
+            "type": "TextBlock",
+            "text": "🥦🥬 Đặt cơm chay 🥦🥬",
+            "wrap": true,
+            "style": "heading"
+        },
+        {
+            "type": "TextBlock",
+            "text": "${MessageContent}",
+            "size": "Medium",
+            "wrap": true
+        },
+        {
+            "type": "TextBlock",
+            "text": "Nếu bạn không muốn nhận loại thông báo này trong tương lai vui lòng click vào nút [Dừng thông báo về sau]",
+            "size": "Small",
+            "wrap": true
         }
-      }
-    },
-    {
-      "type": "Action.Submit",
-      "title": "Dừng thông báo về sau",
-      "mode": "secondary",
-      "style": "positive",
-      "data": {
-        "Type": 3,
-        "ResponseData": {
+    ],
+    "actions": [
+        {
+            "type": "Action.Submit",
+            "title": "Đặt Cơm Chay",
+            "role": "Button",
+            "data": {
+                "Type": 2,
+                "ResponseData": {
+                    "EmpId": "${EmpId}",
+                    "CompanyId": "${CompanyId}",
+                    "CallBackUrl": "${CallBackUrl}",
+                    "OnDate": "${OnDate}"
+                }
+            }
+        },
+        {
+            "type": "Action.Submit",
+            "title": "Dừng thông báo về sau",
+            "mode": "secondary",
+            "style": "positive",
+            "data": {
+                "Type": 3,
+                "ResponseData": {
+                }
+            }
         }
-      }
-    }
-  ]
+    ]
 }

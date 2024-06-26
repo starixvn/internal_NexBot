@@ -384,5 +384,24 @@
                 await AddMessageLog(activity);
             }
         }
+
+        public async Task RemindApproveMultiplePendingRequests(PendingRequest request)
+        {
+            var conversation = await conversationService.GetConversationById(request.ConversationId);
+            if (conversation is not null)
+            {
+                var conversationReference = GetConversationReference(conversation);
+                var activity = CreateMessageActivity(conversationReference);
+                if (conversation.ChannelId.Equals(Constants.TeamsChannel))
+                {
+                    Attachment attachment = AdaptiveCardHelper.GenerateAdaptiveCardTeamsChannel(
+                         Path.Combine(".", "Resources", "ApproveMultipleRequestCard.json"),
+                         request);
+                    activity.Attachments.Add(attachment);
+                    await SendMessageAsync(conversationReference, activity);
+                    await AddMessageLog(activity);
+                }
+            }
+        }
     }
 }
