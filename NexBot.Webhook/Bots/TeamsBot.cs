@@ -199,6 +199,10 @@
                         await HandleStopReceiveNotificationByType(turnContext, MessageCategoryEnum.ReminderReachedWorkingHour, SubmitAction.StopReachedWorkingHoursNotification);
                         break;
 
+                    case (int)SubmitAction.ApproveMultipleRequests:
+                        await HandleSubmitProcessMultipleRequests(turnContext, submitData);
+                        break;
+
                     default:
                         break;
                 }
@@ -266,6 +270,13 @@
         {
             var processRequest = JsonConvert.DeserializeObject<ProcessRequest>(submitData.ResponseData.ToString());
             var result = await requestService.ProcessRequest(processRequest);
+            await turnContext.SendActivityAsync(MessageFactory.Text(result));
+        }
+
+        private async Task HandleSubmitProcessMultipleRequests(ITurnContext<IMessageActivity> turnContext, AdaptiveSubmit submitData)
+        {
+            var processRequest = JsonConvert.DeserializeObject<ProcessRequest>(submitData.ResponseData.ToString());
+            var result = await requestService.ProcessMultipleRequests(processRequest);
             await turnContext.SendActivityAsync(MessageFactory.Text(result));
         }
 

@@ -8,5 +8,7 @@
         Task<string> ProcessRequest(string commandRequest, string command);
 
         Task<string> ProcessRequest(ProcessRequest processRequest);
+
+        Task<string> ProcessMultipleRequests(ProcessRequest processRequest);
     }
 }

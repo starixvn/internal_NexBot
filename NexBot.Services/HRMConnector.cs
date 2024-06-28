@@ -1,6 +1,8 @@
 ﻿namespace NexBot.Services
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
@@ -44,6 +46,40 @@
             }
 
             return commandResult;
+        }
+
+        public async Task<IEnumerable<ProcessRequestResult>> SendMultipleRequest(ProcessRequest processRequest)
+        {
+            var baseUrl = processRequest.CallBackUrl;
+            var token = await GetTokenAsync(baseUrl);
+            var processResults = new List<ProcessRequestResult>();
+            var httpClient = httpClientFactory.CreateClient();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var url = new Uri($"{baseUrl}/Request/ProcessMultipleRequest?requestIds={processRequest.RequestIds}&command={processRequest.Command}&processedBy={processRequest.ProcessedBy}");
+
+            using (var request = new HttpRequestMessage(HttpMethod.Post, url))
+            {
+                using (var response = await httpClient.SendAsync(request))
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        processResults = JsonConvert.DeserializeObject<List<ProcessRequestResult>>(result);
+                    }
+                    else
+                    {
+                        var requestIds = processRequest.RequestIds.Split(",");
+                        processResults = requestIds.Select(id => new ProcessRequestResult
+                        {
+                            RequestId = long.Parse(id),
+                            IsSuccessful = false,
+                            Message = response.ReasonPhrase
+                        }).ToList();
+                    }
+                }
+            }
+            return processResults;
         }
 
         private async Task<string> GetTokenAsync(string baseUrl)

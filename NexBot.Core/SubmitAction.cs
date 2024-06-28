@@ -14,6 +14,9 @@ namespace NexBot.Core
         StopCheckOutNotification = 4,
 
         [Description("Reached Working Hours")]
-        StopReachedWorkingHoursNotification = 5
+        StopReachedWorkingHoursNotification = 5,
+
+        [Description("Approve multiple requests")]
+        ApproveMultipleRequests = 6
     }
 }

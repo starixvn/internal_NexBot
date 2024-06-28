@@ -1,6 +1,8 @@
 ﻿namespace NexBot.Services
 {
     using System;
+    using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
     using NexBot.Core;
     using NexBot.Core.Services.Interfaces;
@@ -61,5 +63,29 @@
 
         private static string GetCommandText(string command)
             => command.Equals(Constants.ApproveRequestCommand, StringComparison.CurrentCultureIgnoreCase) ? "approved" : "rejected";
+
+        public async Task<string> ProcessMultipleRequests(ProcessRequest processRequest)
+        {
+            StringBuilder resultMessage = new StringBuilder();
+            try
+            {
+                var processResults = await hrmConnector.SendMultipleRequest(processRequest);
+                resultMessage.Append(string.Format(successMessage,
+                    string.Join(", ", processResults.Where(r => r.IsSuccessful).Select(r => r.RequestId)),
+                    GetCommandText(processRequest.Command)));
+                if (processResults.Any(i => !i.IsSuccessful))
+                {
+                    resultMessage.AppendLine(string.Format(failMessage,
+                    string.Join(", ", processResults.Where(r => !r.IsSuccessful).Select(r => r.RequestId)),
+                    GetCommandText(processRequest.Command)));
+                }
+            }
+            catch (Exception exception)
+            {
+                await logProviderService.SentryErrorAsync(exception.Message, exception);
+            }
+
+            return resultMessage.ToString();
+        }
     }
 }

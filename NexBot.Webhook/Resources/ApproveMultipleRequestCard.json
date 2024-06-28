@@ -3,12 +3,12 @@
     "body": [
         {
             "type": "RichTextBlock",
+            "spacing": "none",
             "inlines": [
                 "Dear ",
                 {
                     "type": "TextRun",
-                    "color": "good",
-                    "text": "${ApproverNickname}",
+                    "text": "${ApproverNickname},",
                     "weight": "bolder"
                 }
             ]
@@ -16,13 +16,13 @@
         {
             "type": "RichTextBlock",
             "inlines": [
-                "This is a message to inform you that you have ",
+                "You have ",
                 {
                     "type": "TextRun",
-                    "text": "${TotalRequest} request(s)",
+                    "text": "${TotalRequest} pending request(s)",
                     "weight": "bolder"
                 },
-                " need approved as following:"
+                " awaiting for your approval. Please find at the following list:"
             ]
         },
         {
@@ -30,13 +30,7 @@
             "firstRowAsHeader": true,
             "columns": [
                 {
-                    "width": 1.2
-                },
-                {
-                    "width": 1.2
-                },
-                {
-                    "width": 3
+                    "width": 1
                 }
             ],
             "rows": [
@@ -49,33 +43,7 @@
                             "items": [
                                 {
                                     "type": "TextBlock",
-                                    "text": "English Name",
-                                    "wrap": true,
-                                    "weight": "Bolder",
-                                    "horizontalAlignment": "center"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "TableCell",
-                            "verticalContentAlignment": "center",
-                            "items": [
-                                {
-                                    "type": "TextBlock",
-                                    "text": "Request",
-                                    "wrap": true,
-                                    "weight": "Bolder",
-                                    "horizontalAlignment": "center"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "TableCell",
-                            "verticalContentAlignment": "center",
-                            "items": [
-                                {
-                                    "type": "TextBlock",
-                                    "text": "Details",
+                                    "text": "Requests",
                                     "wrap": true,
                                     "weight": "Bolder",
                                     "horizontalAlignment": "center"
@@ -94,109 +62,164 @@
                             "verticalContentAlignment": "center",
                             "items": [
                                 {
-                                    "type": "TextBlock",
-                                    "text": "${Nickname}",
-                                    "wrap": true,
-                                    "weight": "Bolder",
-                                    "horizontalAlignment": "center"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "TableCell",
-                            "verticalContentAlignment": "center",
-                            "items": [
-                                {
-                                    "type": "TextBlock",
-                                    "text": "${RequestType}",
-                                    "wrap": true,
-                                    "weight": "Bolder",
-                                    "horizontalAlignment": "center"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "TableCell",
-                            "verticalContentAlignment": "center",
-                            "$when": "${RequestType == 'Check Out' || RequestType == 'Check In'}",
-                            "items": [
-                                {
-                                    "type": "RichTextBlock",
-                                    "inlines": [
+                                    "type": "ColumnSet",
+                                    "spacing": "medium",
+                                    "columns": [
                                         {
-                                            "type": "TextRun",
-                                            "text": "- Date: "
+                                            "type": "Column",
+                                            "width": "43px",
+                                            "verticalContentAlignment": "center",
+                                            "spacing": "none",
+                                            "items": [
+                                                {
+                                                    "type": "Image",
+                                                    "url": "${Avatar}",
+                                                    "altText": "${NickName}",
+                                                    "size": "auto"
+                                                }                                                
+                                            ]
                                         },
                                         {
-                                            "type": "TextRun",
-                                            "text": "${DateDetails} ",
-                                            "color": "good",
-                                            "weight": "bolder"
+                                            "type": "Column",
+                                            "width": "stretch",
+                                            "spacing": "small",
+                                            "items": [
+                                                {
+                                                    "type": "RichTextBlock",
+                                                    "inlines": [
+                                                        {
+                                                            "type": "TextRun",
+                                                            "text": "${NickName}",
+                                                            "weight": "bolder"
+                                                        },
+                                                        {
+                                                            "type": "TextRun",
+                                                            "text": " - request #${RequestId}",
+                                                            "size": "small"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "RichTextBlock",
+                                                    "spacing": "none",
+                                                    "inlines": [
+                                                        {
+                                                            "type": "TextRun",
+                                                            "text": "Created: ${CreatedDate}",
+                                                            "italic": true,
+                                                            "isSubtle": true,
+                                                            "size": "small"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "RichTextBlock",
+                                                    "spacing": "none",
+                                                    "inlines": [
+                                                        {
+                                                            "type": "TextRun",
+                                                            "text": "⭒ Type: "
+                                                        },
+                                                        {
+                                                            "type": "TextRun",
+                                                            "text": "${RequestType}",
+                                                            "color": "${if(IsLeaveRequest == true, 'accent', 'good')}",
+                                                            "weight": "bolder"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "RichTextBlock",
+                                                    "spacing": "none",
+                                                    "inlines": [
+                                                        {
+                                                            "type": "TextRun",
+                                                            "text": "⭒ Date: "
+                                                        },
+                                                        {
+                                                            "type": "TextRun",
+                                                            "text": "${DateDetails} ",
+                                                            "color": "${if(IsLeaveRequest == true, 'accent', 'good')}",
+                                                            "weight": "bolder"
+                                                        },
+                                                        {
+                                                            "type": "TextRun",
+                                                            "$when": "${IsLeaveRequest == false}",
+                                                            "text": "on "
+                                                        },
+                                                        {
+                                                            "type": "TextRun",
+                                                            "text": "${if(IsLeaveRequest == true, TotalDays, FromDate)}",
+                                                            "isSubtle": "${IsLeaveRequest == true}",
+                                                            "weight": "bolder"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "RichTextBlock",
+                                                    "spacing": "none",
+                                                    "$when": "${IsLeaveRequest == true}",
+                                                    "inlines": [
+                                                        {
+                                                            "type": "TextRun",
+                                                            "text": "⭒ Remark: ${Remark}"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
                                         },
                                         {
-                                            "type": "TextRun",
-                                            "text": "- ${FromDate} ",
-                                            "weight": "bolder"
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "type": "TableCell",
-                            "verticalContentAlignment": "center",
-                            "$when": "${RequestType != 'Check Out' && RequestType != 'Check In'}",
-                            "items": [
-                                {
-                                    "type": "RichTextBlock",
-                                    "inlines": [
-                                        {
-                                            "type": "TextRun",
-                                            "text": "- Date: "
-                                        },
-                                        {
-                                            "type": "TextRun",
-                                            "text": "${DateDetails}",
-                                            "weight": "bolder"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "RichTextBlock",
-                                    "inlines": [
-                                        {
-                                            "type": "TextRun",
-                                            "text": "- Total days: "
-                                        },
-                                        {
-                                            "type": "TextRun",
-                                            "text": "${TotalDays}",
-                                            "weight": "bolder"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "RichTextBlock",
-                                    "inlines": [
-                                        {
-                                            "type": "TextRun",
-                                            "text": "- Remark: "
-                                        },
-                                        {
-                                            "type": "TextRun",
-                                            "text": "${Remark}",
-                                            "weight": "bolder"
+                                            "type": "Column",
+                                            "width": "20px",
+                                            "spacing": "none",
+                                            "items": [
+                                                {
+                                                    "type": "ActionSet",
+                                                    "spacing": "none",
+                                                    "actions": [
+                                                        {
+                                                            "type": "Action.Submit",
+                                                            "style": "positive",
+                                                            "title": "✅ Approve",
+                                                            "mode": "secondary",
+                                                            "data": {
+                                                                "Type": 1,
+                                                                "ResponseData": {
+                                                                    "RequestId": "${RequestId}",
+                                                                    "Command": "Approve",
+                                                                    "CallBackUrl": "${CallbackUrl}",
+                                                                    "ProcessedBy": "${ApproverId}"
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            "type": "Action.Submit",
+                                                            "style": "destructive",
+                                                            "title": "❌ Reject",
+                                                            "mode": "secondary",
+                                                            "data": {
+                                                                "Type": 1,
+                                                                "ResponseData": {
+                                                                    "RequestId": "${RequestId}",
+                                                                    "Command": "Reject",
+                                                                    "CallBackUrl": "${CallbackUrl}",
+                                                                    "ProcessedBy": "${ApproverId}"
+                                                                }
+                                                            }
+                                                        }
+
+                                                    ]
+                                                }
+                                            ]
                                         }
                                     ]
                                 }
                             ]
                         }
-                       
                     ]
                 }
             ]
         }
-
     ],
     "actions": [
         {
@@ -204,25 +227,25 @@
             "style": "positive",
             "title": "✅ Approve All",
             "data": {
-                "Type": 1,
+                "Type": 6,
                 "ResponseData": {
-                    "RequestId": "${RequestIds}",
+                    "RequestIds": "${RequestIds}",
                     "Command": "Approve",
-                    "CallBackUrl": "${CallBackUrl}",
+                    "CallBackUrl": "${CallbackUrl}",
                     "ProcessedBy": "${ApproverId}"
                 }
             }
         },
         {
             "type": "Action.Submit",
-            "style": "destructive",
+            "style": "default",
             "title": "❌ Reject All",
             "data": {
-                "Type": 1,
+                "Type": 6,
                 "ResponseData": {
-                    "RequestId": "${RequestIds}",
+                    "RequestIds": "${RequestIds}",
                     "Command": "Reject",
-                    "CallBackUrl": "${CallBackUrl}",
+                    "CallBackUrl": "${CallbackUrl}",
                     "ProcessedBy": "${ApproverId}"
                 }
             }
