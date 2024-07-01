@@ -12,8 +12,8 @@
     public class RequestService(IHRMConnector hrmConnector,
         ILogProviderService logProviderService) : IRequestService
     {
-        private const string successMessage = "Request #{0} has been {1} successfully!";
-        private const string failMessage = "Request #{0} has been {1} unsuccessfully! Please contact Admin for detail";
+        private const string successMessage = "Request **{0}** has been **{1}** successfully!";
+        private const string failMessage = "Request **{0}** has been **{1}** unsuccessfully! Please contact Admin for detail";
 
         public async Task<string> ProcessRequest(string commandRequest, string command)
         {
@@ -57,7 +57,7 @@
                 resultMessage = failMessage;
             }
 
-            var result = string.Format(resultMessage, processRequest.RequestId, GetCommandText(processRequest.Command));
+            var result = string.Format(resultMessage, "#" + processRequest.RequestId, GetCommandText(processRequest.Command));
             return result;
         }
 
@@ -66,17 +66,26 @@
 
         public async Task<string> ProcessMultipleRequests(ProcessRequest processRequest)
         {
-            StringBuilder resultMessage = new StringBuilder();
+            StringBuilder resultMessage = new();
             try
             {
                 var processResults = await hrmConnector.SendMultipleRequest(processRequest);
-                resultMessage.Append(string.Format(successMessage,
-                    string.Join(", ", processResults.Where(r => r.IsSuccessful).Select(r => r.RequestId)),
-                    GetCommandText(processRequest.Command)));
+                if (processResults.Any(i => i.IsSuccessful))
+                {
+                    resultMessage.Append(string.Format(successMessage,
+                                        string.Join(", ", processResults.Where(r => r.IsSuccessful).Select(r => "#" + r.RequestId)),
+                                        GetCommandText(processRequest.Command)));
+                    if (processResults.Any(i => !i.IsSuccessful))
+                    {
+                        resultMessage.Append(Environment.NewLine);
+                        resultMessage.Append(Environment.NewLine);
+                    }
+                }
+
                 if (processResults.Any(i => !i.IsSuccessful))
                 {
                     resultMessage.AppendLine(string.Format(failMessage,
-                    string.Join(", ", processResults.Where(r => !r.IsSuccessful).Select(r => r.RequestId)),
+                    string.Join(", ", processResults.Where(r => !r.IsSuccessful).Select(r => "#" + r.RequestId)),
                     GetCommandText(processRequest.Command)));
                 }
             }
