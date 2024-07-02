@@ -30,11 +30,20 @@
         }
 
         [HttpPost]
-        public async Task CheckoutNotification(CheckoutRecord record)
+        public async Task CheckoutNotification(TimesheetRecord record)
         {
             if (record is not null)
             {
                 await messageService.CheckoutNotificationAsync(record);
+            }
+        }
+
+        [HttpPost]
+        public async Task CheckinNotification(TimesheetRecord record)
+        {
+            if (record is not null)
+            {
+                await messageService.CheckinNotificationAsync(record);
             }
         }
 
@@ -52,7 +61,6 @@
         {
             if (request is not null)
             {
-                //request.ConversationId = "19:b376b8c7af164c0cba6fdd4f2788a05f@thread.v2";
                 request.Requests = JsonConvert.DeserializeObject<IEnumerable<MemberRequest>>(request.StringRequests);
                 await messageService.RemindApproveMultiplePendingRequests(request);
             }

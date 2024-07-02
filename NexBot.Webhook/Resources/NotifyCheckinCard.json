@@ -1,0 +1,102 @@
+{
+    "type": "AdaptiveCard",
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.5",
+    "body": [
+        {
+            "type": "ColumnSet",
+            "bleed": true,
+            "columns": [
+                {
+                    "type": "Column",
+                    "width": "360px",
+                    "verticalContentAlignment": "center",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "text": "☑️ Checkin Successfully! ",
+                            "weight": "bolder",
+                            "wrap": false,
+                            "style": "heading",
+                            "size": "Large"
+                        }
+                    ]
+                },
+                {
+                    "type": "Column",
+                    "width": "40px",
+                    "rtl": true,
+                    "items": [
+                        {
+                            "type": "ActionSet",
+                            "actions": [
+                                {
+                                    "type": "Action.Submit",
+                                    "title": "Stop receive checkin notification",
+                                    "mode": "secondary",
+                                    "style": "positive",
+                                    "data": {
+                                        "Type": 4,
+                                        "ResponseData": {}
+                                    }
+                                }
+                            ],
+                            "spacing": "none",
+                            "separator": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "TextBlock",
+            "text": "Dear ${NickName}",
+            "size": "Medium",
+            "wrap": true
+        },
+        {
+            "type": "TextBlock",
+            "text": "This is a message to inform you that you just have a \"checkin\" record for today working on the HRM system as below:",
+
+            "size": "Medium",
+            "wrap": true
+        },
+        {
+            "type": "ColumnSet",
+            "bleed": true,
+            "columns": [
+                {
+                    "type": "Column",
+                    "width": "2px"
+                },
+                {
+                    "type": "Column",
+                    "width": "162px",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "text": "⏰ Checkin time:",
+                            "size": "Medium",
+                            "wrap": true,
+                            "weight": "bolder",
+                            "fontType": "default"
+                        }
+                    ]
+                },
+                {
+                    "type": "Column",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "text": "${CheckinTime}",
+                            "size": "medium",
+                            "wrap": true,
+                            "weight": "bolder",
+                            "color": "accent"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

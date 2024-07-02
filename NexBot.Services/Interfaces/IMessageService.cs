@@ -16,7 +16,9 @@
 
         Task ReSendErrorMeesage();
 
-        Task CheckoutNotificationAsync(CheckoutRecord record);
+        Task CheckoutNotificationAsync(TimesheetRecord record);
+
+        Task CheckinNotificationAsync(TimesheetRecord record);
 
         Task ReachedWorkingHoursAsync(ReachedWorkingHours reachedWorkingHours);
 

@@ -337,7 +337,17 @@
             }
         }
 
-        public async Task CheckoutNotificationAsync(CheckoutRecord record)
+        public async Task CheckoutNotificationAsync(TimesheetRecord record)
+        {
+            await TimesheetRecordNotificationAsync(record, "NotifyCheckoutCard.json");
+        }
+
+        public async Task CheckinNotificationAsync(TimesheetRecord record)
+        {
+            await TimesheetRecordNotificationAsync(record, "NotifyCheckinCard.json");
+        }
+
+        private async Task TimesheetRecordNotificationAsync(TimesheetRecord record, string templateName)
         {
             var conversation = await conversationService.GetConversationById(record.ConversationId);
             if (conversation is not null)
@@ -351,7 +361,7 @@
                 else
                 {
                     Attachment attachment = AdaptiveCardHelper.GenerateAdaptiveCardTeamsChannel(
-                        Path.Combine(".", "Resources", "NotifyCheckoutCard.json"),
+                        Path.Combine(".", "Resources", templateName),
                         record);
                     activity.Attachments.Add(attachment);
                 }
