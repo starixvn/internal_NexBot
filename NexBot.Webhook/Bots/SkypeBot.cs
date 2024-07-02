@@ -136,6 +136,25 @@
                     }
                     break;
 
+                case InteractedCommand.stop_notify_checkin:
+                    commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.NotifyCheckIn);
+                    if (commandResult.IsSuccessful)
+                    {
+                        var msg = "Ignored checkin notification successfully! ✅";
+                        var activity = MessageFactory.Text(msg, msg);
+                        await turnContext.SendActivityAsync(activity, cancellationToken);
+                    }
+                    break;
+
+                case InteractedCommand.start_notify_checkin:
+                    commandResult = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.NotifyCheckIn);
+                    if (commandResult.IsSuccessful)
+                    {
+                        var msgResponse = "Resgiter receive checkin notification successfully! ✅";
+                        await turnContext.SendActivityAsync(MessageFactory.Text(msgResponse, msgResponse), cancellationToken);
+                    }
+                    break;
+
                 default:
                     await HandlerOtherMessages(turnContext, cancellationToken);
                     break;

@@ -127,7 +127,7 @@
                             break;
 
                         case InteractedCommand.stop_notify_checkout:
-                            await HandleSubmitStopCheckOutNotification(turnContext);
+                            await HandleStopReceiveNotificationByType(turnContext, MessageCategoryEnum.NotifyCheckOut, SubmitAction.StopCheckOutNotification);
                             break;
 
                         case InteractedCommand.start_notify_checkout:
@@ -135,6 +135,19 @@
                             if (commandResult.IsSuccessful)
                             {
                                 var msgResponse = "Resgiter receive checkout notification successfully! ✅";
+                                await turnContext.SendActivityAsync(MessageFactory.Text(msgResponse, msgResponse), cancellationToken);
+                            }
+                            break;
+
+                        case InteractedCommand.stop_notify_checkin:
+                            await HandleStopReceiveNotificationByType(turnContext, MessageCategoryEnum.NotifyCheckIn, SubmitAction.StopCheckInNotification);
+                            break;
+
+                        case InteractedCommand.start_notify_checkin:
+                            commandResult = await registerMessageService.RemoveIgnoredEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.NotifyCheckIn);
+                            if (commandResult.IsSuccessful)
+                            {
+                                var msgResponse = "Resgiter receive checkin notification successfully! ✅";
                                 await turnContext.SendActivityAsync(MessageFactory.Text(msgResponse, msgResponse), cancellationToken);
                             }
                             break;
@@ -192,11 +205,15 @@
                         break;
 
                     case (int)SubmitAction.StopCheckOutNotification:
-                        await HandleSubmitStopCheckOutNotification(turnContext);
+                        await HandleStopReceiveNotificationByType(turnContext, MessageCategoryEnum.NotifyCheckOut, SubmitAction.StopCheckOutNotification);
                         break;
 
                     case (int)SubmitAction.StopReachedWorkingHoursNotification:
                         await HandleStopReceiveNotificationByType(turnContext, MessageCategoryEnum.ReminderReachedWorkingHour, SubmitAction.StopReachedWorkingHoursNotification);
+                        break;
+
+                    case (int)SubmitAction.StopCheckInNotification:
+                        await HandleStopReceiveNotificationByType(turnContext, MessageCategoryEnum.NotifyCheckIn, SubmitAction.StopCheckInNotification);
                         break;
 
                     case (int)SubmitAction.ApproveMultipleRequests:
@@ -214,7 +231,7 @@
             var commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)messageCategory);
             if (commandResult.IsSuccessful)
             {
-                var msg = $"Ignored message category _{submitAction.Description}_ successfully! Type _help_ to get more information";
+                var msg = $"Ignored message category _{submitAction.Description()}_ successfully! Type _help_ to get more information";
                 var activity = MessageFactory.Text(msg, msg);
                 await turnContext.SendActivityAsync(activity);
             }

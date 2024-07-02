@@ -21,5 +21,9 @@
         public const string start_notify_checkout = "start_notify_checkout";
 
         public const string stop_notify_checkout = "stop_notify_checkout";
+
+        public const string start_notify_checkin = "start_notify_checkin";
+
+        public const string stop_notify_checkin = "stop_notify_checkin";
     }
 }

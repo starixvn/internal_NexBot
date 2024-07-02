@@ -36,7 +36,7 @@
                                     "mode": "secondary",
                                     "style": "positive",
                                     "data": {
-                                        "Type": 4,
+                                        "Type": 7,
                                         "ResponseData": {}
                                     }
                                 }
