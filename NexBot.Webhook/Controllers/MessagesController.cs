@@ -62,6 +62,8 @@
             if (request is not null)
             {
                 request.Requests = JsonConvert.DeserializeObject<IEnumerable<MemberRequest>>(request.StringRequests);
+                logService.LogFileMessage(JsonConvert.SerializeObject(request));
+
                 await messageService.RemindApproveMultiplePendingRequests(request);
             }
         }
