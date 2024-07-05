@@ -144,7 +144,6 @@
                     }
 
                     activity.Attachments.Add(attachment);
-
                     await SendMessageAsync(conversationReference, activity);
                     await AddMessageLog(activity);
                 }
@@ -297,10 +296,21 @@
                 ConversationId = activity.Conversation.Id,
                 FromConversationId = activity.From.Id,
                 FromName = activity.From.Name,
-                MessageContent = BotHelper.GenerateMessage(activity.Text)
+                MessageContent = GetLogContent(activity)
             };
 
             await baseService.ExecuteNonQueryAsync(criteria);
+        }
+
+        private static string GetLogContent(IMessageActivity activity)
+        {
+            string logMsgContent = BotHelper.GenerateMessage(activity.Text);
+            if (activity.ChannelId.Equals(Constants.TeamsChannel)
+                && activity.Attachments is not null && activity.Attachments.Any())
+            {
+                logMsgContent = JsonConvert.SerializeObject(activity.Attachments.FirstOrDefault());
+            }
+            return logMsgContent;
         }
 
         private async Task<IList<Message>> GetMessageLog()
