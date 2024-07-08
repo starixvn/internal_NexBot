@@ -327,15 +327,18 @@
             try
             {
                 var bots = await conversationService.GetBotAsync();
-                var bot = bots.FirstOrDefault(t => t.ChannelName == activity.ChannelId && t.BotName == activity.From.Name);
+                if (bots.Any(t => t.ChannelName == activity.ChannelId && t.BotName == activity.From.Name))
+                {
+                    var bot = bots.FirstOrDefault(t => t.ChannelName == activity.ChannelId && t.BotName == activity.From.Name);
 
-                string appId = bot?.MicrosoftAppId;
-                await ((CloudAdapter)adapter).ContinueConversationAsync(appId, conversationReference,
-                    async (context, token) =>
-                    {
-                        await context.SendActivityAsync(activity, cancellationToken: token);
-                    },
-                    new CancellationToken());
+                    string appId = bot?.MicrosoftAppId;
+                    await ((CloudAdapter)adapter).ContinueConversationAsync(appId, conversationReference,
+                        async (context, token) =>
+                        {
+                            await context.SendActivityAsync(activity, cancellationToken: token);
+                        },
+                        new CancellationToken());
+                }
             }
             catch (Exception ex)
             {
