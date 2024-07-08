@@ -81,12 +81,12 @@
             "title": "Reject",
             "data": {
                 "Type": 1,
-                "ResponseData": {
-                    "RequestId": "${RequestId}",
-                    "Command": "Approve",
-                    "CallBackUrl": "${CallBackUrl}",
-                    "ProcessedBy": "${ProcessedBy}"
-                }
+              "ResponseData": {
+                "RequestId": "${RequestId}",
+                "Command": "Reject",
+                "CallBackUrl": "${CallBackUrl}",
+                "ProcessedBy": "${ProcessedBy}"
+              }
             }
         }
     ],
