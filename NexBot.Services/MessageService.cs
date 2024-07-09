@@ -57,7 +57,7 @@
                 {
                     activity.Text = messageText;
                     await SendMessageAsync(conversationReference, activity);
-                    await AddMessageLog(activity);
+                    await AddMessageLog(activity, messageText);
                 }
             }
             catch (Exception ex)
@@ -82,7 +82,7 @@
                     var activity = CreateMessageActivity(conversationInfo);
                     activity.Text = messageText;
                     await SendMessageAsync(conversationInfo, activity);
-                    await AddMessageLog(activity);
+                    await AddMessageLog(activity, messageText);
                 }
             }
             catch (Exception ex)
@@ -145,7 +145,7 @@
 
                     activity.Attachments.Add(attachment);
                     await SendMessageAsync(conversationReference, activity);
-                    await AddMessageLog(activity);
+                    await AddMessageLog(activity, requestMessage.Message);
                 }
             }
             catch (Exception ex)
@@ -254,7 +254,7 @@
                 activity.Attachments.Add(attachment);
 
                 await SendMessageAsync(conversationReference, activity);
-                await AddMessageLog(activity);
+                await AddMessageLog(activity, registVegetarianMessage.Message);
             }
         }
 
@@ -289,27 +289,38 @@
             return message;
         }
 
-        private async Task AddMessageLog(IMessageActivity activity)
+        private async Task AddMessageLog(IMessageActivity activity, string messageContent)
         {
             var criteria = new InsertMessageLogCommand
             {
                 ConversationId = activity.Conversation.Id,
                 FromConversationId = activity.From.Id,
                 FromName = activity.From.Name,
-                MessageContent = GetLogContent(activity)
+                MessageContent = GetLogContent(activity, messageContent)
             };
 
             await baseService.ExecuteNonQueryAsync(criteria);
         }
 
-        private static string GetLogContent(IMessageActivity activity)
+        private static string GetLogContent(IMessageActivity activity, string messageContent)
         {
             string logMsgContent = BotHelper.GenerateMessage(activity.Text);
-            if (activity.ChannelId.Equals(Constants.TeamsChannel)
-                && activity.Attachments is not null && activity.Attachments.Any())
+            if (string.IsNullOrWhiteSpace(logMsgContent))
             {
-                logMsgContent = JsonConvert.SerializeObject(activity.Attachments.FirstOrDefault());
+                if(!string.IsNullOrWhiteSpace(messageContent))
+                {
+                    logMsgContent = messageContent;
+                }
+                else
+                {
+                    if (activity.ChannelId.Equals(Constants.TeamsChannel)
+                        && activity.Attachments is not null && activity.Attachments.Any())
+                    {
+                        logMsgContent = JsonConvert.SerializeObject(activity.Attachments.FirstOrDefault());
+                    }
+                }
             }
+
             return logMsgContent;
         }
 
@@ -380,7 +391,7 @@
                 }
 
                 await SendMessageAsync(conversationReference, activity);
-                await AddMessageLog(activity);
+                await AddMessageLog(activity, record.MessageContent);
             }
         }
 
@@ -404,7 +415,7 @@
                 }
 
                 await SendMessageAsync(conversationReference, activity);
-                await AddMessageLog(activity);
+                await AddMessageLog(activity, reachedWorkingHours.MessageContent);
             }
         }
 
@@ -422,7 +433,7 @@
                          request);
                     activity.Attachments.Add(attachment);
                     await SendMessageAsync(conversationReference, activity);
-                    await AddMessageLog(activity);
+                    await AddMessageLog(activity, $"RemindPendingRequests: { request.ApproverNickname } - " + request.StringRequests);
                 }
             }
         }
