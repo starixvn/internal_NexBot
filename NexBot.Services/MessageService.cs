@@ -14,6 +14,7 @@
     using NexBot.Core.Services.Interfaces;
     using NexBot.Core.Utilities;
     using NexBot.Criteria;
+    using NexBot.Criteria.Log;
     using NexBot.Criteria.Message;
     using NexBot.Models;
     using NexBot.Models.Request;
@@ -436,6 +437,11 @@
                     await AddMessageLog(activity, $"RemindPendingRequests: { request.ApproverNickname } - " + request.StringRequests);
                 }
             }
+        }
+
+        public async Task RemoveOldMessageLog()
+        {
+            await baseService.ExecuteNonQueryAsync(new RemoveOldMessageLogCommand());
         }
     }
 }

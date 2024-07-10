@@ -20,6 +20,7 @@
         <Setting Key="ErrorMessageLog_Insert" SpName="ErrorMessageLog_Insert" DbName="NexBot" Plain="0"></Setting>
         <Setting Key="ErrorMessageLog_Get" SpName="ErrorMessageLog_Get" DbName="NexBot" Plain="0"></Setting>
         <Setting Key="SystemLog_Insert" SpName="SystemLog_Insert" DbName="NexBot" Plain="0"></Setting>
+        <Setting Key="MessageLog_RemoveOldLog" SpName="MessageLog_RemoveOldLog" DbName="NexBot" Plain="0"></Setting>
     </Function>
     <Function Name="Conversation Register">
         <Setting Key="CategoryMessage_Get" SpName="CategoryMessage_Get" DbName="NexBot" Plain="0"></Setting>

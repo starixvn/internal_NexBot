@@ -67,5 +67,11 @@
                 await messageService.RemindApproveMultiplePendingRequests(request);
             }
         }
+
+        [HttpPost]
+        public async Task RemoveOldLog()
+        {
+            await messageService.RemoveOldMessageLog();
+        }
     }
 }

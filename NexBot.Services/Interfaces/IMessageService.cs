@@ -23,5 +23,7 @@
         Task ReachedWorkingHoursAsync(ReachedWorkingHours reachedWorkingHours);
 
         Task RemindApproveMultiplePendingRequests(PendingRequest request);
+
+        Task RemoveOldMessageLog();
     }
 }
