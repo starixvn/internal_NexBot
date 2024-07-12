@@ -1,6 +1,7 @@
 ﻿namespace NexBot.Services.Interfaces
 {
     using System.Threading.Tasks;
+    using Microsoft.Bot.Schema;
     using NexBot.Models;
     using NexBot.Models.Request;
 
@@ -25,5 +26,7 @@
         Task RemindApproveMultiplePendingRequests(PendingRequest request);
 
         Task RemoveOldMessageLog();
+
+        Task<Attachment> GetAttachmentHelpAdaptiveCard(string conversationId, bool isGroup, string botName);
     }
 }

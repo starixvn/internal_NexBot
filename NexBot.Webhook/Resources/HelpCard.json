@@ -1,0 +1,137 @@
+﻿{
+    "type": "AdaptiveCard",
+    "body": [
+        {
+            "type": "RichTextBlock",
+            "spacing": "none",
+            "inlines": [
+                {
+                    "type": "TextRun",
+                    "text": "${BotName}",
+                    "weight": "bolder"
+                },
+                "'s available features:"
+            ]
+        },
+        {
+            "type": "Table",
+            "firstRowAsHeader": true,
+            "columns": [
+                { "width": 1 }
+            ],
+            "rows": [
+                {
+                    "type": "TableRow",
+                    "cells": [
+                        {
+                            "type": "TableCell",
+                            "verticalContentAlignment": "center",
+                            "items": [
+                                {
+                                    "type": "ColumnSet",
+                                    "columns": [
+                                        {
+                                            "type": "Column",
+                                            "width": "stretch",
+                                            "verticalContentAlignment": "center",
+                                            "spacing": "none",
+                                            "items": [
+                                                {
+                                                    "type": "TextBlock",
+                                                    "text": "Category"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "Column",
+                                            "width": "90px",
+                                            "verticalContentAlignment": "center",
+                                            "spacing": "none",
+                                            "items": [
+                                                {
+                                                    "type": "TextBlock",
+                                                    "text": "Registered"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "style": "accent"
+                },
+                {
+                    "$data": "${RegisterCategoryMessages}",
+                    "type": "TableRow",
+                    "cells": [
+                        {
+                            "type": "TableCell",
+                            "verticalContentAlignment": "center",
+                            "items": [
+                                {
+                                    "type": "ColumnSet",
+                                    "columns": [
+                                        {
+                                            "type": "Column",
+                                            "width": "stretch",
+                                            "verticalContentAlignment": "center",
+                                            "spacing": "none",
+                                            "items": [
+                                                {
+                                                    "type": "TextBlock",
+                                                    "wrap": true,
+                                                    "text": "${CategoryName}"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "Column",
+                                            "width": "30px",
+                                            "verticalContentAlignment": "center",
+                                            "spacing": "none",
+                                            "items": [
+                                                {
+                                                    "type": "TextBlock",
+                                                    "text": "${if(IsRegistered == true, '✅', '❌')}"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "Column",
+                                            "width": "30px",
+                                            "verticalContentAlignment": "center",
+                                            "spacing": "none",
+                                            "items": [
+                                                {
+                                                    "type": "ActionSet",
+                                                    "actions": [
+                                                        {
+                                                            "type": "Action.Submit",
+                                                            "mode": "secondary",
+                                                            "title": "${if(IsRegistered == true, '⛔Stop', '▶️Start')} receive this category",
+                                                            "data": {
+                                                                "Type": 8,
+                                                                "ResponseData": {
+                                                                    "CategoryId": "${CategoryId}",
+                                                                    "Command": "${if(IsRegistered == true, 'Stop', 'Start')}",
+                                                                    "IsRegister": "${IsNeedRegister}"
+                                                                }
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.6"
+}

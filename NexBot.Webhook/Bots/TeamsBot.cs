@@ -75,8 +75,11 @@
                     switch (message)
                     {
                         case InteractedCommand.help:
-                            var msg = MessageFactory.Text(MessageConstants.HelpCommand(botName, turnContext.Activity.Conversation.IsGroup == true));
-                            msg.TextFormat = "markdown";
+                            var attachment = await messageService.GetAttachmentHelpAdaptiveCard(
+                                turnContext.Activity.Conversation.Id,
+                                turnContext.Activity.Conversation.IsGroup ?? false,
+                                botName);
+                            var msg = MessageFactory.Attachment(attachment);
                             await turnContext.SendActivityAsync(msg, cancellationToken);
                             break;
 
@@ -220,10 +223,39 @@
                         await HandleSubmitProcessMultipleRequests(turnContext, submitData);
                         break;
 
+                    case (int)SubmitAction.StartStopMessageCategory:
+                        await HandleStartStopMessageCategory(turnContext, JsonConvert.SerializeObject(submitData.ResponseData));
+                        break;
+
                     default:
                         break;
                 }
             }
+        }
+
+        private async Task HandleStartStopMessageCategory(ITurnContext<IMessageActivity> turnContext, string jsonData)
+        {
+            string conversationId = turnContext.Activity.Conversation.Id;
+            var data = JsonConvert.DeserializeObject<MessageCategorySubmitData>(jsonData);
+            CommandResult commandResult;
+            if (data.Command.Equals("Stop", StringComparison.OrdinalIgnoreCase))
+            {
+                commandResult = !data.IsNeedRegister ?
+                    await registerMessageService.IgnoreEventMessage(conversationId, data.CategoryId) :
+                    await registerMessageService.RemoveRegisteredMessage(conversationId, data.CategoryId);
+            }
+            else
+            {
+                commandResult = !data.IsNeedRegister ?
+                    await registerMessageService.RemoveIgnoredEventMessage(conversationId, data.CategoryId) :
+                    await registerMessageService.RegisterEventMessage(conversationId, data.CategoryId);
+            }
+
+            var msg = commandResult.IsSuccessful ?
+                    $"✅ **{data.Command}** receive message category _{((MessageCategoryEnum)data.CategoryId).Description()}_ successfully! Type _help_ to get more information" :
+                    $"❌ **{data.Command}** receive message category _{((MessageCategoryEnum)data.CategoryId).Description()}_ failed! Please contact admin";
+            var activity = MessageFactory.Text(msg, msg);
+            await turnContext.SendActivityAsync(activity);
         }
 
         private async Task HandleStopReceiveNotificationByType(ITurnContext<IMessageActivity> turnContext, MessageCategoryEnum messageCategory, SubmitAction submitAction)
@@ -232,17 +264,6 @@
             if (commandResult.IsSuccessful)
             {
                 var msg = $"Ignored message category _{submitAction.Description()}_ successfully! Type _help_ to get more information";
-                var activity = MessageFactory.Text(msg, msg);
-                await turnContext.SendActivityAsync(activity);
-            }
-        }
-
-        private async Task HandleSubmitStopCheckOutNotification(ITurnContext<IMessageActivity> turnContext)
-        {
-            var commandResult = await registerMessageService.IgnoreEventMessage(turnContext.Activity.Conversation.Id, (int)MessageCategoryEnum.NotifyCheckOut);
-            if (commandResult.IsSuccessful)
-            {
-                var msg = "Ignored checkout notification successfully! Type _help_ to get more information";
                 var activity = MessageFactory.Text(msg, msg);
                 await turnContext.SendActivityAsync(activity);
             }

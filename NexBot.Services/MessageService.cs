@@ -16,7 +16,9 @@
     using NexBot.Criteria;
     using NexBot.Criteria.Log;
     using NexBot.Criteria.Message;
+    using NexBot.Criteria.RegisterMessage;
     using NexBot.Models;
+    using NexBot.Models.CategoryMessage;
     using NexBot.Models.Request;
     using NexBot.Services.Helpers;
     using NexBot.Services.Interfaces;
@@ -308,7 +310,7 @@
             string logMsgContent = BotHelper.GenerateMessage(activity.Text);
             if (string.IsNullOrWhiteSpace(logMsgContent))
             {
-                if(!string.IsNullOrWhiteSpace(messageContent))
+                if (!string.IsNullOrWhiteSpace(messageContent))
                 {
                     logMsgContent = messageContent;
                 }
@@ -363,14 +365,10 @@
         }
 
         public async Task CheckoutNotificationAsync(TimesheetRecord record)
-        {
-            await TimesheetRecordNotificationAsync(record, "NotifyCheckoutCard.json");
-        }
+           => await TimesheetRecordNotificationAsync(record, "NotifyCheckoutCard.json");
 
         public async Task CheckinNotificationAsync(TimesheetRecord record)
-        {
-            await TimesheetRecordNotificationAsync(record, "NotifyCheckinCard.json");
-        }
+           => await TimesheetRecordNotificationAsync(record, "NotifyCheckinCard.json");
 
         private async Task TimesheetRecordNotificationAsync(TimesheetRecord record, string templateName)
         {
@@ -434,14 +432,34 @@
                          request);
                     activity.Attachments.Add(attachment);
                     await SendMessageAsync(conversationReference, activity);
-                    await AddMessageLog(activity, $"RemindPendingRequests: { request.ApproverNickname } - " + request.StringRequests);
+                    await AddMessageLog(activity, $"RemindPendingRequests: {request.ApproverNickname} - " + request.StringRequests);
                 }
             }
         }
 
         public async Task RemoveOldMessageLog()
+         => await baseService.ExecuteNonQueryAsync(new RemoveOldMessageLogCommand());
+
+        public async Task<Attachment> GetAttachmentHelpAdaptiveCard(string conversationId, bool isGroup, string botName)
         {
-            await baseService.ExecuteNonQueryAsync(new RemoveOldMessageLogCommand());
+            var criteria = new GetRegisterCategoryMessageCriteria
+            {
+                ConversationId = conversationId,
+                IsGroup = isGroup
+            };
+
+            var registeredCategoryMessages = await baseService.GetDataAsync<RegisterCategoryMessage>(criteria);
+            var model = new HelpMenuAdaptiveCard
+            {
+                BotName = botName,
+                RegisterCategoryMessages = registeredCategoryMessages
+            };
+
+            Attachment attachment = AdaptiveCardHelper.GenerateAdaptiveCardTeamsChannel(
+                         Path.Combine(".", "Resources", "HelpCard.json"),
+                         model);
+
+            return attachment;
         }
     }
 }

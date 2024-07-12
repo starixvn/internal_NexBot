@@ -20,6 +20,9 @@ namespace NexBot.Core
         ApproveMultipleRequests = 6,
 
         [Description("Checkin Notification")]
-        StopCheckInNotification = 7
+        StopCheckInNotification = 7,
+
+        [Description("Start stop message category")]
+        StartStopMessageCategory = 8
     }
 }
