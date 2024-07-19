@@ -146,6 +146,7 @@
             services.AddScoped<IRequestService, RequestService>();
             services.AddScoped<IRegistrationMealService, RegistrationMealService>();
             services.AddScoped<IRegisterMessageService, RegisterMessageService>();
+            services.AddScoped<IFormAdaptiveCardService, FormAdaptiveCardService>();
         }
     }
 }

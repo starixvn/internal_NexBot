@@ -77,13 +77,6 @@
             return conversation;
         }
 
-        public async Task<bool> CheckIsBot(string conversationId)
-        {
-            var conversation = await GetConversationBotById(conversationId);
-            var isBot = conversation != null && !string.IsNullOrWhiteSpace(conversation.ConversationId);
-            return isBot;
-        }
-
         public async Task<IList<ConversationModel>> GetAdminConversation()
         {
             var criteria = new GetAdminConversationCriteria();
@@ -91,20 +84,6 @@
             var conversations = await baseService.GetDataAsync<ConversationModel>(criteria);
 
             return conversations.ToList();
-        }
-
-        public async Task<IEnumerable<ApplicationSetting>> GetApplicationSettingAsync()
-        {
-            var applicationSettings = botConfigs.Select(t =>
-                new ApplicationSetting
-                {
-                    AppId = t.AppId,
-                    MicrosoftAppId = t.MicrosoftAppId,
-                    MicrosoftAppPassword = t.MicrosoftAppPassword,
-                    MicrosoftAppTenantId = t.MicrosoftAppTenantId
-                });
-
-            return await Task.FromResult(applicationSettings);
         }
 
         public async Task<IEnumerable<Bot>> GetBotAsync()

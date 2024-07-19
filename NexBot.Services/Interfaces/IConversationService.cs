@@ -21,8 +21,6 @@
 
         Task<IList<ConversationModel>> GetAdminConversation();
 
-        Task<IEnumerable<ApplicationSetting>> GetApplicationSettingAsync();
-
         Task<IEnumerable<Bot>> GetBotAsync();
     }
 }

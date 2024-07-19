@@ -26,7 +26,8 @@
          IRegistrationMealService registrationMealService,
          IRegisterMessageService registerMessageService,
          ILogProviderService logProviderService,
-         IConversationService conversationService) : TeamsActivityHandler, ITeamsBot
+         IConversationService conversationService,
+         IFormAdaptiveCardService formAdaptiveCardService) : TeamsActivityHandler, ITeamsBot
     {
         private const string greetingMessage = "Hello, I am {0}";
         private const string defaultReplyMessage = "Not supported command, type **help** to view available supported commands. Thanks & have a nice day";
@@ -153,6 +154,11 @@
                                 var msgResponse = "Resgiter receive checkin notification successfully! ✅";
                                 await turnContext.SendActivityAsync(MessageFactory.Text(msgResponse, msgResponse), cancellationToken);
                             }
+                            break;
+
+                        case "checkin_checkout_form":
+                            var att = await formAdaptiveCardService.GetCheckInCheckOutAdaptiveCardForm(turnContext.Activity.From.Id, turnContext.Activity.Conversation.Id);
+                            await turnContext.SendActivityAsync(MessageFactory.Attachment(att), cancellationToken);
                             break;
 
                         default:

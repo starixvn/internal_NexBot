@@ -11,5 +11,6 @@
         public string MicrosoftAppPassword { get; set; }
 
         public string MicrosoftAppTenantId { get; set; }
+        public string HrmUrl { get; set; }
     }
 }

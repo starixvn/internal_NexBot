@@ -7,5 +7,7 @@
     public interface IApplicationSettingService
     {
         Task<IEnumerable<ApplicationSetting>> GetApplicationSettingAsync();
+
+        string GetHrmUrl(string botConversationId);
     }
 }

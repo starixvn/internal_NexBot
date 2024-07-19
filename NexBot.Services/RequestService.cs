@@ -48,7 +48,7 @@
             string resultMessage;
             try
             {
-                var commandResult = await hrmConnector.Send(processRequest);
+                var commandResult = await hrmConnector.SendRequest(processRequest);
                 resultMessage = commandResult.IsSuccessful ? successMessage : failMessage;
             }
             catch (Exception exception)

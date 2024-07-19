@@ -1,6 +1,7 @@
 ﻿namespace NexBot.Services
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using NexBot.Models;
     using NexBot.Services.Interfaces;
@@ -20,11 +21,18 @@
                     MicrosoftAppType = botConfig.MicrosoftAppType,
                     MicrosoftAppId = botConfig.MicrosoftAppId,
                     MicrosoftAppPassword = botConfig.MicrosoftAppPassword,
-                    MicrosoftAppTenantId = botConfig.MicrosoftAppTenantId
+                    MicrosoftAppTenantId = botConfig.MicrosoftAppTenantId,
+                    HrmUrl = botConfig.HrmUrl
                 });
             }
 
             return await Task.FromResult(applicationSettings);
+        }
+
+        public string GetHrmUrl(string botConversationId)
+        {
+            var bot = botConfigs.FirstOrDefault(b => botConversationId.Contains(b.MicrosoftAppId));
+            return bot?.HrmUrl ?? string.Empty;
         }
     }
 }
