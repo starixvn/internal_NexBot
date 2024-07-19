@@ -10,8 +10,36 @@
                     "text": "${BotName}",
                     "weight": "bolder"
                 },
-                "'s available features:"
+                "'s available command:"
             ]
+        },
+        {
+            "type": "RichTextBlock",
+            "spacing": "none",
+            "inlines": [
+                {
+                    "type": "TextRun",
+                    "text": "   ⁎ getid",
+                    "weight": "bolder"
+                },
+                " => Get your Conversation ID"
+            ]
+        },
+        {
+            "type": "RichTextBlock",
+            "spacing": "none",
+            "inlines": [
+                {
+                    "type": "TextRun",
+                    "text": "   ⁎ getbot",
+                    "weight": "bolder"
+                },
+                " => Get bot conversation ID"
+            ]
+        },
+        {
+            "type": "TextBlock",
+            "text": "Registered category message:"
         },
         {
             "type": "Table",

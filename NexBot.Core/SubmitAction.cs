@@ -23,6 +23,8 @@ namespace NexBot.Core
         StopCheckInNotification = 7,
 
         [Description("Start stop message category")]
-        StartStopMessageCategory = 8
+        StartStopMessageCategory = 8,
+
+        CommandMenu = 9
     }
 }

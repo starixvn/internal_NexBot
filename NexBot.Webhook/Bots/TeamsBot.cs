@@ -227,9 +227,30 @@
                         await HandleStartStopMessageCategory(turnContext, JsonConvert.SerializeObject(submitData.ResponseData));
                         break;
 
+                    case (int)SubmitAction.CommandMenu:
+                        await HandleCommand(turnContext, JsonConvert.SerializeObject(submitData.ResponseData));
+                        break;
+
                     default:
                         break;
                 }
+            }
+        }
+
+        private async Task HandleCommand(ITurnContext<IMessageActivity> turnContext, string jsonData)
+        {
+            var data = JsonConvert.DeserializeObject<MessageCategorySubmitData>(jsonData);
+            string command = data.Command;
+
+            switch (command)
+            {
+                case InteractedCommand.getid:
+                    string replyMsg = $"Your conversationId: {turnContext.Activity.Conversation.Id}";
+                    await turnContext.SendActivityAsync(MessageFactory.Text(replyMsg));
+                    break;
+
+                default:
+                    break;
             }
         }
 

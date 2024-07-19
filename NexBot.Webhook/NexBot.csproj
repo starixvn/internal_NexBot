@@ -23,6 +23,12 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Content Update="Resources\Requests\CheckInCheckOutFormCard.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
       <None Update="App_Data\SpNames.xml">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
