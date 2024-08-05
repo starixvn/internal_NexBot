@@ -356,6 +356,8 @@
             }
             catch (Exception ex)
             {
+                logProviderService.LogFileError(ex);
+
                 await AddErrorMessageLog(conversationReference, activity.AsMessageActivity().Text);
                 await AddSystemLog(ex.Message);
                 await SendAdminAsync(

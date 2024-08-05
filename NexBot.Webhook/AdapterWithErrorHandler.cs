@@ -20,6 +20,8 @@
                 // NOTE: In production environment, you should consider logging this to
                 // Azure Application Insights. Visit https://aka.ms/bottelemetry to see how
                 // to add telemetry capture to your bot.
+                logger.LogError(exception.ToString());
+
                 await logService.SentryErrorAsync($"[OnTurnError] unhandled error : {exception.Message}. " +
                      $"Type: {turnContext.Activity?.Type}. " +
                     $"Channel: {turnContext.Activity?.ChannelId}. " +
