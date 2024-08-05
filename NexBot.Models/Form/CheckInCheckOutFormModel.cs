@@ -4,12 +4,28 @@
 
     public class CheckInCheckOutFormModel
     {
-        public string ConversationId { get; set; }
-        public byte RequestType { get; set; }
-        public DateTime? RequestDate { get; set; }
-        public static string MaxDate => DateTime.Now.ToString("yyyy-MM-dd");
-        public string RequestDateString { get; set; }
-        public string RequestTimeString { get; set; }
+        public int EmpId { get; set; }
+        public byte MissingType { get; set; }
         public string Shift { get; set; }
+        public DateTime? AttendanceDate { get; set; }
+        public static string MaxDate => DateTime.Now.ToString("yyyy-MM-dd");
+
+        public string RequestDateString
+        {
+            get
+            {
+                if (AttendanceDate.HasValue) return AttendanceDate.Value.ToString("yyyy-MM-dd");
+                return string.Empty;
+            }
+        }
+
+        public string RequestTimeString
+        {
+            get
+            {
+                if (AttendanceDate.HasValue) return AttendanceDate.Value.ToString("HH:mm");
+                return string.Empty;
+            }
+        }
     }
 }

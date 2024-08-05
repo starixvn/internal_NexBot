@@ -18,7 +18,7 @@
                 if (checkInCheckOutModel != null)
                 {
                     attachment = AdaptiveCardHelper.GenerateAdaptiveCardTeamsChannel(
-                         Path.Combine(".", "Resources", "ApproveMultipleRequestCard.json"),
+                         Path.Combine(".", "Resources", "Requests", "CheckInCheckOutFormCard.json"),
                          checkInCheckOutModel);
                 }
             }

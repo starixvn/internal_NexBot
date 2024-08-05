@@ -25,6 +25,8 @@ namespace NexBot.Core
         [Description("Start stop message category")]
         StartStopMessageCategory = 8,
 
-        CommandMenu = 9
+        CommandMenu = 9,
+
+        SubmitForm = 10
     }
 }

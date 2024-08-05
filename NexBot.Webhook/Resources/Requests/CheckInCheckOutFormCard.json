@@ -22,13 +22,13 @@
         },
         {
             "type": "Input.ChoiceSet",
-            "id": "requestType",
+            "id": "MissingType",
             "style": "compact",
             "label": "Request",
             "isMultiSelect": false,
             "isRequired": true,
             "placeholder": "---Choose Request Type---",
-            "value": "${RequestType}",
+            "value": "${MissingType}",
             "choices": [
                 {
                     "title": "Check In",
@@ -42,24 +42,46 @@
         },
         {
             "type": "Input.Date",
-            "id": "requestDate",
+            "id": "RequestDate",
+            "max": "${MaxDate}",
             "label": "Request date",
-            "value": "2024-07-18",
+            "value": "${RequestDateString}",
             "isRequired": true
         },
         {
             "type": "Input.Time",
-            "id": "time",
+            "id": "RequestTime",
             "min": "08:00",
             "max": "24:00",
-            "value": "17:00"
+            "value": "${RequestTimeString}"
+        },
+        {
+            "type": "RichTextBlock",
+            "inlines": [
+                {
+                    "type": "TextRun",
+                    "text": "Shift"
+                },
+                "         ",
+                {
+                    "type": "TextRun",
+                    "text": "${Shift}",
+                    "weight": "bolder",
+                    "isSubtle": true
+                }
+            ]
         }
     ],
     "actions": [
         {
             "type": "Action.Submit",
             "style": "positive",
-            "title": "Submit"
+            "title": "Submit",
+            "data": {
+                "Type": 10,
+                "FormId": 1,
+                "EmpId": "${EmpId}"
+            }
         }
     ]
 }

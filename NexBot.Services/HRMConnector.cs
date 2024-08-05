@@ -17,10 +17,10 @@
     {
         public async Task<CheckInCheckOutFormModel> GetCheckInCheckOutModel(string baseUrl, string conversationId)
         {
-            string url = $"GetCheckCheckOutModel?conversationId={conversationId}";
+            string url = $"api/request/GetCheckInCheckOutForm?conversationId={conversationId}";
             try
             {
-                return await SendAsync<CheckInCheckOutFormModel>(baseUrl, conversationId, HttpMethod.Get);
+                return await SendAsync<CheckInCheckOutFormModel>(baseUrl, url, HttpMethod.Post);
             }
             catch (Exception ex)
             {

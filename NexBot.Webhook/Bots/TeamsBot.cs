@@ -19,6 +19,7 @@
     using NexBot.Models;
     using NexBot.Models.CategoryMessage;
     using NexBot.Models.Request;
+    using NexBot.Models.SubmittedForm;
     using NexBot.Services.Interfaces;
 
     public class TeamsBot(IMessageService messageService,
@@ -157,8 +158,9 @@
                             break;
 
                         case "checkin_checkout_form":
-                            var att = await formAdaptiveCardService.GetCheckInCheckOutAdaptiveCardForm(turnContext.Activity.From.Id, turnContext.Activity.Conversation.Id);
-                            await turnContext.SendActivityAsync(MessageFactory.Attachment(att), cancellationToken);
+                            var att = await formAdaptiveCardService.GetCheckInCheckOutAdaptiveCardForm(turnContext.Activity.Recipient.Id, turnContext.Activity.Conversation.Id);
+                            IMessageActivity activity = att is not null ? MessageFactory.Attachment(att) : MessageFactory.Text("Something wrong! Please try again or check with admin");
+                            await turnContext.SendActivityAsync(activity, cancellationToken);
                             break;
 
                         default:
@@ -237,9 +239,27 @@
                         await HandleCommand(turnContext, JsonConvert.SerializeObject(submitData.ResponseData));
                         break;
 
+                    case (int)SubmitAction.SubmitForm:
+                        await HandleSubmitForm(turnContext, submitData.FormId, turnContext.Activity.Value);
+                        break;
+
                     default:
                         break;
                 }
+            }
+        }
+
+        private async Task HandleSubmitForm(ITurnContext<IMessageActivity> turnContext, int formId, object dataValue)
+        {
+            switch (formId)
+            {
+                case 1:
+                    var data = JsonConvert.DeserializeObject<CheckInCheckOutFormData>(dataValue.ToString());
+                    data.Attendance = DateTime.ParseExact($"{data.RequestDate} {data.RequestTime}", "yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture);
+                    break;
+
+                default:
+                    break;
             }
         }
 
