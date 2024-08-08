@@ -1,7 +1,7 @@
 ﻿{
     "type": "AdaptiveCard",
     "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-    "version": "1.5",
+    "version": "1.0",
     "body": [
         {
             "type": "RichTextBlock",
@@ -14,21 +14,25 @@
                 },
                 {
                     "type": "TextRun",
-                    "text": " Check In/Check Out Request",
+                    "text": "New Check In Out Request",
                     "size": "large",
+                    "color": "good",
                     "weight": "bolder"
                 }
             ]
         },
+
         {
             "type": "Input.ChoiceSet",
             "id": "MissingType",
             "style": "compact",
-            "label": "Request",
+            "label": "Missing Type",
             "isMultiSelect": false,
             "isRequired": true,
+            "errorMessage": "This is a required input",
             "placeholder": "---Choose Request Type---",
             "value": "${MissingType}",
+            "separator": true,
             "choices": [
                 {
                     "title": "Check In",
@@ -46,23 +50,69 @@
             "max": "${MaxDate}",
             "label": "Request date",
             "value": "${RequestDateString}",
-            "isRequired": true
+            "errorMessage": "This is a required input",
+            "isRequired": true,
+            "separator": true
         },
         {
-            "type": "Input.Time",
-            "id": "RequestTime",
-            "min": "08:00",
-            "max": "24:00",
-            "value": "${RequestTimeString}"
+            "type": "ColumnSet",
+            "columns": [
+                {
+                    "type": "Column",
+                    "width": 1,
+                    "items": [
+                        {
+                            "type": "Input.ChoiceSet",
+                            "id": "Hour",
+                            "label": "Hour",
+                            "style": "compact",
+                            "value": "${Hour}",
+                            "isRequired": true,
+                            "errorMessage": "This is a required input",
+                            "choices": [
+                                {
+                                    "$data": "${HourArray}",
+                                    "title": "${Display}",
+                                    "value": "${Value}"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Column",
+                    "width": 1,
+                    "items": [
+                        {
+                            "type": "Input.ChoiceSet",
+                            "id": "Minute",
+                            "label": "Minute",
+                            "style": "compact",
+                            "value": "${Minute}",
+                            "isRequired": true,
+                            "errorMessage": "This is a required input",
+                            "choices": [
+                                {
+                                    "$data": "${MinuteArray}",
+                                    "title": "${Display}",
+                                    "value": "${Value}"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         },
         {
             "type": "RichTextBlock",
+            "separator": true,
+            "spacing": "large",
             "inlines": [
                 {
                     "type": "TextRun",
                     "text": "Shift"
                 },
-                "         ",
+                "               ",
                 {
                     "type": "TextRun",
                     "text": "${Shift}",

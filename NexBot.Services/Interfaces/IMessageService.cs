@@ -28,5 +28,7 @@
         Task RemoveOldMessageLog();
 
         Task<Attachment> GetAttachmentHelpAdaptiveCard(string conversationId, bool isGroup, string botName);
+
+        Task SendAttachmentAsync(string conversationId, Attachment attachment);
     }
 }

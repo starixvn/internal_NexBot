@@ -28,7 +28,9 @@
          IRegisterMessageService registerMessageService,
          ILogProviderService logProviderService,
          IConversationService conversationService,
-         IFormAdaptiveCardService formAdaptiveCardService) : TeamsActivityHandler, ITeamsBot
+         IFormAdaptiveCardService formAdaptiveCardService,
+         IHRMConnector hrmConnector,
+         IApplicationSettingService applicationSetting) : TeamsActivityHandler, ITeamsBot
     {
         private const string greetingMessage = "Hello, I am {0}";
         private const string defaultReplyMessage = "Not supported command, type **help** to view available supported commands. Thanks & have a nice day";
@@ -159,6 +161,7 @@
 
                         case "checkin_checkout_form":
                             var att = await formAdaptiveCardService.GetCheckInCheckOutAdaptiveCardForm(turnContext.Activity.Recipient.Id, turnContext.Activity.Conversation.Id);
+                            // await messageService.SendAttachmentAsync("19:b376b8c7af164c0cba6fdd4f2788a05f@thread.v2", att);
                             IMessageActivity activity = att is not null ? MessageFactory.Attachment(att) : MessageFactory.Text("Something wrong! Please try again or check with admin");
                             await turnContext.SendActivityAsync(activity, cancellationToken);
                             break;
@@ -255,7 +258,15 @@
             {
                 case 1:
                     var data = JsonConvert.DeserializeObject<CheckInCheckOutFormData>(dataValue.ToString());
-                    data.Attendance = DateTime.ParseExact($"{data.RequestDate} {data.RequestTime}", "yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture);
+                    data.WorkDate = DateTime.ParseExact($"{data.RequestDate} {data.Hour}:{data.Minute}", "yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture);
+                    data.BaseUrl = applicationSetting.GetHrmUrl(turnContext.Activity.Recipient.Id);
+                    var commandResult = await hrmConnector.SubmitCheckInCheckOutRecord(data);
+                    if (commandResult.IsSuccessful)
+                    {
+                        var type = data.MissingType == 1 ? "Check In" : "Check Out";
+                        commandResult.Message = $"Create {type} request successfully!";
+                    }
+                    await turnContext.SendActivityAsync(MessageFactory.Text(commandResult.Message));
                     break;
 
                 default:

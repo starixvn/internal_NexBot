@@ -11,6 +11,7 @@
     using NexBot.Core.Models;
     using NexBot.Models.Form;
     using NexBot.Models.Request;
+    using NexBot.Models.SubmittedForm;
     using NexBot.Services.Interfaces;
 
     public class HrmConnector(IHttpClientFactory httpClientFactory, IConfiguration configuration) : IHRMConnector
@@ -20,13 +21,37 @@
             string url = $"api/request/GetCheckInCheckOutForm?conversationId={conversationId}";
             try
             {
-                return await SendAsync<CheckInCheckOutFormModel>(baseUrl, url, HttpMethod.Post);
+                var model = await SendAsync<CheckInCheckOutFormModel>(baseUrl, url, HttpMethod.Post);
+
+                return model;
             }
             catch (Exception ex)
             {
                 return default;
                 throw;
             }
+        }
+
+        public async Task<CommandResult> SubmitCheckInCheckOutRecord(CheckInCheckOutFormData request)
+        {
+            CommandResult commandResult;
+
+            var url = $"api/request/SubmitFormCheckInCheckOut?EmployeeId={request.EmpId}&CheckInOutType={request.MissingType}&WorkDate={request.WorkDate}";
+
+            try
+            {
+                commandResult = await SendAsync<CommandResult>(request.BaseUrl, url, HttpMethod.Post);
+            }
+            catch (Exception ex)
+            {
+                commandResult = new CommandResult
+                {
+                    Code = 1,
+                    Message = ex.Message
+                };
+            }
+
+            return commandResult;
         }
 
         public async Task<CommandResult> SendRequest(ProcessRequest processRequest)

@@ -463,5 +463,23 @@
 
             return attachment;
         }
+
+        public async Task SendAttachmentAsync(string conversationId, Attachment attachment)
+        {
+            try
+            {
+                var conversation = await conversationService.GetConversationById(conversationId);
+                var conversationReference = GetConversationReference(conversation);
+                var activity = CreateMessageActivity(conversationReference);
+
+                activity.Attachments.Add(attachment);
+
+                await SendMessageAsync(conversationReference, activity);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
     }
 }

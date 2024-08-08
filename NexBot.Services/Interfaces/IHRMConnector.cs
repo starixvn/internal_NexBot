@@ -5,6 +5,7 @@
     using NexBot.Core.Models;
     using NexBot.Models.Form;
     using NexBot.Models.Request;
+    using NexBot.Models.SubmittedForm;
 
     public interface IHRMConnector
     {
@@ -13,5 +14,7 @@
         Task<IEnumerable<ProcessRequestResult>> SendMultipleRequest(ProcessRequest processRequest);
 
         Task<CheckInCheckOutFormModel> GetCheckInCheckOutModel(string baseUrl, string conversationId);
+
+        Task<CommandResult> SubmitCheckInCheckOutRecord(CheckInCheckOutFormData request);
     }
 }

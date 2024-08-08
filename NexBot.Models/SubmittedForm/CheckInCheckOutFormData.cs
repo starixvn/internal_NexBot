@@ -7,7 +7,9 @@ namespace NexBot.Models.SubmittedForm
         public int EmpId { get; set; }
         public int MissingType { get; set; }
         public string RequestDate { get; set; }
-        public string RequestTime { get; set; }
-        public DateTime Attendance { get; set; }
+        public string Hour { get; set; }
+        public string Minute { get; set; }
+        public DateTime WorkDate { get; set; }
+        public string BaseUrl { get; set; }
     }
 }
