@@ -39,6 +39,24 @@
         },
         {
             "type": "TextBlock",
+            "text": "Create"
+        },
+        {
+            "type": "ActionSet",
+            "actions": [
+                {
+                    "type": "Action.Submit",
+                    "title": "Check In/Out request",
+                    "data": {
+                        "Type": 11,
+                        "ResponseData": {
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "type": "TextBlock",
             "text": "Registered category message:"
         },
         {

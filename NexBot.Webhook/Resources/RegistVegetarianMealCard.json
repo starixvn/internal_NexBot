@@ -43,8 +43,11 @@
             "mode": "secondary",
             "style": "positive",
             "data": {
-                "Type": 3,
+                "Type": 8,
                 "ResponseData": {
+                    "CategoryId": 10,
+                    "Command": "Stop",
+                    "IsNeedRegister": true
                 }
             }
         }

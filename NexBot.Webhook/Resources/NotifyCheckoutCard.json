@@ -36,8 +36,12 @@
                                     "mode": "secondary",
                                     "style": "positive",
                                     "data": {
-                                        "Type": 4,
-                                        "ResponseData": {}
+                                        "Type": 8,
+                                        "ResponseData": {
+                                            "CategoryId": 11,
+                                            "Command": "Stop",
+                                            "IsNeedRegister": false
+                                        }
                                     }
                                 }
                             ],
