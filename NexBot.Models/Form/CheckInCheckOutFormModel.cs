@@ -6,10 +6,12 @@
     public class CheckInCheckOutFormModel
     {
         public int EmpId { get; set; }
+        public string NickName { get; set; }
         public byte MissingType { get; set; }
         public string Shift { get; set; }
         public DateTime? AttendanceDate { get; set; }
         public string MaxDate => DateTime.Now.ToString("yyyy-MM-dd");
+        public string ConversationId { get; set; }
 
         public List<DropdownArray> HourArray
         {
@@ -26,6 +28,8 @@
                 return InitDropdownArray(60);
             }
         }
+
+        public string DisplayDateString => AttendanceDate.Value.ToString("dd MMM, yyyy");
 
         public string RequestDateString
         {

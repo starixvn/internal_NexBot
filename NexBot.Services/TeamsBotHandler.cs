@@ -61,7 +61,7 @@
                         break;
 
                     case (int)SubmitAction.GetCheckInOutForm:
-                        var att = await formAdaptiveCardService.GetCheckInCheckOutAdaptiveCardForm(turnContext.Activity.Recipient.Id, turnContext.Activity.Conversation.Id);
+                        Attachment att = await formAdaptiveCardService.GetCheckInCheckOutAdaptiveCardForm(turnContext.Activity.Recipient.Id, turnContext.Activity.Conversation.Id);
                         IMessageActivity activity = att is not null ? MessageFactory.Attachment(att) : MessageFactory.Text("Something wrong! Please try again or check with admin");
                         await turnContext.SendActivityAsync(activity);
                         break;
@@ -158,16 +158,9 @@
 
         private static string GenerateResponseMessage(CommandResult commandResult, MessageCategorySubmitData submittedData)
         {
-            string msg;
-            if (!string.IsNullOrWhiteSpace(commandResult.Message))
-            {
-                msg = commandResult.Message;
-            }
-            else
-            {
-                msg = commandResult.IsSuccessful ? string.Format(SuccessMessageResponse, submittedData.Command, ((MessageCategoryEnum)submittedData.CategoryId).Description()) :
-                                                    string.Format(FailedMessageResponse, submittedData.Command, ((MessageCategoryEnum)submittedData.CategoryId).Description());
-            }
+            string msg = commandResult.IsSuccessful ?
+                string.Format(SuccessMessageResponse, submittedData.Command, ((MessageCategoryEnum)submittedData.CategoryId).Description()) :
+                string.Format(FailedMessageResponse, submittedData.Command, ((MessageCategoryEnum)submittedData.CategoryId).Description());
 
             return msg;
         }

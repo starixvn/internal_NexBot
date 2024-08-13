@@ -9,7 +9,7 @@
             "columns": [
                 {
                     "type": "Column",
-                    "width": "360px",
+                    "width": "stretch",
                     "verticalContentAlignment": "center",
                     "items": [
                         {

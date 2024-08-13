@@ -46,11 +46,10 @@
             "actions": [
                 {
                     "type": "Action.Submit",
-                    "title": "Check In/Out request",
+                    "style": "positive",
+                    "title": "✎ Check In/Out request",
                     "data": {
-                        "Type": 11,
-                        "ResponseData": {
-                        }
+                        "Type": 11
                     }
                 }
             ]

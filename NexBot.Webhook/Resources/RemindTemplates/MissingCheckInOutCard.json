@@ -1,0 +1,52 @@
+﻿{
+    "type": "AdaptiveCard",
+    "body": [
+        {
+            "type": "RichTextBlock",
+            "inlines": [
+                "Dear ",
+                {
+                    "type": "TextRun",
+                    "text": "${NickName}"
+                }
+            ]
+        },
+        {
+            "type": "RichTextBlock",
+            "inlines": [
+                "You have forgot ",
+                {
+                    "type": "TextRun",
+                    "italic": true,
+                    "weight": "bolder",
+                    "text": "${if(MissingType == 1, 'Check In', 'Check Out')}"
+                },
+                " on ",
+                {
+                    "type": "TextRun",
+                    "italic": true,
+                    "weight": "bolder",
+                    "text": "${DisplayDateString}"
+                },
+                " (shift ${Shift})"
+            ]
+        },
+        {
+            "type": "TextBlock",
+            "text": "Please review and click the button below to create a ${if(MissingType == 1, 'Check In', 'Check Out')} request",
+            "wrap": true
+        }
+    ],
+    "actions": [
+        {
+            "type": "Action.Submit",
+            "style": "positive",
+            "title": "✎ Make ${if(MissingType == 1, 'Check In', 'Check Out')} Rquest",
+            "data": {
+                "Type": 11
+            }
+        }
+    ],
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.6"
+}
