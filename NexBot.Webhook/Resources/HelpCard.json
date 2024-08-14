@@ -39,7 +39,7 @@
         },
         {
             "type": "TextBlock",
-            "text": "Create"
+            "text": "Create request"
         },
         {
             "type": "ActionSet",
@@ -47,7 +47,7 @@
                 {
                     "type": "Action.Submit",
                     "style": "positive",
-                    "title": "✎ Check In/Out request",
+                    "title": "✎ Check In/Out",
                     "data": {
                         "Type": 11
                     }

@@ -41,7 +41,7 @@
         {
             "type": "Action.Submit",
             "style": "positive",
-            "title": "✎ Make ${if(MissingType == 1, 'Check In', 'Check Out')} Rquest",
+            "title": "✎ Make ${if(MissingType == 1, 'Check In', 'Check Out')} Request",
             "data": {
                 "Type": 11
             }
