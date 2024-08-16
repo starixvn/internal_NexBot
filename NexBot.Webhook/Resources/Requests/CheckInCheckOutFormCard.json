@@ -130,7 +130,8 @@
             "data": {
                 "Type": 10,
                 "FormId": 1,
-                "EmpId": "${EmpId}"
+                "EmpId": "${EmpId}",
+                "Shift": "${Shift}"
             }
         }
     ]

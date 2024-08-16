@@ -11,5 +11,6 @@ namespace NexBot.Models.SubmittedForm
         public string Minute { get; set; }
         public DateTime WorkDate { get; set; }
         public string BaseUrl { get; set; }
+        public string Shift { get; set; }
     }
 }

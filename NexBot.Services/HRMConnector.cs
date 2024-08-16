@@ -36,7 +36,7 @@
         {
             CommandResult commandResult;
 
-            var url = $"api/request/SubmitFormCheckInCheckOut?EmployeeId={request.EmpId}&CheckInOutType={request.MissingType}&WorkDate={request.WorkDate}";
+            var url = $"api/request/SubmitFormCheckInCheckOut?EmployeeId={request.EmpId}&CheckInOutType={request.MissingType}&WorkDate={request.WorkDate}&Hour={request.Hour}&Minute={request.Minute}&Shift={request.Shift}";
 
             try
             {
