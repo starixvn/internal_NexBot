@@ -1,8 +1,8 @@
 ﻿namespace NexBot.Controllers
 {
+    using Microsoft.AspNetCore.Mvc;
     using System;
     using System.Text;
-    using Microsoft.AspNetCore.Mvc;
 
     [Route("/whoami")]
     [Route("/whoami.aspx")]
@@ -12,7 +12,7 @@
         {
             var context = HttpContext;
             var content = new StringBuilder();
-            content.Append($"Web name: {context.Request.Host.Host}{Environment.NewLine}"
+            content.Append($"Host IP: {context.Request.Host.Host}{Environment.NewLine}"
                 + $"Port: {context.Connection.LocalPort}{Environment.NewLine}"
                 + $"Server IP: {context.Connection.LocalIpAddress}{Environment.NewLine}"
                 + $"Server Time: {DateTime.Now}{Environment.NewLine}"
