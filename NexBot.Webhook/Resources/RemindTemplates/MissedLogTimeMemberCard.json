@@ -1,0 +1,69 @@
+{
+    "type": "AdaptiveCard",
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.5",
+    "body": [
+        {
+            "type": "ColumnSet",
+            "bleed": true,
+            "columns": [
+                {
+                    "type": "Column",
+                    "width": "stretch",
+                    "verticalContentAlignment": "center",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "text": "⚠️ Missing Time Log! - ${MissedCount} time(s)",
+                            "weight": "bolder",
+                            "wrap": false,
+                            "style": "heading",
+                            "size": "Large",
+                            "color": "attention"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "RichTextBlock",
+            "inlines": [
+                "Dear ",
+                {
+                    "type": "TextRun",
+                    "text": "${NickName}",
+                    "weight": "bolder"
+                }
+            ]
+        },
+        {
+            "type": "RichTextBlock",
+            "inlines": [
+                "You forgot to log your working hours on ",
+                {
+                    "type": "TextRun",
+                    "text": "${LogDate}",
+                    "weight": "bolder"
+                },
+                " and ",
+                {
+                    "type": "TextRun",
+                    "text": "${MissedCount} time(s)",
+                    "weight": "bolder"
+                },
+                " this month. Remember to update it daily to ensure accurate records."
+            ],
+            "wrap": true
+        },
+        {
+            "type": "ActionSet",
+            "actions": [
+                {
+                    "type": "Action.OpenUrl",
+                    "title": "Go to Redmine",
+                    "url": "https://nexdev.net/time_entries?f[]=spent_on&op[spent_on]=m&f[]=user_id&op[user_id]==&v[user_id][]=me&f[]=&c[]=project&c[]=spent_on&c[]=user&c[]=activity&c[]=issue&c[]=comments&c[]=hours&query[group_by]=spent_on&v[query]=Your%20spent%20time%20this%20month"
+                }
+            ]
+        }
+    ]
+}
