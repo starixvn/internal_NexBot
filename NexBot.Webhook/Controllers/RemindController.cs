@@ -33,7 +33,8 @@
             var path = Path.Combine(".", "Resources", "RemindTemplates", "MissedLogTimeLeaderCard.json");
             var cardData = new Dictionary<string, object>
             {
-                { "LeaderName", model.LeaderName }
+                { "LeaderName", model.LeaderName },
+                { "LogMonth", model.LogMonth }
             };
             var membersTextBlocks = new List<object>();
             if (model.Members != null)

@@ -11,6 +11,7 @@
         public string ConversationId { get; set; }
         public string LeaderName { get; set; }
         public string StringMembers { get; set; }
+        public string LogMonth { get; set; }
         public IEnumerable<MemberModel> Members { get; set; }
     }
 

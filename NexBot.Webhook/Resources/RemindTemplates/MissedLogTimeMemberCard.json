@@ -51,7 +51,7 @@
                     "text": "${MissedCount} time(s)",
                     "weight": "bolder"
                 },
-                " this month. Remember to update it daily to ensure accurate records."
+                " in ${LogMonth}. Remember to update it daily to ensure accurate records."
             ],
             "wrap": true
         },

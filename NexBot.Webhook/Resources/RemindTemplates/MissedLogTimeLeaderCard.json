@@ -38,7 +38,7 @@
         },
         {
             "type": "TextBlock",
-            "text": "This is a message to inform that your team member(s) forgot to log time this month:",
+            "text": "This is a message to inform that your team member(s) forgot to log time in ${LogMonth}:",
             "size": "Medium",
             "wrap": true
         },
