@@ -1,10 +1,6 @@
 ﻿namespace NexBot.Models.Form
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Text.Json.Serialization;
 
     public class MissedLogTimeLeaderModel
     {

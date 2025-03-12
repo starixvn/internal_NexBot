@@ -1,0 +1,97 @@
+﻿{
+    "blocks": [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*${BotName}*'s available commands:"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*⁎ getid* → Get your Conversation ID"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*⁎ getbot* → Get bot conversation ID"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*Create request:*"
+            }
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "✎ Check In/Out"
+                    },
+                    "style": "primary",
+                    "value": "checkin_checkout",
+                    "action_id": "checkin_checkout"
+                }
+            ]
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*Registered category messages:*"
+            }
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*Category*"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": "*Registered*"
+                }
+            ]
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "context",
+            "elements": [
+                {
+                    "type": "mrkdwn",
+                    "text": "Click a button below to subscribe/unsubscribe to a category."
+                }
+            ]
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "${if(IsRegistered == true, '⛔ Stop', '▶️ Start')} ${CategoryName}"
+                    },
+                    "style": "${if(IsRegistered == true, 'danger', 'primary')}",
+                    "value": "${CategoryId}",
+                    "action_id": "${if(IsRegistered == true, 'stop_category', 'start_category')}"
+                }
+            ]
+        }
+    ]
+}

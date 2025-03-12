@@ -14,6 +14,8 @@
 
         public const string TeamsChannel = "msteams";
 
+        public const string SlackChannel = "slack";
+
         public const string ApproveRequestCommand = "Approve";
 
         public const string RejectRequestCommand = "Reject";

@@ -78,6 +78,17 @@
                     }
                     break;
 
+                case Constants.SlackChannel:
+                    if (sourceMessage.StartsWith("<@"))
+                    {
+                        var indexOfCommand = sourceMessage.IndexOf('>');
+                        if (indexOfCommand > 0)
+                        {
+                            returnMessage = sourceMessage.Remove(0, indexOfCommand + 1).Trim();
+                        }
+                    }
+                    break;
+
                 default:
                     returnMessage = sourceMessage;
                     break;
