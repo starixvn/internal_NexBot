@@ -3,18 +3,15 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Bot.Builder;
-    using Microsoft.Bot.Builder.Teams;
     using Microsoft.Bot.Schema;
     using Newtonsoft.Json;
     using NexBot.Bots.Interfaces;
     using NexBot.Core;
     using NexBot.Core.Services.Interfaces;
     using NexBot.Core.Utilities;
-    using NexBot.Criteria.Conversation;
     using NexBot.Models.CategoryMessage;
     using NexBot.Services.Interfaces;
 
@@ -50,7 +47,7 @@
             {
                 if (turnContext.Activity.MembersAdded.Any(m => m.Id == turnContext.Activity.Recipient?.Id))
                 {
-                    await AddConversationAsync(turnContext, cancellationToken);
+                    await _conversationService.AddConversationAsync(turnContext.Activity);
                 }
             }
             else
@@ -86,6 +83,9 @@
                 {
                     switch (message.ToLowerInvariant())
                     {
+                        case "test":
+                            await turnContext.SendActivityAsync(MessageFactory.Text(JsonConvert.SerializeObject(turnContext.Activity.From.Name)), cancellationToken);
+                            break;
                         case InteractedCommand.help:
                             var attachment = await _messageService.GetAttachmentHelpAdaptiveCard(
                                 turnContext.Activity.Conversation.Id,
@@ -96,8 +96,8 @@
                             break;
 
                         case InteractedCommand.getid:
-                            var info = await TeamsInfo.GetMemberAsync(turnContext, turnContext.Activity.From.Id, cancellationToken);
-                            await turnContext.SendActivityAsync(MessageFactory.Text(JsonConvert.SerializeObject(info)), cancellationToken);
+                            string replyMsg = $"Your conversationId: {turnContext.Activity.Conversation.Id}";
+                            await turnContext.SendActivityAsync(MessageFactory.Text(replyMsg), cancellationToken);
                             break;
 
                         case InteractedCommand.getbot:
@@ -148,41 +148,6 @@
                         _logProviderService.LogFileMessage($"Unhandled event: {turnContext.Activity.Name}");
                         break;
                 }
-            }
-        }
-
-        private async Task AddConversationAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
-        {
-            var activity = turnContext.Activity;
-            var info = await TeamsInfo.GetMemberAsync(turnContext, activity.From.Id, cancellationToken);
-            var isGroup = activity.Conversation.IsGroup == true;
-            string email = !isGroup ? info.Email : string.Empty;
-
-            var command = new InsertConversationCommand
-            {
-                ConversationId = activity.Conversation.Id,
-                ChannelId = activity.ChannelId,
-                ServiceUrl = activity.ServiceUrl,
-                UserName = email,
-                IsGroup = activity.Conversation.IsGroup,
-                IsActive = true,
-                IsAdmin = false,
-                ConversationBotId = activity.Recipient.Id,
-                ConversationBotName = activity.Recipient.Name
-            };
-
-            await _conversationService.AddConversationAsync(command);
-            string botName = activity.Recipient.Name;
-
-            if (!isGroup && !botName.Equals(BotNameIgnoreMsg))
-            {
-                var msg = new StringBuilder($"Hi **{info.Name}**. My name is **{botName}**. ");
-                msg.AppendLine("By added me, I will notify when there are events related to you such as requests that need your approval (Supervisors), requests that have been approved (Members). In addition, I also have a feature to remind you on the evaluation period or simplely when you reach the company's rules.");
-                msg.AppendLine();
-                msg.AppendLine(MessageConstants.HelpCommand(botName, false));
-                var msgActivity = MessageFactory.Text(msg.ToString());
-                msgActivity.TextFormat = "markdown";
-                await turnContext.SendActivityAsync(msgActivity, cancellationToken);
             }
         }
 
