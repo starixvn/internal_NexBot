@@ -7,6 +7,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Bot.Builder;
+    using Microsoft.Bot.Builder.Teams;
     using Microsoft.Bot.Schema;
     using Newtonsoft.Json;
     using NexBot.Bots.Interfaces;
@@ -17,7 +18,7 @@
     using NexBot.Models.CategoryMessage;
     using NexBot.Services.Interfaces;
 
-    public class SlackBot : ActivityHandler, ISlackBot // Reuse ITeamsBot interface for consistency
+    public class SlackBot : ActivityHandler, ISlackBot
     {
         private readonly IMessageService _messageService;
         private readonly IRegisterMessageService _registerMessageService;
@@ -45,11 +46,19 @@
 
         protected override async Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
-            if (turnContext.Activity.Type == ActivityTypes.ConversationUpdate)
+            if (turnContext.Activity.MembersAdded != null)
             {
-                foreach (var _ in turnContext.Activity.MembersAdded)
+                if (turnContext.Activity.MembersAdded.Any(m => m.Id == turnContext.Activity.Recipient?.Id))
                 {
                     await AddConversationAsync(turnContext, cancellationToken);
+                }
+            }
+            else
+            {
+                if (turnContext.Activity.MembersRemoved != null
+                    && turnContext.Activity.MembersRemoved.Any(m => m.Id == turnContext.Activity.Recipient?.Id))
+                {
+                    await _conversationService.RemoveConversationAsync(turnContext.Activity);
                 }
             }
         }
@@ -58,9 +67,8 @@
         {
             var botName = turnContext.Activity.Recipient?.Name ?? string.Empty;
             var message = turnContext.Activity.Text?.Trim() ?? string.Empty;
-            var isPrivateChat = "D".StartsWith(turnContext.Activity.Conversation.Id);
 
-            if (!isPrivateChat)
+            if (turnContext.Activity.Conversation.IsGroup == true)
             {
                 message = BotHelper.GetMessageInGroupByChannel(message, turnContext.Activity.ChannelId, botName);
             }
@@ -81,16 +89,15 @@
                         case InteractedCommand.help:
                             var attachment = await _messageService.GetAttachmentHelpAdaptiveCard(
                                 turnContext.Activity.Conversation.Id,
-                                isPrivateChat, 
+                                turnContext.Activity.Conversation.IsGroup ?? false, 
                                 botName);
                             var msg = MessageFactory.Attachment(attachment);
                             await turnContext.SendActivityAsync(msg, cancellationToken);
                             break;
 
                         case InteractedCommand.getid:
-                            //string replyMsg = $"Your conversationId: {turnContext.Activity.Conversation.Id}";
-                            var conversation = turnContext.Activity.GetConversationReference();
-                            await turnContext.SendActivityAsync(MessageFactory.Text(JsonConvert.SerializeObject(conversation)), cancellationToken);
+                            var info = await TeamsInfo.GetMemberAsync(turnContext, turnContext.Activity.From.Id, cancellationToken);
+                            await turnContext.SendActivityAsync(MessageFactory.Text(JsonConvert.SerializeObject(info)), cancellationToken);
                             break;
 
                         case InteractedCommand.getbot:
@@ -147,15 +154,17 @@
         private async Task AddConversationAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
             var activity = turnContext.Activity;
-            var isPrivateChat = "D".StartsWith(activity.Conversation.Id);
-            
+            var info = await TeamsInfo.GetMemberAsync(turnContext, activity.From.Id, cancellationToken);
+            var isGroup = activity.Conversation.IsGroup == true;
+            string email = !isGroup ? info.Email : string.Empty;
+
             var command = new InsertConversationCommand
             {
                 ConversationId = activity.Conversation.Id,
                 ChannelId = activity.ChannelId,
                 ServiceUrl = activity.ServiceUrl,
-                UserName = activity.From?.Properties["email"]?.ToString() ?? string.Empty,
-                IsGroup = !isPrivateChat,
+                UserName = email,
+                IsGroup = activity.Conversation.IsGroup,
                 IsActive = true,
                 IsAdmin = false,
                 ConversationBotId = activity.Recipient.Id,
@@ -165,10 +174,10 @@
             await _conversationService.AddConversationAsync(command);
             string botName = activity.Recipient.Name;
 
-            if (isPrivateChat && !botName.Equals(BotNameIgnoreMsg))
+            if (!isGroup && !botName.Equals(BotNameIgnoreMsg))
             {
-                var msg = new StringBuilder($"Hi! My name is **{botName}**. ");
-                msg.AppendLine("By adding me, I’ll notify you about events like requests needing approval or reminders for evaluations.");
+                var msg = new StringBuilder($"Hi **{info.Name}**. My name is **{botName}**. ");
+                msg.AppendLine("By added me, I will notify when there are events related to you such as requests that need your approval (Supervisors), requests that have been approved (Members). In addition, I also have a feature to remind you on the evaluation period or simplely when you reach the company's rules.");
                 msg.AppendLine();
                 msg.AppendLine(MessageConstants.HelpCommand(botName, false));
                 var msgActivity = MessageFactory.Text(msg.ToString());

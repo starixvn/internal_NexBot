@@ -103,7 +103,6 @@
                 ServiceUrl = conversationModel.ServiceUrl,
                 ChannelId = conversationModel.ChannelId
             };
-
             return coversation;
         }
 
