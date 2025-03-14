@@ -1,0 +1,35 @@
+{
+    "blocks": [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*⏰ REACHED WORKINGS HOURS*"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Dear *${NickName}*"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "You have just reached ${WorkingHours} working hours today. Organize your work and relax after a productivity working day."
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "✔ *CHECKOUT* before leaving the office."
+            }
+        },
+        {
+            "type": "divider"
+        }
+    ]
+}

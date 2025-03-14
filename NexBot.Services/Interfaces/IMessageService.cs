@@ -30,5 +30,7 @@
         Task<Attachment> GetAttachmentHelpAdaptiveCard(string conversationId, bool isGroup, string botName);
 
         Task SendAttachmentAsync(string conversationId, Attachment attachment);
+
+        Task SendBlockKitAsync(string conversationId, object block);
     }
 }

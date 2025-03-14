@@ -1,0 +1,42 @@
+{
+    "type": "modal",
+    "blocks": [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*☑️ CHECKOUT SUCCESSFULLY!*"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Dear *${NickName}*"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "This is a message to inform you that you just have a \"checkout\" record for today working on the HRM system as below:"
+            }
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*⏰ Checkout time:*"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": "*${CheckoutTime}*"
+                }
+            ]
+        },
+        {
+            "type": "divider"
+        }
+    ]
+}

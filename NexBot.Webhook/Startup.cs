@@ -150,6 +150,7 @@
             services.AddScoped<IRegisterMessageService, RegisterMessageService>();
             services.AddScoped<IFormAdaptiveCardService, FormAdaptiveCardService>();
             services.AddScoped<ITeamsBotHandler, TeamsBotHandler>();
+            services.AddScoped<ISlackBotHandler, SlackBotHandler>();
         }
     }
 }

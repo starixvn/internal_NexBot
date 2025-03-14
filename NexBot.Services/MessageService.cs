@@ -477,7 +477,25 @@
             }
             catch (Exception ex)
             {
-                throw;
+                await AddSystemLog(ex.Message);
+            }
+        }
+
+        public async Task SendBlockKitAsync(string conversationId, object block)
+        {
+            try
+            {
+                var conversation = await conversationService.GetConversationById(conversationId);
+                var conversationReference = GetConversationReference(conversation);
+                var activity = CreateMessageActivity(conversationReference);
+
+                activity.ChannelData = block;
+
+                await SendMessageAsync(conversationReference, activity);
+            }
+            catch (Exception ex)
+            {
+                await AddSystemLog(ex.Message);
             }
         }
     }

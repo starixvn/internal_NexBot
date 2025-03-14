@@ -42,6 +42,7 @@
             switch (channelId)
             {
                 case Constants.SkypeChannel:
+                case Constants.SlackChannel:
                     if (sourceMessage.StartsWith('@')
                         || sourceMessage.StartsWith(botName))
                     {
@@ -78,16 +79,6 @@
                     }
                     break;
 
-                case Constants.SlackChannel:
-                    if (sourceMessage.StartsWith("<@"))
-                    {
-                        var indexOfCommand = sourceMessage.IndexOf('>');
-                        if (indexOfCommand > 0)
-                        {
-                            returnMessage = sourceMessage.Remove(0, indexOfCommand + 1).Trim();
-                        }
-                    }
-                    break;
 
                 default:
                     returnMessage = sourceMessage;
@@ -110,6 +101,19 @@
             }
 
             return displayAttribute?.Description ?? string.Empty;
+        }
+
+        public static string FormatNickName(this string nickName)
+        {
+            var nameParts = nickName.Split(['.', ' '], StringSplitOptions.RemoveEmptyEntries);
+
+            for (var i = 0; i < nameParts.Length; i++)
+            {
+                nameParts[i] = char.ToUpper(nameParts[i][0]) + nameParts[i][1..].ToLower();
+            }
+
+            var processedNickName = string.Join(" ", nameParts);
+            return processedNickName;
         }
     }
 }

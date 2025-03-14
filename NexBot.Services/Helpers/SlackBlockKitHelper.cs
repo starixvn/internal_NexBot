@@ -7,17 +7,12 @@
 
     public static class SlackBlockKitHelper
     {
-        public static Attachment GenerateSlackBlockKit<T>(string templatePath, T model)
+        public static object GenerateSlackBlockKit<T>(string templatePath, T model)
         {
             var templateJson = File.ReadAllText(templatePath);
             var modelJson = JObject.FromObject(model);
             var expandedJson = ReplaceTemplateVariables(templateJson, modelJson);
-            var blockKitAttachment = new Attachment()
-            {
-                ContentType = "application/json",
-                Content = JsonConvert.DeserializeObject(expandedJson)
-            };
-            return blockKitAttachment;
+            return JsonConvert.DeserializeObject(expandedJson);
         }
 
         private static string ReplaceTemplateVariables(string templateJson, JObject modelJson)

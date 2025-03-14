@@ -1,0 +1,104 @@
+﻿{
+    "blocks": [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": ":clock8: *NEW CHECK IN OUT REQUEST*"
+            }
+        },
+        {
+            "type": "input",
+            "block_id": "MissingType",
+            "label": {
+                "type": "plain_text",
+                "text": "Missing Type"
+            },
+            "element": {
+                "type": "static_select",
+                "action_id": "data",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "---Choose Request Type---"
+                },
+                "options": [
+                    {
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Check In"
+                        },
+                        "value": "1"
+                    },
+                    {
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Check Out"
+                        },
+                        "value": "2"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "input",
+            "block_id": "RequestDate",
+            "label": {
+                "type": "plain_text",
+                "text": "Request Date"
+            },
+            "element": {
+                "type": "datepicker",
+                "action_id": "data",
+                "initial_date": "${RequestDateString}",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Select a date"
+                }
+            }
+        },
+        {
+            "type": "input",
+            "block_id": "TimeSelection",
+            "label": {
+                "type": "plain_text",
+                "text": "Select Time"
+            },
+            "element": {
+                "type": "timepicker",
+                "action_id": "data",
+                "initial_time": "08:00",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Select time"
+                }
+            }
+        },
+        {
+            "type": "context",
+            "elements": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*Shift:* ${Shift}"
+                }
+            ]
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "✅ Submit"
+                    },
+                    "style": "primary",
+                    "action_id": "10",
+                    "value": "{\"empid\": \"${EmpId}\", \"shift\": \"${Shift}\"}"
+                }
+            ]
+        },
+        {
+            "type": "divider"
+        }
+    ]
+}

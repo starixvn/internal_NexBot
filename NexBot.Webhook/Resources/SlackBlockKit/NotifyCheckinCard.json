@@ -1,0 +1,41 @@
+{
+    "blocks": [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*☑️ CHECKIN SUCCESSFULLY!*"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Dear *${NickName}*"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "This is a message to inform you that you just have a \"checkin\" record for today working on the HRM system as below:"
+            }
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*⏰ Checkin time:*"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": "*${CheckinTime}*"
+                }
+            ]
+        },
+        {
+            "type": "divider"
+        }
+    ]
+}

@@ -6,5 +6,7 @@
     public interface IFormAdaptiveCardService
     {
         Task<Attachment> GetCheckInCheckOutAdaptiveCardForm(string botConversationId, string conversationId);
+
+        Task<object> GetCheckInCheckOutBlockKitForm(string botConversationId, string conversationId);
     }
 }
