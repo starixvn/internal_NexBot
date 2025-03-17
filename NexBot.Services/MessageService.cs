@@ -319,26 +319,19 @@
             string logMsgContent = BotHelper.GenerateMessage(activity.Text);
             if (string.IsNullOrWhiteSpace(logMsgContent))
             {
-                if (!string.IsNullOrWhiteSpace(messageContent))
+                if (activity.ChannelId.Equals(Constants.TeamsChannel)
+                    && activity.Attachments is not null && activity.Attachments.Any())
                 {
-                    logMsgContent = messageContent;
+                    logMsgContent = JsonConvert.SerializeObject(activity.Attachments.FirstOrDefault());
+                }
+                else if (activity.ChannelId.Equals(Constants.SlackChannel)
+                         && activity.ChannelData is not null)
+                {
+                    logMsgContent = JsonConvert.SerializeObject(activity.ChannelData);
                 }
                 else
                 {
-                    if (activity.ChannelId.Equals(Constants.TeamsChannel)
-                        && activity.Attachments is not null && activity.Attachments.Any())
-                    {
-                        logMsgContent = JsonConvert.SerializeObject(activity.Attachments.FirstOrDefault());
-                    }
-                    else if (activity.ChannelId.Equals(Constants.SlackChannel) 
-                        && activity.ChannelData is not null)
-                    {
-                        logMsgContent = JsonConvert.SerializeObject(activity.ChannelData);
-                    }
-                    else
-                    {
-                        logMsgContent = string.Empty;
-                    }
+                    logMsgContent = messageContent;
                 }
             }
 
@@ -407,7 +400,7 @@
                 else if (conversation.ChannelId.Equals(Constants.SlackChannel))
                 {
                     var block = SlackBlockKitHelper.GenerateSlackBlockKit(
-                        Path.Combine(".", "Resources", templateName),
+                        Path.Combine(".", "SlackBlockKit", templateName),
                         record);
                     activity.ChannelData = block;
                 }
@@ -438,7 +431,7 @@
                 else if (conversation.ChannelId.Equals(Constants.SlackChannel))
                 {
                     var block = SlackBlockKitHelper.GenerateSlackBlockKit(
-                        Path.Combine(".", "Resources", "ReachedWorkingHoursCard.json"),
+                        Path.Combine(".", "SlackBlockKit", "ReachedWorkingHoursCard.json"),
                         reachedWorkingHours);
                     activity.ChannelData = block;
                 }

@@ -36,6 +36,19 @@
             ]
         },
         {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*⌚ Total working hours:*"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": "*${TotalHours}*"
+                }
+            ]
+        },
+        {
             "type": "divider"
         }
     ]

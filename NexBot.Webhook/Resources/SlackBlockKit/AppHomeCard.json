@@ -8,7 +8,7 @@
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": "👋  *Your registration has been successfully completed.*"
+                    "text": "👋  *Your registration has been successfully completed!*"
                 }
             },
             {
@@ -36,7 +36,7 @@
                             "emoji": true
                         },
                         "style": "primary",
-                        "url": "slack://app?team=T08ACMHMMFS&id=A08H9UQJTNH&tab=messenger"
+                        "url": "slack://app?team=T08ACMHMMFS&id=A08J1URDJ9F&tab=messenger"
                     }
                 ]
             }
