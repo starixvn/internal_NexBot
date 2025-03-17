@@ -8,7 +8,7 @@
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": "👋  *Hi ${NickName}!. Your registration has been successfully completed.*"
+                    "text": "👋  *Your registration has been successfully completed.*"
                 }
             },
             {

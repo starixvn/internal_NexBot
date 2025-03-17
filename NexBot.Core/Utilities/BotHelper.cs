@@ -103,18 +103,5 @@
 
             return displayAttribute?.Description ?? string.Empty;
         }
-
-        public static string FormatNickName(this string nickName)
-        {
-            var nameParts = nickName.Split(['.', ' '], StringSplitOptions.RemoveEmptyEntries);
-
-            for (var i = 0; i < nameParts.Length; i++)
-            {
-                nameParts[i] = char.ToUpper(nameParts[i][0], CultureInfo.InvariantCulture) + nameParts[i][1..].ToLower(CultureInfo.InvariantCulture);
-            }
-
-            var processedNickName = string.Join(" ", nameParts);
-            return processedNickName;
-        }
     }
 }
