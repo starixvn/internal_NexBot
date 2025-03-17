@@ -400,7 +400,7 @@
                 else if (conversation.ChannelId.Equals(Constants.SlackChannel))
                 {
                     var block = SlackBlockKitHelper.GenerateSlackBlockKit(
-                        Path.Combine(".", "SlackBlockKit", templateName),
+                        Path.Combine(".", "Resources", "SlackBlockKit", templateName),
                         record);
                     activity.ChannelData = block;
                 }
@@ -431,7 +431,7 @@
                 else if (conversation.ChannelId.Equals(Constants.SlackChannel))
                 {
                     var block = SlackBlockKitHelper.GenerateSlackBlockKit(
-                        Path.Combine(".", "SlackBlockKit", "ReachedWorkingHoursCard.json"),
+                        Path.Combine(".", "Resources", "SlackBlockKit", "ReachedWorkingHoursCard.json"),
                         reachedWorkingHours);
                     activity.ChannelData = block;
                 }
