@@ -22,27 +22,42 @@
             }
         },
         {
-            "type": "section",
-            "text": {
-                "type": "mrkdwn",
-                "text": "Please review and click the button below to create a *${MissingTypeText}* request"
-            }
-        },
-        {
             "type": "actions",
             "elements": [
                 {
                     "type": "button",
                     "text": {
                         "type": "plain_text",
-                        "text": "✎ Make ${MissingTypeText} Request",
+                        "text": "Create a ${MissingTypeText} request",
                         "emoji": true
                     },
                     "style": "primary",
-                    "action_id": "11"
+                    "url": "https://hrm.nexdev.net/CheckInOut/Create"
                 }
             ]
         },
+        //{
+        //    "type": "section",
+        //    "text": {
+        //        "type": "mrkdwn",
+        //        "text": "Please review and click the button below to create a *${MissingTypeText}* request"
+        //    }
+        //},
+        //{
+        //    "type": "actions",
+        //    "elements": [
+        //        {
+        //            "type": "button",
+        //            "text": {
+        //                "type": "plain_text",
+        //                "text": "✎ Make ${MissingTypeText} Request",
+        //                "emoji": true
+        //            },
+        //            "style": "primary",
+        //            "action_id": "11"
+        //        }
+        //    ]
+        //},
         {
             "type": "divider"
         }

@@ -10,6 +10,7 @@
     using NexBot.Services.Helpers;
     using NexBot.Services.Interfaces;
     using System;
+    using NexBot.Models;
 
     [Route("api/[controller]/[action]")]
     public class RemindController(IMessageService messageService, ILogProviderService logService) : Controller
@@ -68,83 +69,5 @@
             return Ok();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> SendForm()
-        {
-            var path = Path.Combine(".", "Resources", "SlackBlockKit", "LeaveRequestCard.json");
-            var block = SlackBlockKitHelper.GenerateSlackBlockKit(path, new
-            {
-                AvatarUrl = "https://hrm.nexdev.net/Employee/Avatar/02751",
-                CreatedDate = "2021-09-09",
-                RequestDate = "2021-09-09",
-                Time = "09:00",
-                RequestId = 1,
-                Nick = "Henry",
-                FullName = "Dinh Quang Hoang",
-                Supervisor = "Julien",
-                RequestType = "Check In",
-                Shift = "M1"
-            });
-            await messageService.SendBlockKitAsync("B08HJT3E2D8:T08ACMHMMFS:D08HBDU0UQ6", block);
-            return Ok();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> SendCheckInForm()
-        {
-            var path = Path.Combine(".", "Resources", "SlackBlockKit", "CheckInCheckOutFormCard.json");
-            var block = SlackBlockKitHelper.GenerateSlackBlockKit(path, new CheckInCheckOutFormModel
-            {
-                EmpId = 1234,
-                NickName = "Henry",
-                MissingType = 1,
-                Shift = "M1 (08:00 > 18:00)",
-                AttendanceDate = DateTime.UtcNow,
-                ConversationId = "B08HJT3E2D8:T08ACMHMMFS:D08HBDU0UQ6"
-            });
-            await messageService.SendBlockKitAsync("B08HJT3E2D8:T08ACMHMMFS:D08HBDU0UQ6", block);
-            return Ok();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> SendMissingForm()
-        {
-            var path = Path.Combine(".", "Resources", "SlackBlockKit", "MissingCheckInOutCard.json");
-            var block = SlackBlockKitHelper.GenerateSlackBlockKit(path, new 
-            {
-                NickName = "Henry",
-                MissingTypeText = "Check In",
-                DisplayDateString = "10 Mar, 2024",
-                Shift = "M1 (08:00 > 18:00)",
-            });
-            await messageService.SendBlockKitAsync("B08HJT3E2D8:T08ACMHMMFS:D08HBDU0UQ6", block);
-            return Ok();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> SendCheckinoutForm()
-        {
-            var path = Path.Combine(".", "Resources", "SlackBlockKit", "NotifyCheckoutCard.json");
-            var block = SlackBlockKitHelper.GenerateSlackBlockKit(path, new
-            {
-                NickName = "John",
-                CheckoutTime = "08:09 AM"
-            });
-            await messageService.SendBlockKitAsync("B08HJT3E2D8:T08ACMHMMFS:D08HBDU0UQ6", block);
-            return Ok();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> SendReachedForm()
-        {
-            var path = Path.Combine(".", "Resources", "SlackBlockKit", "ReachedWorkingHoursCard.json");
-            var block = SlackBlockKitHelper.GenerateSlackBlockKit(path, new
-            {
-                NickName = "John",
-                WorkingHours = "08:00'"
-            });
-            await messageService.SendBlockKitAsync("B08HJT3E2D8:T08ACMHMMFS:D08HBDU0UQ6", block);
-            return Ok();
-        }
     }
 }

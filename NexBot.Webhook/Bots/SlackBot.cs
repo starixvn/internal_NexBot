@@ -34,13 +34,13 @@ namespace NexBot.Bots
                 try
                 {
                     var slackData = JsonConvert.DeserializeObject<SlackEventPayload>(channelData);
-                    if (slackData?.SlackMessage?.Event?.Type == "app_home_opened")
+                    if (slackData.SlackMessage.Event.Type == "app_home_opened")
                     {
                         var payload = new SlackAppHomeViewPayload
                         {
-                            BotName = turnContext.Activity.Recipient?.Name ?? "Bot",
+                            BotName = turnContext.Activity.Recipient.Name ?? "Bot",
                             UserId = slackData.SlackMessage.Event.User,
-                            NickName = turnContext.Activity.From?.Name?.FormatNickName(),
+                            NickName = turnContext.Activity.From.Name.FormatNickName(),
                             ApiToken = slackData.ApiToken
                         };  
                         await slackBotHandler.PublishAppHomeView(payload);

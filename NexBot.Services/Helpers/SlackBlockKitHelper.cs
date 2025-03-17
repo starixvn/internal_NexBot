@@ -3,7 +3,6 @@
     using System.IO;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
-    using Microsoft.Bot.Schema;
 
     public static class SlackBlockKitHelper
     {

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
 
     public static class BotHelper
@@ -109,7 +110,7 @@
 
             for (var i = 0; i < nameParts.Length; i++)
             {
-                nameParts[i] = char.ToUpper(nameParts[i][0]) + nameParts[i][1..].ToLower();
+                nameParts[i] = char.ToUpper(nameParts[i][0], CultureInfo.InvariantCulture) + nameParts[i][1..].ToLower(CultureInfo.InvariantCulture);
             }
 
             var processedNickName = string.Join(" ", nameParts);

@@ -11,7 +11,7 @@
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": "Dear *${NickName}*"
+                "text": "Dear *${Nickname}*"
             }
         },
         {

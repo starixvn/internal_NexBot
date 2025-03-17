@@ -96,14 +96,14 @@
 
         private static ConversationReference GetConversationReference(ConversationModel conversationModel)
         {
-            var coversation = new ConversationReference
+            var conversation = new ConversationReference
             {
                 Bot = new ChannelAccount { Id = conversationModel.ConversationBotId, Name = conversationModel.ConversationBotName, Role = "bot" },
                 Conversation = new ConversationAccount { Id = conversationModel.ConversationId },
                 ServiceUrl = conversationModel.ServiceUrl,
                 ChannelId = conversationModel.ChannelId
             };
-            return coversation;
+            return conversation;
         }
 
         private async Task AddErrorMessageLog(ConversationReference conversationReference, string message)
@@ -133,6 +133,11 @@
                     if (conversation.ChannelId.Equals(Constants.TeamsChannel))
                     {
                         attachment = GetAttachmentForRequestInTeams(requestMessage);
+                    }
+                    else if (conversation.ChannelId.Equals(Constants.SlackChannel))
+                    {
+                        // TODO
+                        return;
                     }
                     else
                     {
@@ -247,6 +252,11 @@
                 {
                     attachment = GetAttachmentForRegistMealInTeams(registVegetarianMessage);
                 }
+                else if (conversation.ChannelId.Equals(Constants.SlackChannel))
+                {
+                    // TODO
+                    return;
+                }
                 else
                 {
                     activity.Text = registVegetarianMessage.Message;
@@ -320,6 +330,11 @@
                     {
                         logMsgContent = JsonConvert.SerializeObject(activity.Attachments.FirstOrDefault());
                     }
+                    else if (activity.ChannelId.Equals(Constants.SlackChannel) 
+                        && activity.ChannelData is not null)
+                    {
+                        logMsgContent = JsonConvert.SerializeObject(activity.ChannelData);
+                    }
                 }
             }
 
@@ -378,16 +393,23 @@
             {
                 var conversationReference = GetConversationReference(conversation);
                 var activity = CreateMessageActivity(conversationReference);
-                if (!conversation.ChannelId.Equals(Constants.TeamsChannel))
+                if (conversation.ChannelId.Equals(Constants.TeamsChannel))
                 {
-                    activity.Text = record.MessageContent;
-                }
-                else
-                {
-                    Attachment attachment = AdaptiveCardHelper.GenerateAdaptiveCardTeamsChannel(
+                    var attachment = AdaptiveCardHelper.GenerateAdaptiveCardTeamsChannel(
                         Path.Combine(".", "Resources", templateName),
                         record);
                     activity.Attachments.Add(attachment);
+                }
+                else if (conversation.ChannelId.Equals(Constants.SlackChannel))
+                {
+                    var block = SlackBlockKitHelper.GenerateSlackBlockKit(
+                        Path.Combine(".", "Resources", templateName),
+                        record);
+                    activity.ChannelData = block;
+                }
+                else
+                {
+                    activity.Text = record.MessageContent;
                 }
 
                 await SendMessageAsync(conversationReference, activity);
@@ -402,16 +424,24 @@
             {
                 var conversationReference = GetConversationReference(conversation);
                 var activity = CreateMessageActivity(conversationReference);
-                if (!conversation.ChannelId.Equals(Constants.TeamsChannel))
+                if (conversation.ChannelId.Equals(Constants.TeamsChannel))
                 {
-                    activity.Text = reachedWorkingHours.MessageContent;
-                }
-                else
-                {
-                    Attachment attachment = AdaptiveCardHelper.GenerateAdaptiveCardTeamsChannel(
+                    var attachment = AdaptiveCardHelper.GenerateAdaptiveCardTeamsChannel(
                         Path.Combine(".", "Resources", "ReachedWorkingHoursCard.json"),
                         reachedWorkingHours);
                     activity.Attachments.Add(attachment);
+                }
+                else if (conversation.ChannelId.Equals(Constants.SlackChannel))
+                {
+                    var block = SlackBlockKitHelper.GenerateSlackBlockKit(
+                        Path.Combine(".", "Resources", "ReachedWorkingHoursCard.json"),
+                        reachedWorkingHours);
+                    activity.ChannelData = block;
+                }
+                else
+                {
+                    activity.Text = reachedWorkingHours.MessageContent;
+                    
                 }
 
                 await SendMessageAsync(conversationReference, activity);

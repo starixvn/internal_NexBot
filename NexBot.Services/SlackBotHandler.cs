@@ -31,6 +31,11 @@ namespace NexBot.Services
         {
             foreach (var action in payload.Actions)
             {
+                if (payload.Message == null || payload.Channel == null)
+                {
+                    return;
+                }
+
                 var botId = $"{payload.Message.BotId}:{payload.Team.Id}";
                 var conversationId = $"{botId}:{payload.Channel.Id}";
                 if (action.ActionId == ((int)SubmitAction.GetCheckInOutForm).ToString())

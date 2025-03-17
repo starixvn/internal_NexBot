@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
-namespace NexBot.Models.Slack
+﻿namespace NexBot.Models.Slack
 {
     public class SlackEventPayload
     {
