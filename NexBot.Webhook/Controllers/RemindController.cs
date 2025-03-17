@@ -9,8 +9,6 @@
     using NexBot.Models.Form;
     using NexBot.Services.Helpers;
     using NexBot.Services.Interfaces;
-    using System;
-    using NexBot.Models;
 
     [Route("api/[controller]/[action]")]
     public class RemindController(IMessageService messageService, ILogProviderService logService) : Controller
@@ -68,6 +66,5 @@
             await messageService.SendAttachmentAsync(model.ConversationId, attachment);
             return Ok();
         }
-
     }
 }

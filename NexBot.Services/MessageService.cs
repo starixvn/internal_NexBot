@@ -335,6 +335,10 @@
                     {
                         logMsgContent = JsonConvert.SerializeObject(activity.ChannelData);
                     }
+                    else
+                    {
+                        logMsgContent = string.Empty;
+                    }
                 }
             }
 

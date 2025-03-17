@@ -8,14 +8,7 @@
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": "👋  *Hi ${NickName}. My name is ${BotName}.*"
-                }
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": "Your registration has been successfully completed."
+                    "text": "👋  *Hi ${NickName}!. Your registration has been successfully completed.*"
                 }
             },
             {
