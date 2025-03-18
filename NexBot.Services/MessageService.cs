@@ -19,6 +19,7 @@
     using NexBot.Criteria.RegisterMessage;
     using NexBot.Models;
     using NexBot.Models.CategoryMessage;
+    using NexBot.Models.Form;
     using NexBot.Models.Request;
     using NexBot.Services.Helpers;
     using NexBot.Services.Interfaces;
@@ -438,11 +439,129 @@
                 else
                 {
                     activity.Text = reachedWorkingHours.MessageContent;
-                    
                 }
 
                 await SendMessageAsync(conversationReference, activity);
                 await AddMessageLog(activity, reachedWorkingHours.MessageContent);
+            }
+        }
+
+        public async Task MissingCheckInCheckOutAsync(CheckInCheckOutFormModel checkInCheckOutFormModel)
+        {
+            var conversation = await conversationService.GetConversationById(checkInCheckOutFormModel.ConversationId);
+            if (conversation is not null)
+            {
+                var conversationReference = GetConversationReference(conversation);
+                var activity = CreateMessageActivity(conversationReference);
+                if (conversation.ChannelId.Equals(Constants.TeamsChannel))
+                {
+                    var attachment = AdaptiveCardHelper.GenerateAdaptiveCardTeamsChannel(
+                        Path.Combine(".", "RemindTemplates", "MissingCheckInOutCard.json"),
+                        checkInCheckOutFormModel);
+                    activity.Attachments.Add(attachment);
+                }
+                else if (conversation.ChannelId.Equals(Constants.SlackChannel))
+                {
+                    var block = SlackBlockKitHelper.GenerateSlackBlockKit(
+                        Path.Combine(".", "Resources", "SlackBlockKit", "MissingCheckInOutCard.json"),
+                        checkInCheckOutFormModel);
+                    activity.ChannelData = block;
+                }
+                else
+                {
+                    return;
+                }
+
+                await SendMessageAsync(conversationReference, activity);
+                await AddMessageLog(activity, "");
+            }
+        }
+
+        public async Task MissingTimeLogMemberAsync(MissedLogTimeMemberModel model)
+        {
+            var conversation = await conversationService.GetConversationById(model.ConversationId);
+            if (conversation is not null)
+            {
+                var conversationReference = GetConversationReference(conversation);
+                var activity = CreateMessageActivity(conversationReference);
+                if (conversation.ChannelId.Equals(Constants.TeamsChannel))
+                {
+                    var attachment = AdaptiveCardHelper.GenerateAdaptiveCardTeamsChannel(
+                        Path.Combine(".", "Resources", "RemindTemplates", "MissedLogTimeMemberCard.json"),
+                        model);
+                    activity.Attachments.Add(attachment);
+                }
+                else if (conversation.ChannelId.Equals(Constants.SlackChannel))
+                {
+                    var block = SlackBlockKitHelper.GenerateSlackBlockKit(
+                        Path.Combine(".", "Resources", "SlackBlockKit", "MissedLogTimeMemberCard.json"),
+                        model);
+                    activity.ChannelData = block;
+                    // TODO
+                    return;
+                }
+                else
+                {
+                    return;
+                }
+
+                await SendMessageAsync(conversationReference, activity);
+                await AddMessageLog(activity, "");
+            }
+        }
+
+        public async Task MissingTimeLogLeaderAsync(MissedLogTimeLeaderModel model)
+        {
+            var conversation = await conversationService.GetConversationById(model.ConversationId);
+            if (conversation is not null)
+            {
+                var conversationReference = GetConversationReference(conversation);
+                var activity = CreateMessageActivity(conversationReference);
+                if (conversation.ChannelId.Equals(Constants.TeamsChannel))
+                {
+                    model.Members = JsonConvert.DeserializeObject<IEnumerable<MemberModel>>(model.StringMembers);
+                    var cardData = new Dictionary<string, object>
+                    {
+                        { "LeaderName", model.LeaderName },
+                        { "LogMonth", model.LogMonth }
+                    };
+                    var membersTextBlocks = new List<object>();
+                    if (model.Members != null)
+                    {
+                        foreach (var member in model.Members)
+                        {
+                            membersTextBlocks.Add(new
+                            {
+                                type = "TextBlock",
+                                text = $"   - {member.NickName} (**{member.MissedCount}** times)",
+                                wrap = true,
+                                spacing = "small"
+                            });
+                        }
+                    }
+                    cardData.Add("MembersTextBlocks", membersTextBlocks);
+
+                    var attachment = AdaptiveCardHelper.GenerateAdaptiveCardTeamsChannel(
+                        Path.Combine(".", "Resources", "RemindTemplates", "MissedLogTimeLeaderCard.json"),
+                        cardData);
+                    activity.Attachments.Add(attachment);
+                }
+                else if (conversation.ChannelId.Equals(Constants.SlackChannel))
+                {
+                    var block = SlackBlockKitHelper.GenerateSlackBlockKit(
+                        Path.Combine(".", "Resources", "SlackBlockKit", "MissedLogTimeLeaderCard.json"),
+                        model);
+                    activity.ChannelData = block;
+                    // TODO
+                    return;
+                }
+                else
+                {
+                    return;
+                }
+
+                await SendMessageAsync(conversationReference, activity);
+                await AddMessageLog(activity, "");
             }
         }
 

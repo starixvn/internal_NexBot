@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
     using Microsoft.Bot.Schema;
     using NexBot.Models;
+    using NexBot.Models.Form;
     using NexBot.Models.Request;
 
     public interface IMessageService
@@ -22,6 +23,12 @@
         Task CheckinNotificationAsync(TimesheetRecord record);
 
         Task ReachedWorkingHoursAsync(ReachedWorkingHours reachedWorkingHours);
+
+        Task MissingCheckInCheckOutAsync(CheckInCheckOutFormModel checkInCheckOutFormModel);
+
+        Task MissingTimeLogMemberAsync(MissedLogTimeMemberModel model);
+
+        Task MissingTimeLogLeaderAsync(MissedLogTimeLeaderModel model);
 
         Task RemindApproveMultiplePendingRequests(PendingRequest request);
 
