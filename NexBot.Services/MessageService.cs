@@ -513,56 +513,58 @@
         public async Task MissingTimeLogLeaderAsync(MissedLogTimeLeaderModel model)
         {
             var conversation = await conversationService.GetConversationById(model.ConversationId);
-            if (conversation is not null)
+            if (conversation is null)
             {
-                var conversationReference = GetConversationReference(conversation);
-                var activity = CreateMessageActivity(conversationReference);
-                if (conversation.ChannelId.Equals(Constants.TeamsChannel))
-                {
-                    model.Members = JsonConvert.DeserializeObject<IEnumerable<MemberModel>>(model.StringMembers);
-                    var cardData = new Dictionary<string, object>
+                return;
+            }
+            var conversationReference = GetConversationReference(conversation);
+            var activity = CreateMessageActivity(conversationReference);
+
+            if (conversation.ChannelId.Equals(Constants.TeamsChannel))
+            {
+                model.Members = JsonConvert.DeserializeObject<IEnumerable<MemberModel>>(model.StringMembers);
+                var cardData = new Dictionary<string, object>
                     {
                         { "LeaderName", model.LeaderName },
                         { "LogMonth", model.LogMonth }
                     };
-                    var membersTextBlocks = new List<object>();
-                    if (model.Members != null)
+                var membersTextBlocks = new List<object>();
+                if (model.Members != null)
+                {
+                    foreach (var member in model.Members)
                     {
-                        foreach (var member in model.Members)
+                        membersTextBlocks.Add(new
                         {
-                            membersTextBlocks.Add(new
-                            {
-                                type = "TextBlock",
-                                text = $"   - {member.NickName} (**{member.MissedCount}** times)",
-                                wrap = true,
-                                spacing = "small"
-                            });
-                        }
+                            type = "TextBlock",
+                            text = $"   - {member.NickName} (**{member.MissedCount}** times)",
+                            wrap = true,
+                            spacing = "small"
+                        });
                     }
-                    cardData.Add("MembersTextBlocks", membersTextBlocks);
+                }
+                cardData.Add("MembersTextBlocks", membersTextBlocks);
 
-                    var attachment = AdaptiveCardHelper.GenerateAdaptiveCardTeamsChannel(
-                        Path.Combine(".", "Resources", "RemindTemplates", "MissedLogTimeLeaderCard.json"),
-                        cardData);
-                    activity.Attachments.Add(attachment);
-                }
-                else if (conversation.ChannelId.Equals(Constants.SlackChannel))
-                {
-                    var block = SlackBlockKitHelper.GenerateSlackBlockKit(
-                        Path.Combine(".", "Resources", "SlackBlockKit", "MissedLogTimeLeaderCard.json"),
-                        model);
-                    activity.ChannelData = block;
-                    // TODO
-                    return;
-                }
-                else
-                {
-                    return;
-                }
-
-                await SendMessageAsync(conversationReference, activity);
-                await AddMessageLog(activity, "");
+                var attachment = AdaptiveCardHelper.GenerateAdaptiveCardTeamsChannel(
+                    Path.Combine(".", "Resources", "RemindTemplates", "MissedLogTimeLeaderCard.json"),
+                    cardData);
+                activity.Attachments.Add(attachment);
             }
+            else if (conversation.ChannelId.Equals(Constants.SlackChannel))
+            {
+                var block = SlackBlockKitHelper.GenerateSlackBlockKit(
+                    Path.Combine(".", "Resources", "SlackBlockKit", "MissedLogTimeLeaderCard.json"),
+                    model);
+                activity.ChannelData = block;
+                // TODO
+                return;
+            }
+            else
+            {
+                return;
+            }
+
+            await SendMessageAsync(conversationReference, activity);
+            await AddMessageLog(activity, "");
         }
 
         public async Task RemindApproveMultiplePendingRequests(PendingRequest request)
