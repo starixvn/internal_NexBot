@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
     using Microsoft.Bot.Schema;
     using NexBot.Models;
+    using NexBot.Models.Form;
     using NexBot.Models.Request;
 
     public interface IMessageService
@@ -23,6 +24,12 @@
 
         Task ReachedWorkingHoursAsync(ReachedWorkingHours reachedWorkingHours);
 
+        Task MissingCheckInCheckOutAsync(CheckInCheckOutFormModel checkInCheckOutFormModel);
+
+        Task MissingTimeLogMemberAsync(MissedLogTimeMemberModel model);
+
+        Task MissingTimeLogLeaderAsync(MissedLogTimeLeaderModel model);
+
         Task RemindApproveMultiplePendingRequests(PendingRequest request);
 
         Task RemoveOldMessageLog();
@@ -30,5 +37,7 @@
         Task<Attachment> GetAttachmentHelpAdaptiveCard(string conversationId, bool isGroup, string botName);
 
         Task SendAttachmentAsync(string conversationId, Attachment attachment);
+
+        Task SendBlockKitAsync(string conversationId, object block);
     }
 }

@@ -31,6 +31,8 @@
 
         public string DisplayDateString => AttendanceDate.Value.ToString("dd MMM, yyyy");
 
+        public string MissingTypeText => MissingType  == 1 ? "Check In" : "Check Out";
+
         public string RequestDateString
         {
             get

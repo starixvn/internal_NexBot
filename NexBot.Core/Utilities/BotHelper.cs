@@ -42,6 +42,7 @@
             switch (channelId)
             {
                 case Constants.SkypeChannel:
+                case Constants.SlackChannel:
                     if (sourceMessage.StartsWith('@')
                         || sourceMessage.StartsWith(botName))
                     {
@@ -77,6 +78,7 @@
                         }
                     }
                     break;
+
 
                 default:
                     returnMessage = sourceMessage;

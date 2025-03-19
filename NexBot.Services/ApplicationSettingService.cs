@@ -31,7 +31,11 @@
 
         public string GetHrmUrl(string botConversationId)
         {
-            var bot = botConfigs.FirstOrDefault(b => botConversationId.Contains(b.MicrosoftAppId));
+            var bot = botConfigs.FirstOrDefault(b =>
+                    botConversationId.Contains(b.MicrosoftAppId) ||
+                    b.Channels.Any(c => botConversationId.Contains(c.BotId))
+            );
+
             return bot?.HrmUrl ?? string.Empty;
         }
     }

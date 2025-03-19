@@ -1,0 +1,45 @@
+﻿{
+    "user_id": "${UserId}",
+    "view": {
+        "type": "home",
+        "callback_id": "home_view",
+        "blocks": [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "👋  *Your registration has been successfully completed!*"
+                }
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "By adding me, I will send you some important notifications:"
+                }
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "• *Reminder Missing Check In/Out* \n• *Reminder Reached Working Hour* \n• *Reminder Vegetarian Registration* \n• *Notify Employee When Checkout* \n• *Notify Employee After Checkin* "
+                }
+            },
+            {
+                "type": "actions",
+                "elements": [
+                    {
+                        "type": "button",
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Go to Messages",
+                            "emoji": true
+                        },
+                        "style": "primary",
+                        "url": "slack://app?team=T08ACMHMMFS&id=A08J1URDJ9F&tab=messenger"
+                    }
+                ]
+            }
+        ]
+    }
+}

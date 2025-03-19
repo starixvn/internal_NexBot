@@ -54,6 +54,7 @@
             services.AddTransient<ITeamsBot, TeamsBot>();
             services.AddTransient<ISkypeBot, SkypeBot>();
             services.AddTransient<ITelegramBot, TelegramBot>();
+            services.AddTransient<ISlackBot, SlackBot>();
             services.AddTransient<ICoreBot, CoreBot>();
             services.AddTransient<IBot, BotFactory>();
 
@@ -64,6 +65,7 @@
                     Constants.TeamsChannel => serviceProvider.GetService<ITeamsBot>(),
                     Constants.SkypeChannel => serviceProvider.GetService<ISkypeBot>(),
                     Constants.TelegramChannel => serviceProvider.GetService<ITelegramBot>(),
+                    Constants.SlackChannel => serviceProvider.GetService<ISlackBot>(),
                     _ => serviceProvider.GetService<ICoreBot>(),
                 };
             });
@@ -78,7 +80,6 @@
         {
             if (env.IsDevelopment())
             {
-                app.UseMiddleware<ErrorHandlingMiddleware>();
                 app.UseDeveloperExceptionPage();
             }
             else
@@ -148,6 +149,7 @@
             services.AddScoped<IRegisterMessageService, RegisterMessageService>();
             services.AddScoped<IFormAdaptiveCardService, FormAdaptiveCardService>();
             services.AddScoped<ITeamsBotHandler, TeamsBotHandler>();
+            services.AddScoped<ISlackBotHandler, SlackBotHandler>();
         }
     }
 }

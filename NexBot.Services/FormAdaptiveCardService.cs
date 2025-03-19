@@ -24,5 +24,22 @@
             }
             return attachment;
         }
+
+        public async Task<object> GetCheckInCheckOutBlockKitForm(string botConversationId, string conversationId)
+        {
+            object block = null;
+            var url = applicationSetting.GetHrmUrl(botConversationId);
+            if (!string.IsNullOrEmpty(url))
+            {
+                var checkInCheckOutModel = await hrm.GetCheckInCheckOutModel(url, conversationId);
+                if (checkInCheckOutModel != null)
+                {
+                    block = SlackBlockKitHelper.GenerateSlackBlockKit(
+                        Path.Combine(".", "Resources", "SlackBlockKit", "CheckInCheckOutFormCard.json"),
+                        checkInCheckOutModel);
+                }
+            }
+            return block;
+        }
     }
 }

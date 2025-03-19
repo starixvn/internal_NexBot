@@ -1,0 +1,68 @@
+﻿{
+    "blocks": [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*📌 CHECK IN OUT REQUEST*"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Dear *${Supervisor}*,\n\nThis is to inform you about your member, *${Nick} (${FullName})* had a *${RequestType}* request (#${RequestId}):"
+            }
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*📅 Date:* ${RequestDate}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": "*⏳ Shift:* ${Shift}"
+                },
+            ]
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*🕒 Time:* ${Time}"
+                }
+            ]
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Approve"
+                    },
+                    "style": "primary",
+                    "value": "approve_${RequestId}",
+                    "action_id": "approve_request"
+                },
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Reject"
+                    },
+                    "style": "danger",
+                    "value": "reject_${RequestId}",
+                    "action_id": "reject_request"
+                }
+            ]
+        },
+        {
+            "type": "divider"
+        }
+    ]
+}
