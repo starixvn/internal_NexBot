@@ -12,6 +12,8 @@ namespace NexBot.Services
     using System.Threading.Tasks;
     using Newtonsoft.Json;
     using NexBot.Core;
+    using NexBot.Core.Services.Interfaces;
+    using NexBot.Models;
     using NexBot.Models.SubmittedForm;
     using NexBot.Services.Helpers;
     using NexBot.Services.Interfaces;
@@ -21,12 +23,12 @@ namespace NexBot.Services
          IFormAdaptiveCardService formAdaptiveCardService,
          IApplicationSettingService applicationSetting,
          IMessageService messageService,
+         IRegistrationMealService registrationMealService,
+         ILogProviderService logProviderService,
          IHttpClientFactory httpClientFactory) : ISlackBotHandler
     {
-
         private const string baseUrl = "https://slack.com/api/views.publish";
 
-    
         public async Task HandleInteractiveRequest(SlackInteractionPayload payload)
         {
             foreach (var action in payload.Actions)
@@ -52,8 +54,12 @@ namespace NexBot.Services
                     }
                 }
                 else if (action.ActionId == ((int)SubmitAction.SubmitForm).ToString()) {
-                    var data = JsonConvert.DeserializeObject<CheckInCheckOutFormData>(action.Value);
-                    await HandleSubmitForm(payload.State.Values, data, botId, conversationId);
+                    
+                    await HandleSubmitForm(payload.State.Values, action.Value, botId, conversationId);
+                }
+                else if (action.ActionId == ((int)SubmitAction.RegistrationMeal).ToString())
+                {
+                    await HandleSubmitRegistVegetarian(action.Value, conversationId);
                 }
                 else
                 {
@@ -73,13 +79,23 @@ namespace NexBot.Services
             using var response = await httpClient.SendAsync(request);
         }
 
-        private async Task HandleSubmitForm(Dictionary<string, SlackActionElement> values, CheckInCheckOutFormData data,string botId, string conversationId)
+        private async Task HandleSubmitRegistVegetarian(string strData, string conversationId)
+        {
+            var registVegetarianMealMessage = JsonConvert.DeserializeObject<RegistVegetarianMealMessage>(strData);
+            var result = await registrationMealService.RegistVegetarian(registVegetarianMealMessage);
+            logProviderService.LogFileMessage($"Regist meal result: {JsonConvert.SerializeObject(result)}");
+            await messageService.SendAsync(conversationId, result);
+
+        }
+
+        private async Task HandleSubmitForm(Dictionary<string, SlackActionElement> values, string strData,string botId, string conversationId)
         {
             var requestType = values["MissingType"].Data.SelectedOption.Value;
             var requestDate = values["RequestDate"].Data.SelectedDate;
             var requestTime = values["TimeSelection"].Data.SelectedTime;
             var timeParts = requestTime.Split(':');
 
+            var data = JsonConvert.DeserializeObject<CheckInCheckOutFormData>(strData);
             data.MissingType = int.Parse(requestType);
             data.BaseUrl = applicationSetting.GetHrmUrl(botId);
             data.Hour = timeParts[0];

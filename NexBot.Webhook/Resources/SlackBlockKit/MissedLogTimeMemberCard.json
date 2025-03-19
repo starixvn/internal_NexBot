@@ -1,0 +1,43 @@
+{
+    "blocks": [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*⚠️ MISSING TIME LOG! - ${MissedCount} TIME(S)*"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Dear *${NickName}*"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "You forgot to log your working hours on *${LogDate}* and *${MissedCount} time(s)* in ${LogMonth}. Remember to update it daily to ensure accurate records."
+            }
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Go to Redmine",
+                        "emoji": true
+                    },
+                    "url": "https://nexdev.net/time_entries?f[]=spent_on&op[spent_on]=m&f[]=user_id&op[user_id]==&v[user_id][]=me&f[]=&c[]=project&c[]=spent_on&c[]=user&c[]=activity&c[]=issue&c[]=comments&c[]=hours&query[group_by]=spent_on&v[query]=Your%20spent%20time%20this%20month",
+                    "action_id": "go_to_redmine"
+                }
+            ]
+        },
+        {
+            "type": "divider"
+        }
+    ]
+}

@@ -456,7 +456,7 @@
                 if (conversation.ChannelId.Equals(Constants.TeamsChannel))
                 {
                     var attachment = AdaptiveCardHelper.GenerateAdaptiveCardTeamsChannel(
-                        Path.Combine(".", "RemindTemplates", "MissingCheckInOutCard.json"),
+                        Path.Combine(".", "Resources", "RemindTemplates", "MissingCheckInOutCard.json"),
                         checkInCheckOutFormModel);
                     activity.Attachments.Add(attachment);
                 }

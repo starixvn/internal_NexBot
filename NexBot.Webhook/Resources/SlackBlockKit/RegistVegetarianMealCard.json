@@ -1,0 +1,36 @@
+{
+    "blocks": [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*🥦🥬 Đặt cơm chay 🥦🥬*"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "${MessageContent}"
+            }
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "✅ Đặt Cơm Chay"
+                    },
+                    "style": "primary",
+                    "action_id": "2",
+                    "value": "{\"EmpId\": \"${EmpId}\", \"CompanyId\": \"${CompanyId}\", \"CallBackUrl\": \"${CallBackUrl}\", \"OnDate\": \"${OnDate}\"}"
+                }
+            ]
+        },
+        {
+            "type": "divider"
+        }
+    ]
+}
