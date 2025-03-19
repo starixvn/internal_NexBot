@@ -6,7 +6,6 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using AdaptiveCards.Templating;
     using Microsoft.Bot.Builder.Integration.AspNet.Core;
     using Microsoft.Bot.Schema;
     using Newtonsoft.Json;
@@ -128,12 +127,24 @@
                 var conversation = await conversationService.GetConversationById(requestMessage.ConversationId);
                 var conversationReference = GetConversationReference(conversation);
                 var activity = CreateMessageActivity(conversationReference);
+                string fileName;
+                if (requestMessage.RequestType.Equals("leave"))
+                {
+                    fileName = requestMessage.IsReadOnly ? "LeaveRequestReadOnlyCard.json" : "LeaveRequestCard.json";
+                }
+                else
+                {
+                    fileName = "CheckInOutRequestCard.json";
+                }
+
                 if (!string.IsNullOrEmpty(requestMessage.Message))
                 {
-                    Attachment attachment;
                     if (conversation.ChannelId.Equals(Constants.TeamsChannel))
                     {
-                        attachment = GetAttachmentForRequestInTeams(requestMessage);
+                        var attachment = AdaptiveCardHelper.GenerateAdaptiveCardTeamsChannel(
+                            Path.Combine(".", "Resources", fileName),
+                            requestMessage);
+                        activity.Attachments.Add(attachment);
                     }
                     else if (conversation.ChannelId.Equals(Constants.SlackChannel))
                     {
@@ -148,10 +159,10 @@
                         }
 
                         activity.Text = requestMessage.Message;
-                        attachment = GetAttachmentForRequest(requestMessage);
+                        var attachment = GetAttachmentForRequest(requestMessage);
+                        activity.Attachments.Add(attachment);
                     }
 
-                    activity.Attachments.Add(attachment);
                     await SendMessageAsync(conversationReference, activity);
                     await AddMessageLog(activity, requestMessage.Message);
                 }
@@ -160,30 +171,6 @@
             {
                 await logProviderService.SentryErrorAsync(JsonConvert.SerializeObject(requestMessage), ex);
             }
-        }
-
-        private static Attachment GetAttachmentForRequestInTeams(RequestMessage requestMessage)
-        {
-            string fileName;
-            if (requestMessage.RequestType.Equals("leave"))
-            {
-                fileName = requestMessage.IsReadOnly ? "LeaveRequestReadOnlyCard.json" : "LeaveRequestCard.json";
-            }
-            else
-            {
-                fileName = "CheckInOutRequestCard.json";
-            }
-
-            var filePath = Path.Combine(".", "Resources", fileName);
-            var templateJson = File.ReadAllText(filePath);
-            AdaptiveCardTemplate template = new(templateJson);
-            string cardJson = template.Expand(requestMessage);
-            var cardAttachment = new Attachment()
-            {
-                ContentType = "application/vnd.microsoft.card.adaptive",
-                Content = JsonConvert.DeserializeObject(cardJson),
-            };
-            return cardAttachment;
         }
 
         private static Attachment GetAttachmentForRequest(RequestMessage requestMessage)
@@ -202,22 +189,6 @@
 
             var attachment = heroCard.ToAttachment();
             return attachment;
-        }
-
-        private static Attachment GetAttachmentForRegistMealInTeams(RegistVegetarianMealMessage registVegetarianMessage)
-        {
-            var fileName = "RegistVegetarianMealCard.json";
-            var filePath = Path.Combine(".", "Resources", fileName);
-            var templateJson = File.ReadAllText(filePath);
-            AdaptiveCardTemplate template = new(templateJson);
-            string cardJson = template.Expand(registVegetarianMessage);
-
-            var cardAttachment = new Attachment()
-            {
-                ContentType = "application/vnd.microsoft.card.adaptive",
-                Content = JsonConvert.DeserializeObject(cardJson),
-            };
-            return cardAttachment;
         }
 
         private static Attachment GetAttachmentForRegistMeal(RegistVegetarianMealMessage registVegetarianMessage)
@@ -248,24 +219,26 @@
             var activity = CreateMessageActivity(conversationReference);
             if (!string.IsNullOrEmpty(registVegetarianMessage.Message))
             {
-                Attachment attachment;
                 if (conversation.ChannelId.Equals(Constants.TeamsChannel))
                 {
-                    attachment = GetAttachmentForRegistMealInTeams(registVegetarianMessage);
+                    var attachment = AdaptiveCardHelper.GenerateAdaptiveCardTeamsChannel(
+                        Path.Combine(".", "Resources", "RegistVegetarianMealCard.json"),
+                        registVegetarianMessage);
+                    activity.Attachments.Add(attachment);
                 }
                 else if (conversation.ChannelId.Equals(Constants.SlackChannel))
                 {
-                    // TODO
-                    return;
+                    var block = SlackBlockKitHelper.GenerateSlackBlockKit(
+                        Path.Combine(".", "Resources", "SlackBlockKit", "RegistVegetarianMealCard.json"),
+                        registVegetarianMessage);
+                    activity.ChannelData = block;
                 }
                 else
                 {
                     activity.Text = registVegetarianMessage.Message;
-                    attachment = GetAttachmentForRegistMeal(registVegetarianMessage);
+                    var attachment = GetAttachmentForRegistMeal(registVegetarianMessage);
+                    activity.Attachments.Add(attachment);
                 }
-
-                activity.Attachments.Add(attachment);
-
                 await SendMessageAsync(conversationReference, activity);
                 await AddMessageLog(activity, registVegetarianMessage.Message);
             }
@@ -519,28 +492,25 @@
             }
             var conversationReference = GetConversationReference(conversation);
             var activity = CreateMessageActivity(conversationReference);
+            model.Members = JsonConvert.DeserializeObject<IEnumerable<MemberModel>>(model.StringMembers);
+            var cardData = new Dictionary<string, object>
+            {
+                { "LeaderName", model.LeaderName },
+                { "LogMonth", model.LogMonth }
+            };
 
             if (conversation.ChannelId.Equals(Constants.TeamsChannel))
             {
-                model.Members = JsonConvert.DeserializeObject<IEnumerable<MemberModel>>(model.StringMembers);
-                var cardData = new Dictionary<string, object>
-                    {
-                        { "LeaderName", model.LeaderName },
-                        { "LogMonth", model.LogMonth }
-                    };
                 var membersTextBlocks = new List<object>();
-                if (model.Members != null)
+                foreach (var member in model.Members)
                 {
-                    foreach (var member in model.Members)
+                    membersTextBlocks.Add(new
                     {
-                        membersTextBlocks.Add(new
-                        {
-                            type = "TextBlock",
-                            text = $"   - {member.NickName} (**{member.MissedCount}** times)",
-                            wrap = true,
-                            spacing = "small"
-                        });
-                    }
+                        type = "TextBlock",
+                        text = $"   - {member.NickName} (**{member.MissedCount}** times)",
+                        wrap = true,
+                        spacing = "small"
+                    });
                 }
                 cardData.Add("MembersTextBlocks", membersTextBlocks);
 
@@ -551,9 +521,16 @@
             }
             else if (conversation.ChannelId.Equals(Constants.SlackChannel))
             {
+                var membersTextBlocks = string.Empty;
+                foreach (var member in model.Members)
+                {
+                    membersTextBlocks += $"• {member.NickName} (*{member.MissedCount}* times)\n";
+                }
+                cardData.Add("MembersTextBlocks", membersTextBlocks);
+
                 var block = SlackBlockKitHelper.GenerateSlackBlockKit(
                     Path.Combine(".", "Resources", "SlackBlockKit", "MissedLogTimeLeaderCard.json"),
-                    model);
+                    cardData);
                 activity.ChannelData = block;
                 // TODO
                 return;
