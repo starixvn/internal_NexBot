@@ -75,12 +75,6 @@ namespace NexBot.Bots
                 {
                     switch (message.ToLowerInvariant())
                     {
-                        case InteractedCommand.help:
-                            var msgHelp = MessageFactory.Text(MessageConstants.HelpCommand(botName, false));
-                            msgHelp.TextFormat = "markdown";
-                            await turnContext.SendActivityAsync(msgHelp, cancellationToken);
-                            break;
-
                         case InteractedCommand.getid:
                             var replyMsg = $"Your conversationId: {turnContext.Activity.Conversation.Id}";
                             await turnContext.SendActivityAsync(MessageFactory.Text(replyMsg), cancellationToken);

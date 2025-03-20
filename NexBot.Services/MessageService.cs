@@ -149,6 +149,7 @@
                     else if (conversation.ChannelId.Equals(Constants.SlackChannel))
                     {
                         // TODO
+                        await SendAsync(requestMessage.ConversationId, "This is to inform you about your member have new request. Go to HRM to review and approve or reject if needed");
                         return;
                     }
                     else
@@ -377,6 +378,7 @@
                         Path.Combine(".", "Resources", "SlackBlockKit", templateName),
                         record);
                     activity.ChannelData = block;
+
                 }
                 else
                 {
