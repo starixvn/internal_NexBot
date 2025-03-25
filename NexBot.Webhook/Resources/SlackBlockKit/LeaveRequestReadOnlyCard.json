@@ -1,0 +1,50 @@
+{
+    "blocks": [
+        {
+            "type": "context",
+            "elements": [
+                {
+                    "type": "image",
+                    "image_url": "${AvatarUrl}",
+                    "alt_text": "images"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": "*${Nick}* - ${CreatedDate}"
+                }
+            ]
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Dear *${Supervisor}*, This is to inform you about your member, *${Nick}* (${FullName}) had a *leave* request (id: ${RequestId}):"
+            }
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*📅 Date:* ${RequestDate}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": "*:pushpin: Type:* ${LeaveType}"
+                }
+            ]
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*:pencil: Remark:* ${Remark}"
+                }
+            ]
+        },
+        {
+            "type": "divider"
+        }
+    ]
+}

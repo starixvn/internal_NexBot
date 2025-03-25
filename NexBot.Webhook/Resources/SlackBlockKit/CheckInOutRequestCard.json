@@ -1,0 +1,76 @@
+{
+    "blocks": [
+        {
+            "type": "context",
+            "elements": [
+                {
+                    "type": "image",
+                    "image_url": "${AvatarUrl}",
+                    "alt_text": "images"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": "*${Nick}* - ${CreatedDate}"
+                }
+            ]
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Dear ${Supervisor}, This is to inform you about your member, *${Nick}* (${FullName}) had a *${RequestType}* request (#${RequestId}):"
+            }
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*📅 Date:* ${RequestDate}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": "*:pushpin: Type:* ${LeaveType}"
+                }
+            ]
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*:pencil: Remark:* ${Remark}"
+                }
+            ]
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Approve"
+                    },
+                    "style": "primary",
+                    "action_id": "0",
+                    "value": "{\"RequestId\": \"${RequestId}\", \"CallBackUrl\": \"${CallBackUrl}\", \"ProcessedBy\": \"${ProcessedBy}\", \"Command\": \"Approve\"}"
+                },
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Reject"
+                    },
+                    "style": "danger",
+                    "action_id": "1",
+                    "value": "{\"RequestId\": \"${RequestId}\", \"CallBackUrl\": \"${CallBackUrl}\", \"ProcessedBy\": \"${ProcessedBy}\", \"Command\": \"Reject\"}"
+
+                }
+            ]
+        },
+        {
+            "type": "divider"
+        }
+    ]
+}

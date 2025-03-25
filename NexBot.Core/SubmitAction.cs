@@ -4,7 +4,10 @@ namespace NexBot.Core
 {
     public enum SubmitAction
     {
+        ApproveRequest = 0,
+
         ProcessRequest = 1,
+
         RegistrationMeal = 2,
 
         [Description("Remind Registration Meal")]
