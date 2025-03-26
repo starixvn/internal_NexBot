@@ -4,7 +4,10 @@ namespace NexBot.Core
 {
     public enum SubmitAction
     {
+        ApproveRequest = 0,
+
         ProcessRequest = 1,
+
         RegistrationMeal = 2,
 
         [Description("Remind Registration Meal")]
@@ -29,6 +32,10 @@ namespace NexBot.Core
 
         SubmitForm = 10,
 
-        GetCheckInOutForm = 11
+        GetCheckInOutForm = 11,
+
+        RegistryNewFingerMachineAlert = 12,
+
+        RegistryBioChangeTimeAlert = 13,
     }
 }

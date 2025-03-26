@@ -14,11 +14,14 @@ namespace NexBot.Services
     using NexBot.Core;
     using NexBot.Core.Services.Interfaces;
     using NexBot.Models;
+    using NexBot.Models.Request;
     using NexBot.Models.SubmittedForm;
     using NexBot.Services.Helpers;
     using NexBot.Services.Interfaces;
 
     public class SlackBotHandler(
+         IRequestService requestService,
+         IRegisterMessageService registerMessageService,
          IHRMConnector hrmConnector,
          IFormAdaptiveCardService formAdaptiveCardService,
          IApplicationSettingService applicationSetting,
@@ -40,30 +43,41 @@ namespace NexBot.Services
 
                 var botId = $"{payload.Message.BotId}:{payload.Team.Id}";
                 var conversationId = $"{botId}:{payload.Channel.Id}";
-                if (action.ActionId == ((int)SubmitAction.GetCheckInOutForm).ToString())
+                switch (int.Parse(action.ActionId))
                 {
-                    var block = await formAdaptiveCardService.GetCheckInCheckOutBlockKitForm(botId, conversationId);
-                    if (block != null)
-                    {
-                        await messageService.SendBlockKitAsync(conversationId, block);
-                    }
-                    else
-                    {
-                        await messageService.SendAsync(conversationId, "Something wrong! Please try again or check with admin");
+                    case (int)SubmitAction.ApproveRequest:
+                    case (int)SubmitAction.ProcessRequest:
+                        await HandleSubmitProcessRequest(action.Value, conversationId);
+                        break;
 
-                    }
-                }
-                else if (action.ActionId == ((int)SubmitAction.SubmitForm).ToString()) {
-                    
-                    await HandleSubmitForm(payload.State.Values, action.Value, botId, conversationId);
-                }
-                else if (action.ActionId == ((int)SubmitAction.RegistrationMeal).ToString())
-                {
-                    await HandleSubmitRegistVegetarian(action.Value, conversationId);
-                }
-                else
-                {
-                    return;
+                    case (int)SubmitAction.GetCheckInOutForm:
+                        var block = await formAdaptiveCardService.GetCheckInCheckOutBlockKitForm(botId, conversationId);
+                        if (block != null)
+                        {
+                            await messageService.SendBlockKitAsync(conversationId, block);
+                        }
+                        else
+                        {
+                            await messageService.SendAsync(conversationId, "Something wrong! Please try again or check with admin");
+                        }
+                        break;
+
+                    case (int)SubmitAction.SubmitForm:
+                        await HandleSubmitForm(payload.State.Values, action.Value, botId, conversationId);
+                        break;
+
+                    case (int)SubmitAction.RegistrationMeal:
+                        await HandleSubmitRegistVegetarian(action.Value, conversationId);
+                        break;
+
+                    case (int)SubmitAction.RegistryNewFingerMachineAlert:
+                    case (int)SubmitAction.RegistryBioChangeTimeAlert:
+                        await registerMessageService.RegisterEventMessage(conversationId, int.Parse(action.Value));
+                        await messageService.SendAsync(conversationId, "Registered successfully!");
+                        break;
+
+                    default:
+                        return;
                 }
             }
         }
@@ -77,6 +91,13 @@ namespace NexBot.Services
             request.Content = new StringContent(JsonConvert.SerializeObject(block), Encoding.UTF8, "application/json");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", payload.ApiToken);
             using var response = await httpClient.SendAsync(request);
+        }
+
+        private async Task HandleSubmitProcessRequest(string strData, string conversationId)
+        {
+            var processRequest = JsonConvert.DeserializeObject<ProcessRequest>(strData);
+            var result = await requestService.ProcessRequest(processRequest);
+            await messageService.SendAsync(conversationId, result);
         }
 
         private async Task HandleSubmitRegistVegetarian(string strData, string conversationId)

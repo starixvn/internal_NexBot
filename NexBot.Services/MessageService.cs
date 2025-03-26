@@ -148,9 +148,10 @@
                     }
                     else if (conversation.ChannelId.Equals(Constants.SlackChannel))
                     {
-                        // TODO
-                        await SendAsync(requestMessage.ConversationId, "This is to inform you about your member have new request. Go to HRM to review and approve or reject if needed");
-                        return;
+                        var block = SlackBlockKitHelper.GenerateSlackBlockKit(
+                            Path.Combine(".", "Resources", "SlackBlockKit", fileName),
+                            requestMessage);
+                        activity.ChannelData = block;
                     }
                     else
                     {
@@ -472,8 +473,6 @@
                         Path.Combine(".", "Resources", "SlackBlockKit", "MissedLogTimeMemberCard.json"),
                         model);
                     activity.ChannelData = block;
-                    // TODO
-                    return;
                 }
                 else
                 {
@@ -534,8 +533,6 @@
                     Path.Combine(".", "Resources", "SlackBlockKit", "MissedLogTimeLeaderCard.json"),
                     cardData);
                 activity.ChannelData = block;
-                // TODO
-                return;
             }
             else
             {
