@@ -32,6 +32,10 @@ namespace NexBot.Core
 
         SubmitForm = 10,
 
-        GetCheckInOutForm = 11
+        GetCheckInOutForm = 11,
+
+        RegistryNewFingerMachineAlert = 12,
+
+        RegistryBioChangeTimeAlert = 13,
     }
 }

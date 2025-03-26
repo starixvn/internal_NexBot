@@ -1,0 +1,46 @@
+﻿{
+    "blocks": [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*:loudspeaker: NOTIFICATION REGISTRATION*"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Registered successfully. Your conversationId: *${ConversationId}*. Please choose registration category:"
+            }
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "New Finger Machine Alert"
+                    },
+                    "style": "primary",
+                    "action_id": "12",
+                    "value": "1"
+                },
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "BIO Change Time Alert"
+                    },
+                    "style": "primary",
+                    "action_id": "13",
+                    "value": "2"
+                }
+            ]
+        },
+        {
+            "type": "divider"
+        }
+    ]
+}

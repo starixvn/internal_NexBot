@@ -21,6 +21,7 @@ namespace NexBot.Services
 
     public class SlackBotHandler(
          IRequestService requestService,
+         IRegisterMessageService registerMessageService,
          IHRMConnector hrmConnector,
          IFormAdaptiveCardService formAdaptiveCardService,
          IApplicationSettingService applicationSetting,
@@ -67,6 +68,12 @@ namespace NexBot.Services
 
                     case (int)SubmitAction.RegistrationMeal:
                         await HandleSubmitRegistVegetarian(action.Value, conversationId);
+                        break;
+
+                    case (int)SubmitAction.RegistryNewFingerMachineAlert:
+                    case (int)SubmitAction.RegistryBioChangeTimeAlert:
+                        await registerMessageService.RegisterEventMessage(conversationId, int.Parse(action.Value));
+                        await messageService.SendAsync(conversationId, "Registered successfully!");
                         break;
 
                     default:
