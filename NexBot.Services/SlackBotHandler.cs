@@ -34,9 +34,13 @@ namespace NexBot.Services
 
         public async Task HandleInteractiveRequest(SlackInteractionPayload payload)
         {
+            if (payload.Message == null || payload.Channel == null)
+            {
+                return;
+            }
             foreach (var action in payload.Actions)
             {
-                if (payload.Message == null || payload.Channel == null)
+                if (string.IsNullOrEmpty(action.ActionId))
                 {
                     return;
                 }
