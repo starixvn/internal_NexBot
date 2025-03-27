@@ -1,4 +1,5 @@
 ﻿{
+    "text": "⚠️  MISSING ${MissingTypeText}",
     "blocks": [
         {
             "type": "section",
