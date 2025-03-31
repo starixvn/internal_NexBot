@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using Microsoft.Bot.Schema;
     using NexBot.Core;
@@ -16,10 +17,16 @@
         public async Task AddConversationAsync(IActivity activity)
         {
             var firstName = string.Empty;
+            var userName = activity.From.Name;
+
             if (activity.ChannelId == Constants.TelegramChannel)
             {
                 var channelData = activity.GetChannelData<TelegramData>();
                 firstName = channelData.message.from?.first_name;
+            }
+            if (activity.ChannelId == Constants.SlackChannel)
+            {
+                userName = Regex.Replace(userName, @"\d+", "");
             }
 
             var criteria = new InsertConversationCommand
@@ -27,7 +34,7 @@
                 ConversationId = activity.Conversation.Id,
                 ChannelId = activity.ChannelId,
                 ServiceUrl = activity.ServiceUrl,
-                UserName = activity.From.Name,
+                UserName = userName,
                 FirstName = firstName,
                 IsGroup = activity.Conversation.IsGroup,
                 IsActive = true,
