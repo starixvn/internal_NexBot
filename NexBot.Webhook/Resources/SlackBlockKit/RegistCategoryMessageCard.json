@@ -22,7 +22,7 @@
                     "type": "button",
                     "text": {
                         "type": "plain_text",
-                        "text": "New Finger Machine Alert"
+                        "text": "New Finger Machine"
                     },
                     "style": "primary",
                     "action_id": "12",
@@ -32,11 +32,80 @@
                     "type": "button",
                     "text": {
                         "type": "plain_text",
-                        "text": "BIO Change Time Alert"
+                        "text": "BIO Change Time"
                     },
                     "style": "primary",
                     "action_id": "13",
                     "value": "2"
+                },
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "New Finger Print & Card"
+                    },
+                    "style": "primary",
+                    "action_id": "14",
+                    "value": "3"
+                },
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Forgot Spend Time"
+                    },
+                    "style": "primary",
+                    "action_id": "15",
+                    "value": "4"
+                },
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Deduct AL when exceeding LI/EO"
+                    },
+                    "style": "primary",
+                    "action_id": "16",
+                    "value": "5"
+                },
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Reminder Missing Check In/Out"
+                    },
+                    "style": "primary",
+                    "action_id": "17",
+                    "value": "6"
+                },
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Violate LI/EO In a Month Alert"
+                    },
+                    "style": "primary",
+                    "action_id": "18",
+                    "value": "7"
+                },
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Not Follow LI/EO Policy Alert"
+                    },
+                    "style": "primary",
+                    "action_id": "19",
+                    "value": "8"
+                },
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Regist All"
+                    },
+                    "action_id": "100",
+                    "value": "1,2,3,4,5,6,7,8"
                 }
             ]
         },

@@ -6,6 +6,7 @@ namespace NexBot.Services
     using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Text;
@@ -40,48 +41,41 @@ namespace NexBot.Services
             }
             foreach (var action in payload.Actions)
             {
-                if (string.IsNullOrEmpty(action.ActionId))
+                var botId = $"{payload.Message.BotId}:{payload.Team.Id}";
+                var conversationId = $"{botId}:{payload.Channel.Id}";
+
+                if (!int.TryParse(action.ActionId, out var actionId))
                 {
                     return;
                 }
-
-                var botId = $"{payload.Message.BotId}:{payload.Team.Id}";
-                var conversationId = $"{botId}:{payload.Channel.Id}";
-                switch (int.Parse(action.ActionId))
+                else if (actionId is (int)SubmitAction.ApproveRequest or (int)SubmitAction.ProcessRequest)
                 {
-                    case (int)SubmitAction.ApproveRequest:
-                    case (int)SubmitAction.ProcessRequest:
-                        await HandleSubmitProcessRequest(action.Value, conversationId);
-                        break;
-
-                    case (int)SubmitAction.GetCheckInOutForm:
-                        var block = await formAdaptiveCardService.GetCheckInCheckOutBlockKitForm(botId, conversationId);
-                        if (block != null)
-                        {
-                            await messageService.SendBlockKitAsync(conversationId, block);
-                        }
-                        else
-                        {
-                            await messageService.SendAsync(conversationId, "Something wrong! Please try again or check with admin");
-                        }
-                        break;
-
-                    case (int)SubmitAction.SubmitForm:
-                        await HandleSubmitForm(payload.State.Values, action.Value, botId, conversationId);
-                        break;
-
-                    case (int)SubmitAction.RegistrationMeal:
-                        await HandleSubmitRegistVegetarian(action.Value, conversationId);
-                        break;
-
-                    case (int)SubmitAction.RegistryNewFingerMachineAlert:
-                    case (int)SubmitAction.RegistryBioChangeTimeAlert:
-                        await registerMessageService.RegisterEventMessage(conversationId, int.Parse(action.Value));
-                        await messageService.SendAsync(conversationId, "Registered successfully!");
-                        break;
-
-                    default:
-                        return;
+                    await HandleSubmitProcessRequest(action.Value, conversationId);
+                }
+                else if (actionId == (int)SubmitAction.GetCheckInOutForm)
+                {
+                    await HandleGetCheckInOutForm(botId, conversationId);
+                }
+                else if (actionId == (int)SubmitAction.SubmitForm)
+                {
+                    await HandleSubmitForm(payload.State.Values, action.Value, botId, conversationId);
+                }
+                else if (actionId == (int)SubmitAction.RegistrationMeal)
+                {
+                    await HandleSubmitRegistVegetarian(action.Value, conversationId);
+                }
+                else if (actionId == (int)SubmitAction.RegistryAll)
+                {
+                    await HandleRegistryAllCategoryMessage(action.Value, conversationId);
+                }
+                else if (actionId is >= (int)SubmitAction.RegistryNewFingerMachineAlert and <= (int)SubmitAction.RegistryViolateLateInEarlyOutDiscipline)
+                {
+                    await registerMessageService.RegisterEventMessage(conversationId, int.Parse(action.Value));
+                    await messageService.SendAsync(conversationId, $"Registered successfully with category id: {action.Value}!");
+                }
+                else
+                {
+                    return;
                 }
             }
         }
@@ -95,6 +89,19 @@ namespace NexBot.Services
             request.Content = new StringContent(JsonConvert.SerializeObject(block), Encoding.UTF8, "application/json");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", payload.ApiToken);
             using var response = await httpClient.SendAsync(request);
+        }
+
+        private async Task HandleGetCheckInOutForm(string botId, string conversationId)
+        {
+            var block = await formAdaptiveCardService.GetCheckInCheckOutBlockKitForm(botId, conversationId);
+            if (block != null)
+            {
+                await messageService.SendBlockKitAsync(conversationId, block);
+            }
+            else
+            {
+                await messageService.SendAsync(conversationId, "Something wrong! Please try again or check with admin");
+            }
         }
 
         private async Task HandleSubmitProcessRequest(string strData, string conversationId)
@@ -134,6 +141,38 @@ namespace NexBot.Services
                 commandResult.Message = $"Create {type} request successfully!";
             }
             await messageService.SendAsync(conversationId, commandResult.Message);
+        }
+
+        private async Task HandleRegistryAllCategoryMessage(string value, string conversationId)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                await messageService.SendAsync(conversationId, "No categories provided.");
+                return;
+            }
+
+            var tasks = new List<Task>();
+
+            var categoryIds = value
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(id => id.Trim())
+                .Where(id => int.TryParse(id, out _))
+                .Select(int.Parse)
+                .ToList();
+
+            if (!categoryIds.Any())
+            {
+                await messageService.SendAsync(conversationId, "No valid category IDs found.");
+                return;
+            }
+
+            foreach (var categoryId in categoryIds)
+            {
+                tasks.Add(registerMessageService.RegisterEventMessage(conversationId, categoryId));
+            }
+
+            await Task.WhenAll(tasks);
+            await messageService.SendAsync(conversationId, "All selected categories registered successfully!");
         }
     }
 }

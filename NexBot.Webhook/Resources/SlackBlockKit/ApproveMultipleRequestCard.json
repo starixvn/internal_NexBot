@@ -1,0 +1,63 @@
+﻿{
+    "text": ":loudspeaker: REMIND PENDING REQUEST",
+    "blocks": [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Dear *${ApproverNickname}*, You have *${TotalRequest} pending request(s)* awaiting for your approval. Please find at the following list:"
+            }
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*📅 Date:* ${RequestDate}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": "*:pushpin: Type:* ${LeaveType}"
+                }
+            ]
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*:pencil: Remark:* ${Remark}"
+                }
+            ]
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Approve"
+                    },
+                    "style": "primary",
+                    "action_id": "0",
+                    "value": "{\"RequestId\": \"${RequestId}\", \"CallBackUrl\": \"${CallBackUrl}\", \"ProcessedBy\": \"${ProcessedBy}\", \"Command\": \"Approve\"}"
+                },
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Reject"
+                    },
+                    "style": "danger",
+                    "action_id": "1",
+                    "value": "{\"RequestId\": \"${RequestId}\", \"CallBackUrl\": \"${CallBackUrl}\", \"ProcessedBy\": \"${ProcessedBy}\", \"Command\": \"Reject\"}"
+
+                }
+            ]
+        },
+        {
+            "type": "divider"
+        }
+    ]
+}
