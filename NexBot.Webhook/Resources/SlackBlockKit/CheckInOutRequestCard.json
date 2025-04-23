@@ -31,7 +31,7 @@
                 },
                 {
                     "type": "mrkdwn",
-                    "text": "*:pushpin: Type:* ${LeaveType}"
+                    "text": "*:pushpin: Shift:* ${Shift}"
                 }
             ]
         },
@@ -40,7 +40,7 @@
             "fields": [
                 {
                     "type": "mrkdwn",
-                    "text": "*:pencil: Remark:* ${Remark}"
+                    "text": "*:pencil: Time:* ${Time}"
                 }
             ]
         },

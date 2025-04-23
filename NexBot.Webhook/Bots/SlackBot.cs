@@ -186,12 +186,12 @@
                         await turnContext.SendActivityAsync(MessageFactory.Text(result.Message), cancellationToken);
                     }
                 }
-                else
-                {
-                    var replyMsg = MessageFactory.Text(DefaultReplyMessage);
-                    replyMsg.TextFormat = "markdown";
-                    await turnContext.SendActivityAsync(replyMsg, cancellationToken);
-                }
+                //else
+                //{
+                //    var replyMsg = MessageFactory.Text(DefaultReplyMessage);
+                //    replyMsg.TextFormat = "markdown";
+                //    await turnContext.SendActivityAsync(replyMsg, cancellationToken);
+                //}
             }
             catch (Exception ex)
             {
