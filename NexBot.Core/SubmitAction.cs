@@ -37,5 +37,19 @@ namespace NexBot.Core
         RegistryNewFingerMachineAlert = 12,
 
         RegistryBioChangeTimeAlert = 13,
+
+        RegistryBioFingerprintAndCard = 14,
+
+        RegistryDeductLateInEarlyOut = 15,
+
+        RegistryForgotSpendTime = 16,
+
+        RegistryMissingCheckInCheckOut = 17,
+
+        RegistryLateInEarlyOutViolateInMonth = 18,
+
+        RegistryViolateLateInEarlyOutDiscipline = 19,
+
+        RegistryAll = 100,
     }
 }

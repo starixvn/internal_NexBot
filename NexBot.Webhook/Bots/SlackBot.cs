@@ -22,6 +22,7 @@
         IRegisterMessageService registerMessageService,
         ILogProviderService logProviderService,
         IConversationService conversationService,
+        IFormAdaptiveCardService formAdaptiveCardService,
         ISlackBotHandler slackBotHandler)
         : ActivityHandler, ISlackBot
     {
@@ -56,8 +57,10 @@
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
+            var botId = turnContext.Activity.Recipient?.Id ?? string.Empty;
             var botName = turnContext.Activity.Recipient?.Name ?? string.Empty;
             var message = turnContext.Activity.Text?.Trim() ?? string.Empty;
+            var conversationId = turnContext.Activity.Conversation.Id;
 
             if (turnContext.Activity.Conversation.IsGroup == true)
             {
@@ -68,22 +71,23 @@
             {
                 if (message.Equals(InteractedCommand.getid, StringComparison.OrdinalIgnoreCase))
                 {
-                    await turnContext.SendActivityAsync(MessageFactory.Text(turnContext.Activity.Recipient.Id), cancellationToken);
+                    await turnContext.SendActivityAsync(MessageFactory.Text(botId), cancellationToken);
                 }
             }
             else
             {
                 if (!string.IsNullOrEmpty(message))
                 {
+ 
                     switch (message.ToLowerInvariant())
                     {
                         case InteractedCommand.getid:
-                            var replyMsg = $"Your conversationId: {turnContext.Activity.Conversation.Id}";
+                            var replyMsg = $"Your conversationId: {conversationId}";
                             await turnContext.SendActivityAsync(MessageFactory.Text(replyMsg), cancellationToken);
                             break;
 
                         case InteractedCommand.getbot:
-                            var botInfo = $"BotId: {turnContext.Activity.Recipient.Id}, BotName: {botName}";
+                            var botInfo = $"BotId: {botId}, BotName: {botName}";
                             await turnContext.SendActivityAsync(MessageFactory.Text(botInfo), cancellationToken);
                             break;
 
@@ -93,6 +97,18 @@
 
                         case InteractedCommand.help:
                             await turnContext.SendActivityAsync(MessageFactory.Text("This feature is coming soon!"), cancellationToken);
+                            break;
+
+                        case InteractedCommand.checkin_checkout_form:
+                            var block = await formAdaptiveCardService.GetCheckInCheckOutBlockKitForm(botId, conversationId);
+                            if (block != null)
+                            {
+                                await messageService.SendBlockKitAsync(conversationId, block);
+                            }
+                            else
+                            {
+                                await messageService.SendAsync(conversationId, "Something wrong! Please try again or check with admin");
+                            }
                             break;
 
                         default:
@@ -170,12 +186,12 @@
                         await turnContext.SendActivityAsync(MessageFactory.Text(result.Message), cancellationToken);
                     }
                 }
-                else
-                {
-                    var replyMsg = MessageFactory.Text(DefaultReplyMessage);
-                    replyMsg.TextFormat = "markdown";
-                    await turnContext.SendActivityAsync(replyMsg, cancellationToken);
-                }
+                //else
+                //{
+                //    var replyMsg = MessageFactory.Text(DefaultReplyMessage);
+                //    replyMsg.TextFormat = "markdown";
+                //    await turnContext.SendActivityAsync(replyMsg, cancellationToken);
+                //}
             }
             catch (Exception ex)
             {

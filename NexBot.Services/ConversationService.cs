@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using Microsoft.Bot.Schema;
     using NexBot.Core;
@@ -11,6 +10,7 @@
     using NexBot.Criteria.Conversation;
     using NexBot.Models;
     using NexBot.Services.Interfaces;
+    using static System.Text.RegularExpressions.Regex;
 
     public class ConversationService(IList<BotConfigs> botConfigs, IBaseService baseService) : IConversationService
     {
@@ -26,7 +26,7 @@
             }
             if (activity.ChannelId == Constants.SlackChannel)
             {
-                userName = Regex.Replace(userName, @"\d+", "");
+                userName = Replace(userName, @"\d+", "");
             }
 
             var criteria = new InsertConversationCommand
