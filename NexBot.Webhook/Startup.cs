@@ -133,13 +133,13 @@
             services.AddSingleton<IBaseRepository, BaseRepository>();
             services.AddSingleton<IDynamicRepository, DynamicRepository>();
             services.AddSingleton<IBaseService, BaseService>();
-            services.AddSingleton<IConversationService, ConversationService>();
             services.AddSingleton<IApplicationSettingService, ApplicationSettingService>();
 
             services.AddSingleton<IMessageValidationService, MessageValidationService>();
             services.AddSingleton<ILogger, Logger>();
             services.AddSingleton<ILogProviderService, LogProviderService>();
 
+            services.AddScoped<IConversationService, ConversationService>();
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IHRMConnector, HrmConnector>();
