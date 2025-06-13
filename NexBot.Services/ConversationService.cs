@@ -9,10 +9,11 @@
     using NexBot.Core.Services.Interfaces;
     using NexBot.Criteria.Conversation;
     using NexBot.Models;
+    using NexBot.Models.Request;
     using NexBot.Services.Interfaces;
     using static System.Text.RegularExpressions.Regex;
 
-    public class ConversationService(IList<BotConfigs> botConfigs, IBaseService baseService) : IConversationService
+    public class ConversationService(IList<BotConfigs> botConfigs, IBaseService baseService, IHRMConnector hrmConnector) : IConversationService
     {
         public async Task AddConversationAsync(IActivity activity)
         {
@@ -43,12 +44,30 @@
                 ConversationBotName = activity.Recipient.Name
             };
 
-            await baseService.ExecuteNonQueryAsync(criteria);
+            var res = await baseService.ExecuteNonQueryAsync(criteria);
+            if (res.IsSuccessful)
+            {
+                await hrmConnector.MappingConversation(new MappingConversationRequest
+                {
+                    BotId = activity.Recipient.Id,
+                    ConversationId = activity.Conversation.Id,
+                    Username = userName
+                });
+            }
         }
 
         public async Task AddConversationAsync(InsertConversationCommand command)
         {
-            await baseService.ExecuteNonQueryAsync(command);
+            var res = await baseService.ExecuteNonQueryAsync(command);
+            if (res.IsSuccessful)
+            {
+                await hrmConnector.MappingConversation(new MappingConversationRequest
+                {
+                    BotId = command.ConversationBotId,
+                    ConversationId = command.ConversationId,
+                    Username = command.UserName
+                });
+            }
         }
 
         public async Task<CommandResult> RemoveConversationAsync(IActivity activity)

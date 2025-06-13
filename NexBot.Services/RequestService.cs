@@ -12,8 +12,8 @@
     public class RequestService(IHRMConnector hrmConnector,
         ILogProviderService logProviderService) : IRequestService
     {
-        private const string successMessage = "Request **{0}** has been **{1}** successfully!";
-        private const string failMessage = "Request **{0}** has been **{1}** unsuccessfully! Please contact Admin for detail";
+        private const string successMessage = "Request *{0}* has been *{1}* successfully!";
+        private const string failMessage = "Request *{0}* has been *{1}* unsuccessfully! Please contact Admin for detail";
 
         public async Task<string> ProcessRequest(string commandRequest, string command)
         {

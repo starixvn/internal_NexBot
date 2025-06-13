@@ -14,7 +14,7 @@
     using NexBot.Models.SubmittedForm;
     using NexBot.Services.Interfaces;
 
-    public class HrmConnector(IHttpClientFactory httpClientFactory, IConfiguration configuration) : IHRMConnector
+    public class HrmConnector(IHttpClientFactory httpClientFactory, IConfiguration configuration, IApplicationSettingService applicationSetting) : IHRMConnector
     {
         public async Task<CheckInCheckOutFormModel> GetCheckInCheckOutModel(string baseUrl, string conversationId)
         {
@@ -99,6 +99,28 @@
             }
 
             return processResults;
+        }
+
+        public async Task<CommandResult> MappingConversation(MappingConversationRequest request)
+        {
+            CommandResult commandResult;
+            var baseUrl = applicationSetting.GetHrmUrl(request.BotId);
+            var url = $"Employee/MappingConversation?conversationId={request.ConversationId}&username={request.Username}";
+
+            try
+            {
+                commandResult = await SendAsync<CommandResult>(baseUrl, url, HttpMethod.Post);
+            }
+            catch (Exception ex)
+            {
+                commandResult = new CommandResult
+                {
+                    Code = 1,
+                    Message = ex.Message
+                };
+            }
+
+            return commandResult;
         }
 
         #region Base Send Request
