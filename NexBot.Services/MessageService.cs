@@ -562,6 +562,23 @@
             }
         }
 
+        public async Task RemindCancelMealAsync(RemindCancelMealModel model)
+        {
+            var conversation = await conversationService.GetConversationById(model.ConversationId);
+            if (conversation is not null)
+            {
+                var conversationReference = GetConversationReference(conversation);
+                var activity = CreateMessageActivity(conversationReference);
+                var block = SlackBlockKitHelper.GenerateSlackBlockKit(
+                        Path.Combine(".", "Resources", "SlackBlockKit", "RemindCancelMealCard.json"),
+                        model);
+                activity.ChannelData = block;
+
+                await SendMessageAsync(conversationReference, activity);
+                await AddMessageLog(activity, $"RemindCancelMeal: {model.NickName} - {model.SysId} - {model.OnDate}");
+            }
+        }
+
         public async Task RemoveOldMessageLog()
          => await baseService.ExecuteNonQueryAsync(new RemoveOldMessageLogCommand());
 

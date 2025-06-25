@@ -2,12 +2,11 @@
 {
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
-    using NexBot.Core.Services.Interfaces;
     using NexBot.Models.Form;
     using NexBot.Services.Interfaces;
 
     [Route("api/[controller]/[action]")]
-    public class RemindController(IMessageService messageService, ILogProviderService logService) : Controller
+    public class RemindController(IMessageService messageService) : Controller
     {
         [HttpPost]
         public async Task MissingCheckInCheckOut(CheckInCheckOutFormModel checkInCheckOutFormModel)
@@ -35,6 +34,15 @@
             if (model is not null)
             {
                 await messageService.MissingTimeLogMemberAsync(model);
+            }
+        }
+
+        [HttpPost]
+        public async Task RemindCancelMeal(RemindCancelMealModel model)
+        {
+            if (model is not null)
+            {
+                await messageService.RemindCancelMealAsync(model);
             }
         }
     }

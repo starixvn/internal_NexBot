@@ -11,7 +11,9 @@
         ILogProviderService logProviderService) : IRegistrationMealService
     {
         private const string successMessage = "Đặt Cơm Chay thành công ngày: ";
+        private const string successMessageCancelMeal = "Hủy Đặt Cơm thành công ngày: ";
         private const string failMessage = "Đặt Cơm Chay thất bại! Vui lòng liên hệ Admin.";
+        private const string failMessageCancelMeal = "Hủy Đặt Cơm thất bại! Vui lòng liên hệ Admin.";
 
         public async Task<string> RegistVegetarian(string conversationId, string commandRequest)
         {
@@ -65,6 +67,31 @@
             {
                 await logProviderService.SentryErrorAsync(exception.Message, exception);
                 result = failMessage;
+            }
+
+            return result;
+        }
+
+        public async Task<string> CancelMeal(CancelMealFormData cancelMealFormData)
+        {
+            var result = string.Empty;
+            try
+            {
+                var commandResult = await fbmConnector.CancelMeal(cancelMealFormData);
+                if (commandResult.IsSuccessful)
+                {
+                    result = successMessageCancelMeal + cancelMealFormData.OnDate.ToString("dd MMM, yyyy");
+                }
+                else
+                {
+                    logProviderService.LogFileMessage(commandResult.Message);
+                    result = commandResult.Message;
+                }
+            }
+            catch (Exception exception)
+            {
+                await logProviderService.SentryErrorAsync(exception.Message, exception);
+                result = failMessageCancelMeal;
             }
 
             return result;
