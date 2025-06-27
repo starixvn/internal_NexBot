@@ -12,7 +12,7 @@
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": "Để bộ phận Bếp chuẩn bị suất ăn hợp lý, nếu bạn *KHÔNG* dùng cơm trưa *ngày mai*, vui lòng nhấn [Hủy Cơm Trưa] trước 2:00 PM hôm nay."
+                "text": "Để bộ phận Bếp chuẩn bị suất ăn hợp lý, nếu bạn *KHÔNG* dùng cơm trưa, vui lòng nhấn [Hủy Cơm Trưa] trước 2:00 PM hôm nay."
             }
         },
         {
