@@ -7,5 +7,7 @@
     public interface IFBMConnector
     {
         Task<CommandResult> Send(RegistVegetarianMealMessage registVegetarianMeal);
+
+        Task<CommandResult> CancelMeal(CancelMealFormData cancelMealFormData);
     }
 }

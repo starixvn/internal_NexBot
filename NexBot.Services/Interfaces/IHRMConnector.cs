@@ -16,5 +16,7 @@
         Task<CheckInCheckOutFormModel> GetCheckInCheckOutModel(string baseUrl, string conversationId);
 
         Task<CommandResult> SubmitCheckInCheckOutRecord(CheckInCheckOutFormData request);
+
+        Task<CommandResult> MappingConversation(MappingConversationRequest request);
     }
 }

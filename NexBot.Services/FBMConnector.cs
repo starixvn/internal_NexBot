@@ -40,5 +40,35 @@
 
             return commandResult;
         }
+
+        public async Task<CommandResult> CancelMeal(CancelMealFormData cancelMealFormData)
+        {
+            CommandResult commandResult;
+            var baseUrl = cancelMealFormData.CallBackUrl;
+            var httpClient = httpClientFactory.CreateClient();
+
+            var url = new Uri($"{baseUrl}/MealCancelRegister/CancelRegisterMealByDate?SysId={cancelMealFormData.SysId}&OnDate={cancelMealFormData.OnDate}&MealId={cancelMealFormData.MealId}");
+
+            using (var request = new HttpRequestMessage(HttpMethod.Post, url))
+            {
+                using var response = await httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadAsStringAsync();
+                    commandResult = JsonConvert.DeserializeObject<CommandResult>(result);
+                }
+                else
+                {
+                    commandResult = new CommandResult
+                    {
+                        Code = 1,
+                        Message = response.ReasonPhrase
+                    };
+                }
+            }
+
+            return commandResult;
+        }
+
     }
 }

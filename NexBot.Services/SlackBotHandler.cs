@@ -73,6 +73,10 @@ namespace NexBot.Services
                     await registerMessageService.RegisterEventMessage(conversationId, int.Parse(action.Value));
                     await messageService.SendAsync(conversationId, $"Registered successfully with category id: {action.Value}!");
                 }
+                else if (actionId == (int)SubmitAction.RemindCancelMeal)
+                {
+                    await HandleRemindCancelMeal(action.Value, conversationId);
+                }
                 else
                 {
                     return;
@@ -173,6 +177,14 @@ namespace NexBot.Services
 
             await Task.WhenAll(tasks);
             await messageService.SendAsync(conversationId, "All selected categories registered successfully!");
+        }
+    
+        private async Task HandleRemindCancelMeal(string strData, string conversationId)
+        {
+            var cancelMealFormData = JsonConvert.DeserializeObject<CancelMealFormData>(strData);
+            var result = await registrationMealService.CancelMeal(cancelMealFormData);
+            logProviderService.LogFileMessage($"Cancel meal result: {JsonConvert.SerializeObject(result)}");
+            await messageService.SendAsync(conversationId, result);
         }
     }
 }

@@ -50,6 +50,8 @@ namespace NexBot.Core
 
         RegistryViolateLateInEarlyOutDiscipline = 19,
 
+        RemindCancelMeal = 30,
+
         RegistryAll = 100,
     }
 }

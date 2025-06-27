@@ -1,0 +1,45 @@
+﻿{
+    "text": "🍚🍙 HỦY CƠM TRƯA NGÀY ${DisplayDateString} 🍚🍙",
+    "blocks": [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "🍚🍙 *HỦY CƠM TRƯA NGÀY ${DisplayDateString}* 🍚🍙"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Để bộ phận Bếp chuẩn bị suất ăn hợp lý, nếu bạn *KHÔNG* dùng cơm trưa *ngày mai*, vui lòng nhấn [Hủy Cơm Trưa] trước 2:00 PM hôm nay."
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Sau thời gian này, việc hủy cơm sẽ *không được thực hiện*."
+            }
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Hủy Cơm Trưa",
+                        "emoji": true
+                    },
+                    "style": "danger",
+                    "action_id": "30",
+                    "value": "{\"SysId\": \"${SysId}\", \"MealId\": \"${MealId}\", \"CallBackUrl\": \"${CallBackUrl}\", \"OnDate\": \"${OnDate}\"}"
+                }
+            ]
+        },
+        {
+            "type": "divider"
+        }
+    ]
+}

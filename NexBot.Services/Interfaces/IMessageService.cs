@@ -32,6 +32,8 @@
 
         Task RemindApproveMultiplePendingRequests(PendingRequest request);
 
+        Task RemindCancelMealAsync(RemindCancelMealModel model);
+
         Task RemoveOldMessageLog();
 
         Task<Attachment> GetAttachmentHelpAdaptiveCard(string conversationId, bool isGroup, string botName);

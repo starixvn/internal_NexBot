@@ -8,5 +8,7 @@
         Task<string> RegistVegetarian(string conversationId, string commandRequest);
 
         Task<string> RegistVegetarian(RegistVegetarianMealMessage registVegetarianMealMessage);
+
+        Task<string> CancelMeal(CancelMealFormData cancelMealFormData);
     }
 }
