@@ -54,7 +54,7 @@ namespace NexBot.Services
                 }
                 else if (actionId == (int)SubmitAction.GetCheckInOutForm)
                 {
-                    await HandleGetCheckInOutForm(botId, conversationId);
+                    await HandleGetCheckInOutForm(botId, action.Value, conversationId);
                 }
                 else if (actionId == (int)SubmitAction.SubmitForm)
                 {
@@ -95,9 +95,9 @@ namespace NexBot.Services
             using var response = await httpClient.SendAsync(request);
         }
 
-        private async Task HandleGetCheckInOutForm(string botId, string conversationId)
+        private async Task HandleGetCheckInOutForm(string botId, string callbackUrl, string conversationId)
         {
-            var block = await formAdaptiveCardService.GetCheckInCheckOutBlockKitForm(botId, conversationId);
+            var block = await formAdaptiveCardService.GetCheckInCheckOutBlockKitForm(botId, callbackUrl, conversationId);
             if (block != null)
             {
                 await messageService.SendBlockKitAsync(conversationId, block);
@@ -124,20 +124,26 @@ namespace NexBot.Services
 
         }
 
-        private async Task HandleSubmitForm(Dictionary<string, SlackActionElement> values, string strData,string botId, string conversationId)
+        private async Task HandleSubmitForm(Dictionary<string, SlackActionElement> values, string strData, string botId, string conversationId)
         {
             var requestType = values["MissingType"].Data.SelectedOption.Value;
             var requestDate = values["RequestDate"].Data.SelectedDate;
             var requestTime = values["TimeSelection"].Data.SelectedTime;
             var timeParts = requestTime.Split(':');
+            var data = new CheckInCheckOutFormData();
+            try
+            {
+                data = JsonConvert.DeserializeObject<CheckInCheckOutFormData>(strData);
+                data.MissingType = int.Parse(requestType);
+                data.Hour = timeParts[0];
+                data.Minute = timeParts[1];
+                data.WorkDate = DateTime.ParseExact($"{requestDate} {requestTime}", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+            }
+            catch (Exception e)
+            {
 
-            var data = JsonConvert.DeserializeObject<CheckInCheckOutFormData>(strData);
-            data.MissingType = int.Parse(requestType);
-            data.BaseUrl = applicationSetting.GetHrmUrl(botId);
-            data.Hour = timeParts[0];
-            data.Minute = timeParts[1];
-            data.WorkDate = DateTime.ParseExact($"{requestDate} {requestTime}", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-            
+            }
+
             var commandResult = await hrmConnector.SubmitCheckInCheckOutRecord(data);
             if (string.IsNullOrEmpty(commandResult.Message))
             {

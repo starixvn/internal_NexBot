@@ -7,6 +7,6 @@
     {
         Task<Attachment> GetCheckInCheckOutAdaptiveCardForm(string botConversationId, string conversationId);
 
-        Task<object> GetCheckInCheckOutBlockKitForm(string botConversationId, string conversationId);
+        Task<object> GetCheckInCheckOutBlockKitForm(string botConversationId, string callbackUrl, string conversationId);
     }
 }

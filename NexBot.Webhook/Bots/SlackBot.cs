@@ -100,7 +100,7 @@
                             break;
 
                         case InteractedCommand.checkin_checkout_form:
-                            var block = await formAdaptiveCardService.GetCheckInCheckOutBlockKitForm(botId, conversationId);
+                            var block = await formAdaptiveCardService.GetCheckInCheckOutBlockKitForm(botId, "", conversationId);
                             if (block != null)
                             {
                                 await messageService.SendBlockKitAsync(conversationId, block);

@@ -79,7 +79,7 @@
                 case (int)FormInfo.FormCheckInCheckOutRequest:
                     var data = JsonConvert.DeserializeObject<CheckInCheckOutFormData>(formJsonValue);
                     data.WorkDate = DateTime.ParseExact($"{data.RequestDate} {data.Hour}:{data.Minute}", "yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture);
-                    data.BaseUrl = applicationSetting.GetHrmUrl(turnContext.Activity.Recipient.Id);
+                    data.CallbackUrl = applicationSetting.GetHrmUrl(turnContext.Activity.Recipient.Id);
                     var commandResult = await hrmConnector.SubmitCheckInCheckOutRecord(data);
                     if (commandResult.IsSuccessful)
                     {

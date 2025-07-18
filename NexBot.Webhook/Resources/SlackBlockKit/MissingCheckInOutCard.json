@@ -55,7 +55,8 @@
                         "emoji": true
                     },
                     "style": "primary",
-                    "action_id": "11"
+                    "action_id": "11",
+                    "value": "${CallbackUrl}"
                 }
             ]
         },

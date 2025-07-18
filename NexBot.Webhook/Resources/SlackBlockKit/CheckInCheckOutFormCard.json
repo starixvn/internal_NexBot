@@ -94,7 +94,7 @@
                     },
                     "style": "primary",
                     "action_id": "10",
-                    "value": "{\"empid\": \"${EmpId}\", \"shift\": \"${Shift}\"}"
+                    "value": "{\"empid\": \"${EmpId}\", \"shift\": \"${Shift}\", \"callbackUrl\": \"${CallbackUrl}\"}"
                 }
             ]
         },
