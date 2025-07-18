@@ -10,7 +10,7 @@ namespace NexBot.Models.SubmittedForm
         public string Hour { get; set; }
         public string Minute { get; set; }
         public DateTime WorkDate { get; set; }
-        public string BaseUrl { get; set; }
+        public string CallbackUrl { get; set; }
         public string Shift { get; set; }
     }
 }

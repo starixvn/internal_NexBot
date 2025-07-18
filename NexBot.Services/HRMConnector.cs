@@ -40,7 +40,7 @@
 
             try
             {
-                commandResult = await SendAsync<CommandResult>(request.BaseUrl, url, HttpMethod.Post);
+                commandResult = await SendAsync<CommandResult>(request.CallbackUrl, url, HttpMethod.Post);
             }
             catch (Exception ex)
             {

@@ -5,6 +5,7 @@
 
     public class CheckInCheckOutFormModel
     {
+        public string CallbackUrl { get; set; }
         public int EmpId { get; set; }
         public string NickName { get; set; }
         public byte MissingType { get; set; }
