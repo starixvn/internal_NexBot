@@ -123,6 +123,26 @@
             return commandResult;
         }
 
+        public async Task<CommandResult> SendWebhookN8N(string conversationId, string message)
+        {
+            CommandResult commandResult;
+            var path = $"webhook/4f40ebd8-ee82-4484-8cf2-db2246b8cb1e?conversationId={conversationId}&message={message}";
+            try
+            {
+                commandResult = await SendAsync<CommandResult>("https://n8n.dearhoney.vn", path, HttpMethod.Get);
+            }
+            catch (Exception ex)
+            {
+                commandResult = new CommandResult
+                {
+                    Code = 1,
+                    Message = ex.Message
+                };
+            }
+
+            return commandResult;
+        }
+
         #region Base Send Request
 
         private async Task<T> SendAsync<T>(string baseUrl, string pathUrl, HttpMethod method)

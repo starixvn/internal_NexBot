@@ -23,10 +23,11 @@
         ILogProviderService logProviderService,
         IConversationService conversationService,
         IFormAdaptiveCardService formAdaptiveCardService,
-        ISlackBotHandler slackBotHandler)
+        ISlackBotHandler slackBotHandler,
+        IHRMConnector hrmConnector)
         : ActivityHandler, ISlackBot
     {
-        private const string DefaultReplyMessage = "Not supported command, type **help** to view available supported commands. Thanks & have a nice day";
+        //private const string DefaultReplyMessage = "Not supported command, type **help** to view available supported commands. Thanks & have a nice day";
         private const string BotNameIgnoreMsg = "Terra-Bot";
 
         protected override async Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
@@ -186,12 +187,13 @@
                         await turnContext.SendActivityAsync(MessageFactory.Text(result.Message), cancellationToken);
                     }
                 }
-                //else
-                //{
-                //    var replyMsg = MessageFactory.Text(DefaultReplyMessage);
-                //    replyMsg.TextFormat = "markdown";
-                //    await turnContext.SendActivityAsync(replyMsg, cancellationToken);
-                //}
+                else
+                {
+                    await hrmConnector.SendWebhookN8N(turnContext.Activity.Conversation.Id, trimMessage);
+                    //    var replyMsg = MessageFactory.Text(DefaultReplyMessage);
+                    //    replyMsg.TextFormat = "markdown";
+                    //    await turnContext.SendActivityAsync(replyMsg, cancellationToken);
+                }
             }
             catch (Exception ex)
             {
