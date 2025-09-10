@@ -27,7 +27,6 @@
         IHRMConnector hrmConnector)
         : ActivityHandler, ISlackBot
     {
-        //private const string DefaultReplyMessage = "Not supported command, type **help** to view available supported commands. Thanks & have a nice day";
         private const string BotNameIgnoreMsg = "Terra-Bot";
 
         protected override async Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
