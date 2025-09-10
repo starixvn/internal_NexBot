@@ -126,10 +126,10 @@
         public async Task<CommandResult> SendWebhookN8N(string conversationId, string message)
         {
             CommandResult commandResult;
-            var path = $"webhook/4f40ebd8-ee82-4484-8cf2-db2246b8cb1e?conversationId={conversationId}&message={message}";
+            var url = $"https://n8n.dearhoney.vn/webhook/4f40ebd8-ee82-4484-8cf2-db2246b8cb1e?conversationId={conversationId}&message={message}";
             try
             {
-                commandResult = await SendAsync<CommandResult>("https://n8n.dearhoney.vn", path, HttpMethod.Get);
+                commandResult = await SendHttpRequestAsync<CommandResult>(url, HttpMethod.Get);
             }
             catch (Exception ex)
             {
@@ -180,6 +180,15 @@
             }
         }
 
+        private async Task<T> SendHttpRequestAsync<T>(string url, HttpMethod method)
+        {
+            var httpClient = httpClientFactory.CreateClient();
+            using var request = new HttpRequestMessage(method, url);
+            using var response = await httpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            var jsonResult = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<T>(jsonResult);
+        }
         #endregion Base Send Request
     }
 }
