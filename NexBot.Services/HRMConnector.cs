@@ -123,24 +123,10 @@
             return commandResult;
         }
 
-        public async Task<CommandResult> SendWebhookN8N(string conversationId, string message)
+        public async Task SendWebhookN8N(string conversationId, string userId, string message)
         {
-            CommandResult commandResult;
-            var url = $"https://n8n.dearhoney.vn/webhook/4f40ebd8-ee82-4484-8cf2-db2246b8cb1e?conversationId={conversationId}&message={message}";
-            try
-            {
-                commandResult = await SendHttpRequestAsync<CommandResult>(url, HttpMethod.Get);
-            }
-            catch (Exception ex)
-            {
-                commandResult = new CommandResult
-                {
-                    Code = 1,
-                    Message = ex.Message
-                };
-            }
-
-            return commandResult;
+            var url = $"https://n8n.dearhoney.vn/webhook/4f40ebd8-ee82-4484-8cf2-db2246b8cb1e?conversationId={conversationId}&userId={userId}&message={message}";
+            await SendHttpRequestAsync<CommandResult>(url, HttpMethod.Get);
         }
 
         #region Base Send Request

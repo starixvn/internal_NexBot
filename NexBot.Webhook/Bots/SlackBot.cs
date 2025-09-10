@@ -188,10 +188,13 @@
                 }
                 else
                 {
-                    await hrmConnector.SendWebhookN8N(turnContext.Activity.Conversation.Id, trimMessage);
-                    //    var replyMsg = MessageFactory.Text(DefaultReplyMessage);
-                    //    replyMsg.TextFormat = "markdown";
-                    //    await turnContext.SendActivityAsync(replyMsg, cancellationToken);
+                    var channelData = turnContext.Activity.ChannelData?.ToString();
+                    if (!string.IsNullOrEmpty(channelData))
+                    {
+                        var slackData = JsonConvert.DeserializeObject<SlackEventPayload>(channelData);
+                        var userId = slackData.SlackMessage.Event.User;
+                        await hrmConnector.SendWebhookN8N(turnContext.Activity.Conversation.Id, userId, trimMessage);
+                    }
                 }
             }
             catch (Exception ex)

@@ -19,6 +19,6 @@
 
         Task<CommandResult> MappingConversation(MappingConversationRequest request);
 
-        Task<CommandResult> SendWebhookN8N(string conversationId, string message);
+        Task SendWebhookN8N(string conversationId, string userId, string message);
     }
 }
