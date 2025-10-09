@@ -42,7 +42,7 @@
 
         Task SendBlockKitAsync(string conversationId, object block);
 
-        Task<string> SendMessageFromHRToUserAsync(string fromHRUser, string messageContent, IAccountService accountService);
+        Task<string> SendMessageFromHRToUserAsync(string fromHrUser, string messageContent, IAccountService accountService);
 
         Task SendMessageFromUserToHRAsync(string userName, string messageContent, string hrChannelId);
     }

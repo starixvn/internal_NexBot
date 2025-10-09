@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Bot.Builder;
@@ -12,9 +13,11 @@
     using NexBot.Core.Utilities;
     using NexBot.Criteria.Conversation;
     using NexBot.Models.Slack;
+    using NexBot.Services.Helpers;
     using NexBot.Services.Interfaces;
     using Newtonsoft.Json;
 
+#pragma warning disable S107 // Methods should not have too many parameters
     public class SlackBot(
         IMessageService messageService,
         IRegisterMessageService registerMessageService,
@@ -25,6 +28,7 @@
         ISlackBotHandler slackBotHandler,
         IHRMConnector hrmConnector)
         : ActivityHandler, ISlackBot
+#pragma warning restore S107 // Methods should not have too many parameters
     {
         private const string BotNameIgnoreMsg = "Terra-Bot";
         private const string HraChannelId = "B08HJT3E2D8:T08ACMHMMFS:C09K28S6WK0";
@@ -95,24 +99,22 @@
                             await AddConversationAsync(turnContext, cancellationToken);
                             break;
 
+                        case InteractedCommand.regist_category:
+                            await HandleRegistCategoryCommandAsync(conversationId);
+                            break;
+
                         case InteractedCommand.help:
                             await turnContext.SendActivityAsync(MessageFactory.Text("This feature is coming soon!"), cancellationToken);
                             break;
 
                         case InteractedCommand.checkin_checkout_form:
-                            var block = await formAdaptiveCardService.GetCheckInCheckOutBlockKitForm(botId, "", conversationId);
-                            if (block != null)
-                            {
-                                await messageService.SendBlockKitAsync(conversationId, block);
-                            }
-                            else
-                            {
-                                await messageService.SendAsync(conversationId, "Something wrong! Please try again or check with admin");
-                            }
+                            await HandleCheckInCheckOutFormCommandAsync(botId, conversationId);
                             break;
+
                         case InteractedCommand.n8n:
                             await HandleN8NWebhookAsync(turnContext, message);
                             break;
+
                         default:
                             await HandlerOtherMessages(turnContext, cancellationToken);
                             break;
@@ -146,10 +148,6 @@
                     };
 
                     await conversationService.AddConversationAsync(command);
-                    //var block = SlackBlockKitHelper.GenerateSlackBlockKit(
-                    //    Path.Combine(".", "Resources", "SlackBlockKit", "RegistCategoryMessageCard.json"),
-                    //    new { ConversationId = turnContext.Activity.Conversation.Id });
-                    //await messageService.SendBlockKitAsync(turnContext.Activity.Conversation.Id, block);
                     await turnContext.SendActivityAsync(MessageFactory.Text("Successfully!"), cancellationToken);
                 }
                 catch (JsonException ex)
@@ -219,6 +217,27 @@
                 return false;
             }
             return channelId.StartsWith("C");
+        }
+
+        private async Task HandleRegistCategoryCommandAsync(string conversationId)
+        {
+            var block = SlackBlockKitHelper.GenerateSlackBlockKit(
+                Path.Combine(".", "Resources", "SlackBlockKit", "RegistCategoryMessageCard.json"),
+                new { ConversationId = conversationId });
+            await messageService.SendBlockKitAsync(conversationId, block);
+        }
+
+        private async Task HandleCheckInCheckOutFormCommandAsync(string botId, string conversationId)
+        {
+            var block = await formAdaptiveCardService.GetCheckInCheckOutBlockKitForm(botId, "", conversationId);
+            if (block != null)
+            {
+                await messageService.SendBlockKitAsync(conversationId, block);
+            }
+            else
+            {
+                await messageService.SendAsync(conversationId, "Something wrong! Please try again or check with admin");
+            }
         }
 
         private async Task HandleN8NWebhookAsync(ITurnContext<IMessageActivity> turnContext, string message)

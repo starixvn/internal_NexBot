@@ -687,7 +687,7 @@
                 return (string.Empty, string.Empty);
             }
 
-            if (message.StartsWith("@"))
+            if (message.StartsWith('@'))
             {
                 var spaceIndex = message.IndexOf(' ', 1);
                 if (spaceIndex > 0)
