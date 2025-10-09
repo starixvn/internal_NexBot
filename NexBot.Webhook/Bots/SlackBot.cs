@@ -1,7 +1,6 @@
 ﻿namespace NexBot.Bots
 {
     using System;
-    using System.IO;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -13,7 +12,6 @@
     using NexBot.Core.Utilities;
     using NexBot.Criteria.Conversation;
     using NexBot.Models.Slack;
-    using NexBot.Services.Helpers;
     using NexBot.Services.Interfaces;
     using Newtonsoft.Json;
 
@@ -23,11 +21,13 @@
         ILogProviderService logProviderService,
         IConversationService conversationService,
         IFormAdaptiveCardService formAdaptiveCardService,
+        IAccountService accountService,
         ISlackBotHandler slackBotHandler,
         IHRMConnector hrmConnector)
         : ActivityHandler, ISlackBot
     {
         private const string BotNameIgnoreMsg = "Terra-Bot";
+        private const string HraChannelId = "B08HJT3E2D8:T08ACMHMMFS:C09K28S6WK0";
 
         protected override async Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -43,7 +43,7 @@
                         {
                             UserId = slackData.SlackMessage.Event.User,
                             ApiToken = slackData.ApiToken
-                        };  
+                        };
                         await slackBotHandler.PublishAppHomeView(payload);
                         await conversationService.AddConversationAsync(turnContext.Activity);
                     }
@@ -78,7 +78,7 @@
             {
                 if (!string.IsNullOrEmpty(message))
                 {
- 
+
                     switch (message.ToLowerInvariant())
                     {
                         case InteractedCommand.getid:
@@ -110,7 +110,9 @@
                                 await messageService.SendAsync(conversationId, "Something wrong! Please try again or check with admin");
                             }
                             break;
-
+                        case InteractedCommand.n8n:
+                            await HandleN8NWebhookAsync(turnContext, message);
+                            break;
                         default:
                             await HandlerOtherMessages(turnContext, cancellationToken);
                             break;
@@ -144,10 +146,11 @@
                     };
 
                     await conversationService.AddConversationAsync(command);
-                    var block = SlackBlockKitHelper.GenerateSlackBlockKit(
-                        Path.Combine(".", "Resources", "SlackBlockKit", "RegistCategoryMessageCard.json"),
-                        new { ConversationId = turnContext.Activity.Conversation.Id });
-                    await messageService.SendBlockKitAsync(turnContext.Activity.Conversation.Id, block);
+                    //var block = SlackBlockKitHelper.GenerateSlackBlockKit(
+                    //    Path.Combine(".", "Resources", "SlackBlockKit", "RegistCategoryMessageCard.json"),
+                    //    new { ConversationId = turnContext.Activity.Conversation.Id });
+                    //await messageService.SendBlockKitAsync(turnContext.Activity.Conversation.Id, block);
+                    await turnContext.SendActivityAsync(MessageFactory.Text("Successfully!"), cancellationToken);
                 }
                 catch (JsonException ex)
                 {
@@ -186,15 +189,20 @@
                         await turnContext.SendActivityAsync(MessageFactory.Text(result.Message), cancellationToken);
                     }
                 }
+                else if (turnContext.Activity.Conversation.Id == HraChannelId)
+                {
+                    var fromHrUser = turnContext.Activity.From.Name;
+                    var responseMessage = await messageService.SendMessageFromHRToUserAsync(fromHrUser, trimMessage, accountService);
+
+                    if (!string.IsNullOrEmpty(responseMessage))
+                    {
+                        await turnContext.SendActivityAsync(MessageFactory.Text(responseMessage), cancellationToken);
+                    }
+                }
                 else
                 {
-                    var channelData = turnContext.Activity.ChannelData?.ToString();
-                    if (!string.IsNullOrEmpty(channelData))
-                    {
-                        var slackData = JsonConvert.DeserializeObject<SlackEventPayload>(channelData);
-                        var userId = slackData.SlackMessage.Event.User;
-                        await hrmConnector.SendWebhookN8N(turnContext.Activity.Conversation.Id, userId, trimMessage);
-                    }
+                    var userName = turnContext.Activity.From.Name;
+                    await messageService.SendMessageFromUserToHRAsync(userName, trimMessage, HraChannelId);
                 }
             }
             catch (Exception ex)
@@ -209,9 +217,21 @@
             if (string.IsNullOrEmpty(channelId))
             {
                 return false;
-            }   
+            }
             return channelId.StartsWith("C");
         }
+
+        private async Task HandleN8NWebhookAsync(ITurnContext<IMessageActivity> turnContext, string message)
+        {
+            var channelData = turnContext.Activity.ChannelData?.ToString();
+            if (!string.IsNullOrEmpty(channelData))
+            {
+                var slackData = JsonConvert.DeserializeObject<SlackEventPayload>(channelData);
+                var userId = slackData.SlackMessage.Event.User;
+                await hrmConnector.SendWebhookN8N(turnContext.Activity.Conversation.Id, userId, message);
+            }
+        }
+
     }
 
 }

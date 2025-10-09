@@ -4,12 +4,14 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Bot.Schema;
+    using Newtonsoft.Json;
     using NexBot.Core;
     using NexBot.Core.Models;
     using NexBot.Core.Services.Interfaces;
     using NexBot.Criteria.Conversation;
     using NexBot.Models;
     using NexBot.Models.Request;
+    using NexBot.Models.Slack;
     using NexBot.Services.Interfaces;
     using static System.Text.RegularExpressions.Regex;
 
@@ -27,6 +29,12 @@
             }
             if (activity.ChannelId == Constants.SlackChannel)
             {
+                var channelData = activity.ChannelData?.ToString();
+                if (!string.IsNullOrEmpty(channelData))
+                {
+                    var slackData = JsonConvert.DeserializeObject<SlackEventPayload>(channelData);
+                    firstName = slackData.SlackMessage.Event.User;
+                }
                 userName = Replace(userName, @"\d+", "");
             }
 

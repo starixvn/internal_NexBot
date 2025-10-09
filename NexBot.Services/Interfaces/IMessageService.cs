@@ -41,5 +41,9 @@
         Task SendAttachmentAsync(string conversationId, Attachment attachment);
 
         Task SendBlockKitAsync(string conversationId, object block);
+
+        Task<string> SendMessageFromHRToUserAsync(string fromHRUser, string messageContent, IAccountService accountService);
+
+        Task SendMessageFromUserToHRAsync(string userName, string messageContent, string hrChannelId);
     }
 }

@@ -639,5 +639,71 @@
                 await AddSystemLog(ex.Message);
             }
         }
+
+        public async Task<string> SendMessageFromHRToUserAsync(string fromHrUser, string messageContent, IAccountService accountService)
+        {
+            var (userName, remainingMessage) = ExtractUserNameFromMessage(messageContent);
+
+            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(remainingMessage))
+            {
+                return "Please enter a valid user name and message";
+            }
+
+            var user = await accountService.GetConversationUserByUserName(userName);
+            if (user == null)
+            {
+                return $"Can not find user with user name: {userName}";
+
+            }
+
+            await SendAsync(user.ConversationId, remainingMessage);
+            await AddHRMessageLogAsync(fromHrUser, userName, remainingMessage, true);
+            return string.Empty;
+        }
+
+        public async Task SendMessageFromUserToHRAsync(string userName, string messageContent, string hrChannelId)
+        {
+            await SendAsync(hrChannelId, $"From: {userName}, \nMessage: {messageContent}");
+            await AddHRMessageLogAsync(userName, "hra-message", messageContent, false);
+        }
+
+        private async Task AddHRMessageLogAsync(string fromName, string toName, string messageContent, bool isFromHr)
+        {
+            var criteria = new InsertHRMessageLogCommand
+            {
+                FromName = fromName,
+                ToName = toName,
+                MessageContent = messageContent,
+                IsFromHR = isFromHr
+            };
+
+            await baseService.ExecuteNonQueryAsync(criteria);
+        }
+
+        private (string userName, string remainingMessage) ExtractUserNameFromMessage(string message)
+        {
+            if (string.IsNullOrEmpty(message))
+            {
+                return (string.Empty, string.Empty);
+            }
+
+            if (message.StartsWith("@"))
+            {
+                var spaceIndex = message.IndexOf(' ', 1);
+                if (spaceIndex > 0)
+                {
+                    var userName = message.Substring(1, spaceIndex - 1);
+                    var remainingMessage = message.Substring(spaceIndex + 1).Trim();
+                    return (userName, remainingMessage);
+                }
+                else
+                {
+                    var userName = message.Substring(1);
+                    return (userName, string.Empty);
+                }
+            }
+
+            return (string.Empty, message);
+        }
     }
 }

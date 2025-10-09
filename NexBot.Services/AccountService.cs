@@ -19,6 +19,18 @@
             return conversationUsers.ToList();
         }
 
+        public async Task<ConversationUser> GetConversationUserByUserName(string userName)
+        {
+            var criteria = new GetConversationUserByUserNameCriteria
+            {
+                UserName = userName
+            };
+
+            var conversationUsers = await baseService.GetDataEntityAsync<ConversationUser>(criteria);
+
+            return conversationUsers;
+        }
+
         public async Task<IList<ConversationUser>> GetIgnoredAccountByMessageCategory(int messageCategoryId)
         {
             var criteria = new GetIgnoredAccountByMessageCategoryCriteria
