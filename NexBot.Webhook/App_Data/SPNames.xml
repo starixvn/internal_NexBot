@@ -8,6 +8,7 @@
         <Setting Key="Conversation_InsertByChannelAccount" SpName="Conversation_InsertByChannelAccount" DbName="NexBot" Plain="0"></Setting>
         <Setting Key="ConversationBot_GetById" SpName="ConversationBot_GetById" DbName="NexBot" Plain="0"></Setting>
         <Setting Key="ConversationUser_GetAll" SpName="ConversationUser_GetAll" DbName="NexBot" Plain="0"></Setting>
+        <Setting Key="ConversationUser_GetByUserName" SpName="ConversationUser_GetByUserName" DbName="NexBot" Plain="0"></Setting>
         <Setting Key="Conversation_GetIgnoredAccountByMessageCategory" SpName="Conversation_GetIgnoredAccountByMessageCategory" DbName="NexBot" Plain="0"></Setting>
         <Setting Key="Conversation_GetRegisteredConversationByMessageCategory" SpName="Conversation_GetRegisteredConversationByMessageCategory" DbName="NexBot" Plain="0"></Setting>
     </Function>
@@ -16,7 +17,8 @@
         <Setting Key="GroupUserConversation_RemoveMulti" SpName="GroupUserConversation_RemoveMulti" DbName="NexBot" Plain="0"></Setting>
     </Function>
     <Function Name="Log">
-        <Setting Key="MessageLog_Insert" SpName="MessageLog_Insert" DbName="NexBot" Plain="0"></Setting>
+		<Setting Key="MessageLog_Insert" SpName="MessageLog_Insert" DbName="NexBot" Plain="0"></Setting>
+		<Setting Key="HRMessageLog_Insert" SpName="HRMessageLog_Insert" DbName="NexBot" Plain="0"></Setting>
         <Setting Key="ErrorMessageLog_Insert" SpName="ErrorMessageLog_Insert" DbName="NexBot" Plain="0"></Setting>
         <Setting Key="ErrorMessageLog_Get" SpName="ErrorMessageLog_Get" DbName="NexBot" Plain="0"></Setting>
         <Setting Key="SystemLog_Insert" SpName="SystemLog_Insert" DbName="NexBot" Plain="0"></Setting>

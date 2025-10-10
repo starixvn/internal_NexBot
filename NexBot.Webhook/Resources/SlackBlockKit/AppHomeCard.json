@@ -26,6 +26,69 @@
                 }
             },
             {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": " "
+                }
+            },
+            {
+                "type": "divider"
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": " "
+                }
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "*:loudspeaker:  Need quick help from HR & ADM Team?*\nSubmit a support ticket and we'll get back to you within 24 hours."
+                }
+            },
+            {
+                "type": "actions",
+                "elements": [
+                    {
+                        "type": "button",
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Create ticket",
+                            "emoji": true
+                        },
+                        "style": "primary",
+                        "url": "https://slack.com/shortcuts/Ft09JY7ARPDW/caf1a66bd618272bf98a0fdf37bb51aa"
+                    }
+                ]
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": " "
+                }
+            },
+            {
+                "type": "divider"
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": " "
+                }
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": ":speech_balloon:  *If you need further assistance*\nPlease go to the *Messages* to get support from our team."
+                }
+            },
+            {
                 "type": "actions",
                 "elements": [
                     {

@@ -31,7 +31,7 @@
 #pragma warning restore S107 // Methods should not have too many parameters
     {
         private const string BotNameIgnoreMsg = "Terra-Bot";
-        private const string HraChannelId = "B08HJT3E2D8:T08ACMHMMFS:C09K28S6WK0";
+        private const string HraChannelId = "B08J3UJ8WMA:T08ACMHMMFS:C09KS77V3SN";
 
         protected override async Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -190,7 +190,7 @@
                 else if (turnContext.Activity.Conversation.Id == HraChannelId)
                 {
                     var fromHrUser = turnContext.Activity.From.Name;
-                    var responseMessage = await messageService.SendMessageFromHRToUserAsync(fromHrUser, trimMessage, accountService);
+                    var responseMessage = await messageService.SendMessageFromHRToUserAsync(fromHrUser, turnContext.Activity.Text.Trim(), accountService);
 
                     if (!string.IsNullOrEmpty(responseMessage))
                     {

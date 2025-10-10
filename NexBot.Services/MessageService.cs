@@ -663,8 +663,8 @@
 
         public async Task SendMessageFromUserToHRAsync(string userName, string messageContent, string hrChannelId)
         {
-            await SendAsync(hrChannelId, $"From: {userName}, \nMessage: {messageContent}");
-            await AddHRMessageLogAsync(userName, "hra-message", messageContent, false);
+            await SendAsync(hrChannelId, $"From: {userName}\nMessage: {messageContent}");
+            await AddHRMessageLogAsync(userName, "hra-buddy", messageContent, false);
         }
 
         private async Task AddHRMessageLogAsync(string fromName, string toName, string messageContent, bool isFromHr)
