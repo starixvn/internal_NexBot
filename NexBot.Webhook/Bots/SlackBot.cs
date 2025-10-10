@@ -199,6 +199,11 @@
                 }
                 else
                 {
+                    // Ignore message from other channels
+                    if (turnContext.Activity.Conversation.Id.StartsWith("B08J3UJ8WMA:T08ACMHMMFS:C"))
+                    {
+                        return;
+                    }
                     var userName = turnContext.Activity.From.Name;
                     await messageService.SendMessageFromUserToHRAsync(userName, trimMessage, HraChannelId);
                 }
