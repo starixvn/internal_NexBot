@@ -162,6 +162,8 @@
             try
             {
                 var trimMessage = turnContext.Activity.Text.Trim();
+                var attachments = turnContext.Activity.Attachments;
+                var fromName = turnContext.Activity.From.Name;
 
                 if (turnContext.Activity.Conversation.IsGroup == true)
                 {
@@ -189,8 +191,7 @@
                 }
                 else if (turnContext.Activity.Conversation.Id == HraChannelId)
                 {
-                    var fromHrUser = turnContext.Activity.From.Name;
-                    var responseMessage = await messageService.SendMessageFromHRToUserAsync(fromHrUser, turnContext.Activity.Text.Trim(), accountService);
+                    var responseMessage = await messageService.SendMessageFromHRToUserAsync(fromName, turnContext.Activity.Text.Trim(), accountService, attachments);
 
                     if (!string.IsNullOrEmpty(responseMessage))
                     {
@@ -204,8 +205,7 @@
                     {
                         return;
                     }
-                    var userName = turnContext.Activity.From.Name;
-                    await messageService.SendMessageFromUserToHRAsync(userName, trimMessage, HraChannelId);
+                    await messageService.SendMessageFromUserToHRAsync(fromName, trimMessage, HraChannelId, attachments);
                 }
             }
             catch (Exception ex)
