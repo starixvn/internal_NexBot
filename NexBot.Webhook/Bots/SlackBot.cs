@@ -65,6 +65,7 @@
             var botName = turnContext.Activity.Recipient?.Name ?? string.Empty;
             var message = turnContext.Activity.Text?.Trim() ?? string.Empty;
             var conversationId = turnContext.Activity.Conversation.Id;
+            var attachments = turnContext.Activity.Attachments;
 
             if (turnContext.Activity.Conversation.IsGroup == true)
             {
@@ -119,6 +120,11 @@
                             await HandlerOtherMessages(turnContext, cancellationToken);
                             break;
                     }
+                }
+
+                if (attachments != null && attachments.Any())
+                {
+                    await HandlerOtherMessages(turnContext, cancellationToken);
                 }
             }
         }
