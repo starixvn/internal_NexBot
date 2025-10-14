@@ -78,24 +78,23 @@
                 if (conversationModel is null)
                 {
                     logProviderService.LogFileMessage($"============= ConversationID: {conversationId}. does not existed ==================");
+                    return;
                 }
-                else
+
+                var conversationInfo = GetConversationReference(conversationModel);
+                var activity = CreateMessageActivity(conversationInfo);
+                activity.Text = messageText;
+
+                if (attachments != null)
                 {
-                    var conversationInfo = GetConversationReference(conversationModel);
-                    var activity = CreateMessageActivity(conversationInfo);
-                    activity.Text = messageText;
-
-                    if (attachments != null && attachments.Any())
+                    foreach (var attachment in attachments)
                     {
-                        foreach (var attachment in attachments)
-                        {
-                            activity.Attachments.Add(attachment);
-                        }
+                        activity.Attachments.Add(attachment);
                     }
-
-                    await SendMessageAsync(conversationInfo, activity);
-                    await AddMessageLog(activity, messageText);
                 }
+
+                await SendMessageAsync(conversationInfo, activity);
+                await AddMessageLog(activity, messageText);
             }
             catch (Exception ex)
             {
