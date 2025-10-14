@@ -123,6 +123,12 @@
             return commandResult;
         }
 
+        public async Task SendWebhookN8N(string conversationId, string userId, string message)
+        {
+            var url = $"https://n8n.dearhoney.vn/webhook/4f40ebd8-ee82-4484-8cf2-db2246b8cb1e?conversationId={conversationId}&userId={userId}&message={message}";
+            await SendHttpRequestAsync<CommandResult>(url, HttpMethod.Get);
+        }
+
         #region Base Send Request
 
         private async Task<T> SendAsync<T>(string baseUrl, string pathUrl, HttpMethod method)
@@ -160,6 +166,15 @@
             }
         }
 
+        private async Task<T> SendHttpRequestAsync<T>(string url, HttpMethod method)
+        {
+            var httpClient = httpClientFactory.CreateClient();
+            using var request = new HttpRequestMessage(method, url);
+            using var response = await httpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            var jsonResult = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<T>(jsonResult);
+        }
         #endregion Base Send Request
     }
 }

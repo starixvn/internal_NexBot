@@ -18,5 +18,7 @@
         Task<CommandResult> SubmitCheckInCheckOutRecord(CheckInCheckOutFormData request);
 
         Task<CommandResult> MappingConversation(MappingConversationRequest request);
+
+        Task SendWebhookN8N(string conversationId, string userId, string message);
     }
 }

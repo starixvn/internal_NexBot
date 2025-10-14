@@ -69,24 +69,32 @@
             }
         }
 
-        public async Task SendAsync(string conversationId, string messageText)
+        public async Task SendAsync(string conversationId, string messageText, IList<Attachment> attachments = null)
         {
-            logProviderService.LogFileMessage($"============= SendAsync: ConversationID: {conversationId}. Text = {messageText}==================");
+            logProviderService.LogFileMessage($"============= SendAsync: ConversationID: {conversationId}. Text = {messageText}. Attachments: {attachments?.Count ?? 0}==================");
             try
             {
                 var conversationModel = await conversationService.GetConversationById(conversationId);
                 if (conversationModel is null)
                 {
                     logProviderService.LogFileMessage($"============= ConversationID: {conversationId}. does not existed ==================");
+                    return;
                 }
-                else
+
+                var conversationInfo = GetConversationReference(conversationModel);
+                var activity = CreateMessageActivity(conversationInfo);
+                activity.Text = messageText;
+
+                if (attachments != null)
                 {
-                    var conversationInfo = GetConversationReference(conversationModel);
-                    var activity = CreateMessageActivity(conversationInfo);
-                    activity.Text = messageText;
-                    await SendMessageAsync(conversationInfo, activity);
-                    await AddMessageLog(activity, messageText);
+                    foreach (var attachment in attachments)
+                    {
+                        activity.Attachments.Add(attachment);
+                    }
                 }
+
+                await SendMessageAsync(conversationInfo, activity);
+                await AddMessageLog(activity, messageText);
             }
             catch (Exception ex)
             {
@@ -638,6 +646,85 @@
             {
                 await AddSystemLog(ex.Message);
             }
+        }
+
+        public async Task<string> SendMessageFromHRToUserAsync(string fromHrUser, string messageContent, IAccountService accountService, IList<Attachment> attachments = null)
+        {
+            var (userName, remainingMessage) = ExtractUserNameFromMessage(messageContent);
+
+            if (string.IsNullOrEmpty(userName))
+            {
+                return "Please tag a user name to send message";
+            }
+
+            if (string.IsNullOrEmpty(remainingMessage) && (attachments == null || !attachments.Any()))
+            {
+                return "Please enter a message or attachments";
+            }
+
+            var user = await accountService.GetConversationUserByUserName(userName);
+            if (user == null)
+            {
+                return $"Can not find user with user name: '{userName}'";
+            }
+
+            await SendAsync(user.ConversationId, remainingMessage, attachments);
+            await AddHRMessageLogAsync(fromHrUser, userName, remainingMessage, attachments, true);
+            return string.Empty;
+        }
+
+        public async Task SendMessageFromUserToHRAsync(string userName, string messageContent, string hrChannelId, IList<Attachment> attachments = null)
+        {
+            var messageToSend = $"From: {userName}\nMessage: {messageContent}";
+            await SendAsync(hrChannelId, messageToSend, attachments);
+            await AddHRMessageLogAsync(userName, "hra-buddy", messageToSend, attachments, false);
+        }
+
+        private async Task AddHRMessageLogAsync(string fromName, string toName, string messageContent, IList<Attachment> attachments, bool isFromHr)
+        {
+            if (attachments != null && attachments.Any())
+            {
+                foreach (var attachment in attachments)
+                {
+                    messageContent += $"\n[{attachment.ContentUrl}]";
+                }
+            }
+
+            var criteria = new InsertHRMessageLogCommand
+            {
+                FromName = fromName,
+                ToName = toName,
+                MessageContent = messageContent,
+                IsFromHR = isFromHr
+            };
+
+            await baseService.ExecuteNonQueryAsync(criteria);
+        }
+
+        private (string userName, string remainingMessage) ExtractUserNameFromMessage(string message)
+        {
+            if (string.IsNullOrEmpty(message))
+            {
+                return (string.Empty, string.Empty);
+            }
+
+            if (message.StartsWith('@'))
+            {
+                var spaceIndex = message.IndexOf(' ', 1);
+                if (spaceIndex > 0)
+                {
+                    var userName = message.Substring(1, spaceIndex - 1);
+                    var remainingMessage = message.Substring(spaceIndex + 1).Trim();
+                    return (userName, remainingMessage);
+                }
+                else
+                {
+                    var userName = message.Substring(1);
+                    return (userName, string.Empty);
+                }
+            }
+
+            return (string.Empty, message);
         }
     }
 }

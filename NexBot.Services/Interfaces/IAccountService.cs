@@ -7,6 +7,8 @@
     public interface IAccountService
     {
         Task<IList<ConversationUser>> GetAllConversationUser();
+        
+        Task<ConversationUser> GetConversationUserByUserName(string userName);
 
         Task<IList<ConversationUser>> GetIgnoredAccountByMessageCategory(int messageCategoryId);
 

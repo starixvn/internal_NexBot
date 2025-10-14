@@ -1,8 +1,8 @@
 ﻿namespace NexBot.Bots
 {
     using System;
-    using System.IO;
     using System.Linq;
+    using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Bot.Builder;
@@ -17,17 +17,21 @@
     using NexBot.Services.Interfaces;
     using Newtonsoft.Json;
 
+#pragma warning disable S107 // Methods should not have too many parameters
     public class SlackBot(
         IMessageService messageService,
         IRegisterMessageService registerMessageService,
         ILogProviderService logProviderService,
         IConversationService conversationService,
         IFormAdaptiveCardService formAdaptiveCardService,
-        ISlackBotHandler slackBotHandler)
+        IAccountService accountService,
+        ISlackBotHandler slackBotHandler,
+        IHRMConnector hrmConnector)
         : ActivityHandler, ISlackBot
+#pragma warning restore S107 // Methods should not have too many parameters
     {
-        private const string DefaultReplyMessage = "Not supported command, type **help** to view available supported commands. Thanks & have a nice day";
         private const string BotNameIgnoreMsg = "Terra-Bot";
+        private const string HraChannelId = "B08J3UJ8WMA:T08ACMHMMFS:C09KS77V3SN";
 
         protected override async Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -43,7 +47,7 @@
                         {
                             UserId = slackData.SlackMessage.Event.User,
                             ApiToken = slackData.ApiToken
-                        };  
+                        };
                         await slackBotHandler.PublishAppHomeView(payload);
                         await conversationService.AddConversationAsync(turnContext.Activity);
                     }
@@ -61,6 +65,7 @@
             var botName = turnContext.Activity.Recipient?.Name ?? string.Empty;
             var message = turnContext.Activity.Text?.Trim() ?? string.Empty;
             var conversationId = turnContext.Activity.Conversation.Id;
+            var attachments = turnContext.Activity.Attachments;
 
             if (turnContext.Activity.Conversation.IsGroup == true)
             {
@@ -78,7 +83,7 @@
             {
                 if (!string.IsNullOrEmpty(message))
                 {
- 
+
                     switch (message.ToLowerInvariant())
                     {
                         case InteractedCommand.getid:
@@ -95,26 +100,31 @@
                             await AddConversationAsync(turnContext, cancellationToken);
                             break;
 
+                        case InteractedCommand.regist_category:
+                            await HandleRegistCategoryCommandAsync(conversationId);
+                            break;
+
                         case InteractedCommand.help:
                             await turnContext.SendActivityAsync(MessageFactory.Text("This feature is coming soon!"), cancellationToken);
                             break;
 
                         case InteractedCommand.checkin_checkout_form:
-                            var block = await formAdaptiveCardService.GetCheckInCheckOutBlockKitForm(botId, "", conversationId);
-                            if (block != null)
-                            {
-                                await messageService.SendBlockKitAsync(conversationId, block);
-                            }
-                            else
-                            {
-                                await messageService.SendAsync(conversationId, "Something wrong! Please try again or check with admin");
-                            }
+                            await HandleCheckInCheckOutFormCommandAsync(botId, conversationId);
+                            break;
+
+                        case InteractedCommand.n8n:
+                            await HandleN8NWebhookAsync(turnContext, message);
                             break;
 
                         default:
                             await HandlerOtherMessages(turnContext, cancellationToken);
                             break;
                     }
+                }
+
+                if (attachments != null && attachments.Any())
+                {
+                    await HandlerOtherMessages(turnContext, cancellationToken);
                 }
             }
         }
@@ -144,10 +154,7 @@
                     };
 
                     await conversationService.AddConversationAsync(command);
-                    var block = SlackBlockKitHelper.GenerateSlackBlockKit(
-                        Path.Combine(".", "Resources", "SlackBlockKit", "RegistCategoryMessageCard.json"),
-                        new { ConversationId = turnContext.Activity.Conversation.Id });
-                    await messageService.SendBlockKitAsync(turnContext.Activity.Conversation.Id, block);
+                    await turnContext.SendActivityAsync(MessageFactory.Text("Successfully!"), cancellationToken);
                 }
                 catch (JsonException ex)
                 {
@@ -161,6 +168,8 @@
             try
             {
                 var trimMessage = turnContext.Activity.Text.Trim();
+                var attachments = turnContext.Activity.Attachments;
+                var fromName = turnContext.Activity.From.Name;
 
                 if (turnContext.Activity.Conversation.IsGroup == true)
                 {
@@ -186,12 +195,24 @@
                         await turnContext.SendActivityAsync(MessageFactory.Text(result.Message), cancellationToken);
                     }
                 }
-                //else
-                //{
-                //    var replyMsg = MessageFactory.Text(DefaultReplyMessage);
-                //    replyMsg.TextFormat = "markdown";
-                //    await turnContext.SendActivityAsync(replyMsg, cancellationToken);
-                //}
+                else if (turnContext.Activity.Conversation.Id == HraChannelId)
+                {
+                    var responseMessage = await messageService.SendMessageFromHRToUserAsync(fromName, turnContext.Activity.Text.Trim(), accountService, attachments);
+
+                    if (!string.IsNullOrEmpty(responseMessage))
+                    {
+                        await turnContext.SendActivityAsync(MessageFactory.Text(responseMessage), cancellationToken);
+                    }
+                }
+                else
+                {
+                    // Ignore message from other channels
+                    if (turnContext.Activity.Conversation.Id.StartsWith("B08J3UJ8WMA:T08ACMHMMFS:C"))
+                    {
+                        return;
+                    }
+                    await messageService.SendMessageFromUserToHRAsync(fromName, trimMessage, HraChannelId, attachments);
+                }
             }
             catch (Exception ex)
             {
@@ -205,9 +226,42 @@
             if (string.IsNullOrEmpty(channelId))
             {
                 return false;
-            }   
+            }
             return channelId.StartsWith("C");
         }
+
+        private async Task HandleRegistCategoryCommandAsync(string conversationId)
+        {
+            var block = SlackBlockKitHelper.GenerateSlackBlockKit(
+                Path.Combine(".", "Resources", "SlackBlockKit", "RegistCategoryMessageCard.json"),
+                new { ConversationId = conversationId });
+            await messageService.SendBlockKitAsync(conversationId, block);
+        }
+
+        private async Task HandleCheckInCheckOutFormCommandAsync(string botId, string conversationId)
+        {
+            var block = await formAdaptiveCardService.GetCheckInCheckOutBlockKitForm(botId, "", conversationId);
+            if (block != null)
+            {
+                await messageService.SendBlockKitAsync(conversationId, block);
+            }
+            else
+            {
+                await messageService.SendAsync(conversationId, "Something wrong! Please try again or check with admin");
+            }
+        }
+
+        private async Task HandleN8NWebhookAsync(ITurnContext<IMessageActivity> turnContext, string message)
+        {
+            var channelData = turnContext.Activity.ChannelData?.ToString();
+            if (!string.IsNullOrEmpty(channelData))
+            {
+                var slackData = JsonConvert.DeserializeObject<SlackEventPayload>(channelData);
+                var userId = slackData.SlackMessage.Event.User;
+                await hrmConnector.SendWebhookN8N(turnContext.Activity.Conversation.Id, userId, message);
+            }
+        }
+
     }
 
 }

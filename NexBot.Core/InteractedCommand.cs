@@ -10,7 +10,11 @@
 
         public const string regist = "regist";
 
+        public const string regist_category = "regist_category";
+
         public const string checkin_checkout_form = "checkin_checkout_form";
+
+        public const string n8n = "n8n";
 
         public const string stop_remind_vegetarian_meal = "stop_remind_vegetarian_meal";
 

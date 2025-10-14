@@ -1,5 +1,6 @@
 ﻿namespace NexBot.Services.Interfaces
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Microsoft.Bot.Schema;
     using NexBot.Models;
@@ -8,7 +9,7 @@
 
     public interface IMessageService
     {
-        Task SendAsync(string conversationId, string messageText);
+        Task SendAsync(string conversationId, string messageText, IList<Attachment> attachments = null);
 
         Task SendRequestAsync(RequestMessage requestMessage);
 
@@ -41,5 +42,9 @@
         Task SendAttachmentAsync(string conversationId, Attachment attachment);
 
         Task SendBlockKitAsync(string conversationId, object block);
+
+        Task<string> SendMessageFromHRToUserAsync(string fromHrUser, string messageContent, IAccountService accountService, IList<Attachment> attachments = null);
+
+        Task SendMessageFromUserToHRAsync(string userName, string messageContent, string hrChannelId, IList<Attachment> attachments = null);
     }
 }
