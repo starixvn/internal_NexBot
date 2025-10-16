@@ -8,6 +8,7 @@
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
+    using NexBot.Core;
     using NexBot.Core.Models;
     using NexBot.Models.Form;
     using NexBot.Models.Request;
@@ -104,6 +105,16 @@
         public async Task<CommandResult> MappingConversation(MappingConversationRequest request)
         {
             CommandResult commandResult;
+
+            if (request.BotName == BotNameConstants.HrAssistant)
+            {
+                return new CommandResult
+                {
+                    Code = 0,
+                    Message = "This bot is not supported"
+                };
+            }
+
             var baseUrl = applicationSetting.GetHrmUrl(request.BotId);
             var url = $"Employee/MappingConversation?conversationId={request.ConversationId}&username={request.Username}";
 
@@ -123,9 +134,9 @@
             return commandResult;
         }
 
-        public async Task SendWebhookN8N(string conversationId, string userId, string message)
+        public async Task SendWebhookN8N(string userName,string conversationId, string userId, string message)
         {
-            var url = $"https://n8n.dearhoney.vn/webhook/4f40ebd8-ee82-4484-8cf2-db2246b8cb1e?conversationId={conversationId}&userId={userId}&message={message}";
+            var url = $"https://n8n.dearhoney.vn/webhook/4f40ebd8-ee82-4484-8cf2-db2246b8cb1e?userName={userName}&conversationId={conversationId}&userId={userId}&message={message}";
             await SendHttpRequestAsync<CommandResult>(url, HttpMethod.Get);
         }
 

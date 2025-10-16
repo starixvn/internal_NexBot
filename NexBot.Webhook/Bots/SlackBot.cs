@@ -31,7 +31,6 @@
 #pragma warning restore S107 // Methods should not have too many parameters
     {
         private const string HraChannelId = "B08J3UJ8WMA:T08ACMHMMFS:C09KS77V3SN";
-        private const string HrAssistantBotName = "hr_assistant";
 
         protected override async Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -72,7 +71,7 @@
                 message = BotHelper.GetMessageInGroupByChannel(message, turnContext.Activity.ChannelId, botName);
             }
 
-            if (botName.Equals(HrAssistantBotName, StringComparison.OrdinalIgnoreCase))
+            if (botName.Equals(BotNameConstants.HrAssistant, StringComparison.OrdinalIgnoreCase))
             {
                 await HandleN8NWebhookAsync(turnContext, message);
                 return;
@@ -246,7 +245,7 @@
             {
                 var slackData = JsonConvert.DeserializeObject<SlackEventPayload>(channelData);
                 var userId = slackData.SlackMessage.Event.User;
-                await hrmConnector.SendWebhookN8N(turnContext.Activity.Conversation.Id, userId, message);
+                await hrmConnector.SendWebhookN8N(turnContext.Activity.From.Name, turnContext.Activity.Conversation.Id, userId, message);
             }
         }
 

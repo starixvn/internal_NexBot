@@ -14,8 +14,6 @@
 
         public const string checkin_checkout_form = "checkin_checkout_form";
 
-        public const string n8n = "n8n";
-
         public const string stop_remind_vegetarian_meal = "stop_remind_vegetarian_meal";
 
         public const string start_remind_vegetarian_meal = "start_remind_vegetarian_meal";

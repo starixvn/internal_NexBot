@@ -58,6 +58,7 @@
                 await hrmConnector.MappingConversation(new MappingConversationRequest
                 {
                     BotId = activity.Recipient.Id,
+                    BotName = activity.Recipient.Name,
                     ConversationId = activity.Conversation.Id,
                     Username = userName
                 });
@@ -72,6 +73,7 @@
                 await hrmConnector.MappingConversation(new MappingConversationRequest
                 {
                     BotId = command.ConversationBotId,
+                    BotName = command.ConversationBotName,
                     ConversationId = command.ConversationId,
                     Username = command.UserName
                 });
