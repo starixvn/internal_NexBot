@@ -39,5 +39,7 @@
         public string AvatarUrl { get; set; }
 
         public bool IsReadOnly { get; set; }
+
+        public bool IsDepartmentView { get; set; }
     }
 }

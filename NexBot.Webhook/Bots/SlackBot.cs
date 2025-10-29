@@ -30,7 +30,6 @@
         : ActivityHandler, ISlackBot
 #pragma warning restore S107 // Methods should not have too many parameters
     {
-        private const string BotNameIgnoreMsg = "Terra-Bot";
         private const string HraChannelId = "B08J3UJ8WMA:T08ACMHMMFS:C09KS77V3SN";
 
         protected override async Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
@@ -72,60 +71,48 @@
                 message = BotHelper.GetMessageInGroupByChannel(message, turnContext.Activity.ChannelId, botName);
             }
 
-            if (botName.Equals(BotNameIgnoreMsg))
+            if (botName.Equals(BotNameConstants.HrAssistant, StringComparison.OrdinalIgnoreCase))
             {
-                if (message.Equals(InteractedCommand.getid, StringComparison.OrdinalIgnoreCase))
-                {
-                    await turnContext.SendActivityAsync(MessageFactory.Text(botId), cancellationToken);
-                }
+                await HandleN8NWebhookAsync(turnContext, message);
+                return;
             }
-            else
+
+            if (!string.IsNullOrEmpty(message))
             {
-                if (!string.IsNullOrEmpty(message))
+                switch (message.ToLowerInvariant())
                 {
+                    case InteractedCommand.getid:
+                        var replyMsg = $"Your conversationId: {conversationId}";
+                        await turnContext.SendActivityAsync(MessageFactory.Text(replyMsg), cancellationToken);
+                        break;
 
-                    switch (message.ToLowerInvariant())
-                    {
-                        case InteractedCommand.getid:
-                            var replyMsg = $"Your conversationId: {conversationId}";
-                            await turnContext.SendActivityAsync(MessageFactory.Text(replyMsg), cancellationToken);
-                            break;
+                    case InteractedCommand.getbot:
+                        var botInfo = $"BotId: {botId}, BotName: {botName}";
+                        await turnContext.SendActivityAsync(MessageFactory.Text(botInfo), cancellationToken);
+                        break;
 
-                        case InteractedCommand.getbot:
-                            var botInfo = $"BotId: {botId}, BotName: {botName}";
-                            await turnContext.SendActivityAsync(MessageFactory.Text(botInfo), cancellationToken);
-                            break;
+                    case InteractedCommand.regist:
+                        await AddConversationAsync(turnContext, cancellationToken);
+                        break;
 
-                        case InteractedCommand.regist:
-                            await AddConversationAsync(turnContext, cancellationToken);
-                            break;
+                    case InteractedCommand.regist_category:
+                        await HandleRegistCategoryCommandAsync(conversationId);
+                        break;
 
-                        case InteractedCommand.regist_category:
-                            await HandleRegistCategoryCommandAsync(conversationId);
-                            break;
+                    case InteractedCommand.checkin_checkout_form:
+                        await HandleCheckInCheckOutFormCommandAsync(botId, conversationId);
+                        break;
 
-                        case InteractedCommand.help:
-                            await turnContext.SendActivityAsync(MessageFactory.Text("This feature is coming soon!"), cancellationToken);
-                            break;
-
-                        case InteractedCommand.checkin_checkout_form:
-                            await HandleCheckInCheckOutFormCommandAsync(botId, conversationId);
-                            break;
-
-                        case InteractedCommand.n8n:
-                            await HandleN8NWebhookAsync(turnContext, message);
-                            break;
-
-                        default:
-                            await HandlerOtherMessages(turnContext, cancellationToken);
-                            break;
-                    }
+                    default:
+                        await HandlerOtherMessages(turnContext, cancellationToken);
+                        break;
                 }
+                return;
+            }
 
-                if (attachments != null && attachments.Any())
-                {
-                    await HandlerOtherMessages(turnContext, cancellationToken);
-                }
+            if (attachments != null && attachments.Any())
+            {
+                await HandlerOtherMessages(turnContext, cancellationToken);
             }
         }
 
@@ -207,7 +194,7 @@
                 else
                 {
                     // Ignore message from other channels
-                    if (turnContext.Activity.Conversation.Id.StartsWith("B08J3UJ8WMA:T08ACMHMMFS:C"))
+                    if (turnContext.Activity.Conversation.Id.StartsWith("B08J3UJ8WMA:T08ACMHMMFS:C") || fromName == "slackbot")
                     {
                         return;
                     }
@@ -258,7 +245,7 @@
             {
                 var slackData = JsonConvert.DeserializeObject<SlackEventPayload>(channelData);
                 var userId = slackData.SlackMessage.Event.User;
-                await hrmConnector.SendWebhookN8N(turnContext.Activity.Conversation.Id, userId, message);
+                await hrmConnector.SendWebhookN8N(turnContext.Activity.From.Name, turnContext.Activity.Conversation.Id, userId, message);
             }
         }
 
