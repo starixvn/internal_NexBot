@@ -135,15 +135,7 @@
                 var conversation = await conversationService.GetConversationById(requestMessage.ConversationId);
                 var conversationReference = GetConversationReference(conversation);
                 var activity = CreateMessageActivity(conversationReference);
-                string fileName;
-                if (requestMessage.RequestType.Equals("leave"))
-                {
-                    fileName = requestMessage.IsReadOnly ? "LeaveRequestReadOnlyCard.json" : "LeaveRequestCard.json";
-                }
-                else
-                {
-                    fileName = "CheckInOutRequestCard.json";
-                }
+                var fileName = GetRequestCardFileName(requestMessage);
 
                 if (!string.IsNullOrEmpty(requestMessage.Message))
                 {
@@ -199,6 +191,29 @@
 
             var attachment = heroCard.ToAttachment();
             return attachment;
+        }
+
+        private static string GetRequestCardFileName(RequestMessage requestMessage)
+        {
+            const string LeaveRequestDepartmentCard = "LeaveRequestDepartmentCard.json";
+            const string CheckInOutRequestDepartmentCard = "CheckInOutRequestDepartmentCard.json";
+            const string LeaveRequestReadOnlyCard = "LeaveRequestReadOnlyCard.json";
+            const string LeaveRequestCard = "LeaveRequestCard.json";
+            const string CheckInOutRequestCard = "CheckInOutRequestCard.json";
+
+            var isLeaveRequest = requestMessage.RequestType.Equals("leave");
+
+            if (requestMessage.IsDepartmentView)
+            {
+                return isLeaveRequest ? LeaveRequestDepartmentCard : CheckInOutRequestDepartmentCard;
+            }
+
+            if (isLeaveRequest)
+            {
+                return requestMessage.IsReadOnly ? LeaveRequestReadOnlyCard : LeaveRequestCard;
+            }
+
+            return CheckInOutRequestCard;
         }
 
         private static Attachment GetAttachmentForRegistMeal(RegistVegetarianMealMessage registVegetarianMessage)
